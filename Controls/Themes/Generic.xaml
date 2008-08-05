@@ -1,0 +1,602 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:Confabulation.Controls">
+
+    <!--<ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="Vista.xaml"/>
+    </ResourceDictionary.MergedDictionaries>-->
+
+    <Style x:Key="buttonFocusVisual">
+        <Setter Property="Control.Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <Rectangle SnapsToDevicePixels="true" Margin="2" Stroke="Black" StrokeDashArray="1 2" StrokeThickness="1"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="outerBorderNormal" TargetType="{x:Type Border}">
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="2"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="BorderBrush" Value="Transparent"/>
+        <Setter Property="Background" Value="Transparent"/>
+    </Style>
+    <Style x:Key="outerBorderHover" TargetType="{x:Type Border}" BasedOn="{StaticResource outerBorderNormal}">
+        <Setter Property="BorderBrush" Value="#66000000"/>
+        <Setter Property="Background" Value="Transparent"/>
+    </Style>
+    <Style x:Key="outerBorderPressed" TargetType="{x:Type Border}" BasedOn="{StaticResource outerBorderNormal}">
+        <Setter Property="BorderBrush" Value="#66000000"/>
+        <Setter Property="Background" Value="#33000000"/>
+    </Style>
+    <Style x:Key="outerBorderDefaulted" TargetType="{x:Type Border}" BasedOn="{StaticResource outerBorderNormal}">
+        <Setter Property="BorderBrush" Value="#33000000"/>
+        <Setter Property="Background" Value="Transparent"/>
+    </Style>
+
+    <Style x:Key="innerBorderNormal" TargetType="{x:Type Border}">
+        <Setter Property="Padding" Value="3"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="2"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="BorderBrush" Value="Transparent"/>
+        <Setter Property="Background" Value="Transparent"/>
+    </Style>
+    <Style x:Key="innerBorderHover" TargetType="{x:Type Border}" BasedOn="{StaticResource innerBorderNormal}">
+        <Setter Property="BorderBrush">
+            <Setter.Value>
+                <LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
+                    <GradientStop Color="#00FFFFFF" Offset="0"/>
+                    <GradientStop Color="#7FFFFFFF" Offset="0.1"/>
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Background">
+            <Setter.Value>
+                <LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
+                    <GradientStop Color="#66FFFFFF" Offset="0"/>
+                    <GradientStop Color="#00FFFFFF" Offset="1"/>
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="innerBorderPressed" TargetType="{x:Type Border}" BasedOn="{StaticResource innerBorderNormal}">
+        <Setter Property="BorderBrush" Value="{x:Null}"/>
+        <Setter Property="Background" Value="{x:Null}"/>
+    </Style>
+    <Style x:Key="innerBorderDefaulted" TargetType="{x:Type Border}" BasedOn="{StaticResource innerBorderPressed}"/>
+
+    <Style x:Key="{ComponentResourceKey {x:Type local:ControlResources}, vistaToolBarButtonStyle}"
+           TargetType="{x:Type ButtonBase}">
+        <Setter Property="FocusVisualStyle" Value="{StaticResource buttonFocusVisual}"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Padding" Value="4,0,4,0"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ButtonBase}">
+                    <StackPanel>
+                        <Border x:Name="outerBorder" Style="{StaticResource outerBorderNormal}">
+                            <Border x:Name="innerBorder" Style="{StaticResource innerBorderNormal}">
+                                <ContentPresenter RecognizesAccessKey="True"/>
+                            </Border>
+                        </Border>
+                        <!--<Border Padding="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                <ContentPresenter
+								    Margin="{TemplateBinding Padding}"
+								    RecognizesAccessKey="True"
+								    />
+                            </Border>-->
+                    </StackPanel>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Style" TargetName="outerBorder" Value="{StaticResource outerBorderHover}"/>
+                            <Setter Property="Style" TargetName="innerBorder" Value="{StaticResource innerBorderHover}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter Property="Style" TargetName="outerBorder" Value="{StaticResource outerBorderPressed}"/>
+                            <Setter Property="Style" TargetName="innerBorder" Value="{StaticResource innerBorderPressed}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="false">
+                            <Setter Property="Foreground" Value="#ADADAD"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <LinearGradientBrush x:Key="{ComponentResourceKey {x:Type local:ControlResources}, vistaToolBarBackgroundBrush}"
+                         EndPoint="0.5,1"
+                         StartPoint="0.5,0">
+        <GradientStop Color="#FF9EDCFA" Offset="0"/>
+        <GradientStop Color="#FF2B87C2" Offset="0.5"/>
+        <GradientStop Color="#FF015994" Offset="0.5"/>
+        <GradientStop Color="#FF2676A7" Offset="0.9"/>
+        <GradientStop Color="#FF77AAC5" Offset="1"/>
+    </LinearGradientBrush>
+    
+    <SolidColorBrush x:Key="vistaToolBarOuterBorderBrush" Color="#707070"/>
+    <SolidColorBrush x:Key="vistaToolBarInnerBorderBrush" Color="White" Opacity="0.4"/>
+
+    <Style x:Key="{ComponentResourceKey {x:Type local:ControlResources}, vistaToolBarStyle}"
+           TargetType="{x:Type ToolBar}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ToolBar}">
+                    <Border BorderThickness="0,0,0,1"
+                            BorderBrush="{StaticResource vistaToolBarOuterBorderBrush}"
+                            Background="{DynamicResource {ComponentResourceKey {x:Type local:ControlResources}, vistaToolBarBackgroundBrush}}">
+                        <Border x:Name="Border"
+                            CornerRadius="1"
+                            BorderThickness="1"
+                            BorderBrush="{StaticResource vistaToolBarInnerBorderBrush}">
+                            <DockPanel>
+                                <ToggleButton DockPanel.Dock="Right"
+                                              IsEnabled="{TemplateBinding HasOverflowItems}"
+                                              Style="{DynamicResource {x:Static local:ControlResources.VistaToolBarButtonKey}}"
+                                              IsChecked="{Binding Path=IsOverflowOpen,Mode=TwoWay,RelativeSource={RelativeSource TemplatedParent}}"
+                                              ClickMode="Press">
+                                    <Popup x:Name="OverflowPopup"
+                                           AllowsTransparency="true"
+                                           Placement="Bottom"
+                                           IsOpen="{Binding Path=IsOverflowOpen,RelativeSource={RelativeSource TemplatedParent}}"
+                                           StaysOpen="false"
+                                           Focusable="false"
+                                           PopupAnimation="Slide">
+                                        <Border x:Name="DropDownBorder"
+                                                BorderThickness="1">
+                                                <!--Background="{StaticResource WindowBackgroundBrush}"
+                                                BorderBrush="{StaticResource SolidBorderBrush}"-->
+                                            <ToolBarOverflowPanel x:Name="PART_ToolBarOverflowPanel"
+                                                                  Margin="2"
+                                                                  WrapWidth="200"
+                                                                  Focusable="true"
+                                                                  FocusVisualStyle="{x:Null}"
+                                                                  KeyboardNavigation.TabNavigation="Cycle"
+                                                                  KeyboardNavigation.DirectionalNavigation="Cycle"/>
+                                        </Border>
+                                    </Popup>
+                                </ToggleButton>
+
+                                <ToolBarPanel x:Name="PART_ToolBarPanel"
+                                              IsItemsHost="true"
+                                              Margin="4,1,4,2"/>
+                            </DockPanel>
+                        </Border>
+                    </Border>
+                    <!--<ControlTemplate.Triggers>
+                            <Trigger Property="IsOverflowOpen" Value="true">
+                                <Setter TargetName="ToolBarThumb" Property="IsEnabled" Value="false"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>-->
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="splitOuterBorderNormal"
+           TargetType="{x:Type Border}"
+           BasedOn="{StaticResource outerBorderNormal}">
+        <Setter Property="CornerRadius" Value="2,0,0,2"/>
+    </Style>
+
+    <Style x:Key="splitOuterBorderHover"
+           TargetType="{x:Type Border}"
+           BasedOn="{StaticResource outerBorderHover}">
+        <Setter Property="CornerRadius" Value="2,0,0,2"/>
+    </Style>
+
+    <Style x:Key="splitOuterBorderPressed"
+           TargetType="{x:Type Border}"
+           BasedOn="{StaticResource outerBorderPressed}">
+        <Setter Property="CornerRadius" Value="2,0,0,2"/>
+    </Style>
+
+    <Style x:Key="splitOuterBorderDefaulted"
+           TargetType="{x:Type Border}"
+           BasedOn="{StaticResource outerBorderDefaulted}">
+        <Setter Property="CornerRadius" Value="2,0,0,2"/>
+    </Style>
+
+    <Style x:Key="splitInnerBorderNormal"
+           TargetType="{x:Type Border}"
+           BasedOn="{StaticResource innerBorderNormal}">
+        <Setter Property="CornerRadius" Value="2,0,0,2"/>
+    </Style>
+
+    <Style x:Key="splitInnerBorderHover"
+           TargetType="{x:Type Border}"
+           BasedOn="{StaticResource innerBorderHover}">
+        <Setter Property="CornerRadius" Value="2,0,0,2"/>
+    </Style>
+
+    <Style x:Key="splitInnerBorderPressed"
+           TargetType="{x:Type Border}"
+           BasedOn="{StaticResource innerBorderPressed}">
+        <Setter Property="CornerRadius" Value="2,0,0,2"/>
+    </Style>
+
+    <Style x:Key="splitInnerBorderDefaulted"
+           TargetType="{x:Type Border}"
+           BasedOn="{StaticResource innerBorderDefaulted}">
+        <Setter Property="CornerRadius" Value="2,0,0,2"/>
+    </Style>
+    
+    <Style x:Key="splitDropdownOuterBorderNormal"
+           TargetType="{x:Type Border}"
+           BasedOn="{StaticResource outerBorderNormal}">
+        <Setter Property="CornerRadius" Value="0,2,2,0"/>
+        <Setter Property="BorderThickness" Value="0,1,1,1"/>
+    </Style>
+
+    <Style x:Key="splitDropdownOuterBorderHover"
+           TargetType="{x:Type Border}"
+           BasedOn="{StaticResource outerBorderHover}">
+        <Setter Property="CornerRadius" Value="0,2,2,0"/>
+        <Setter Property="BorderThickness" Value="0,1,1,1"/>
+    </Style>
+
+    <Style x:Key="splitDropdownOuterBorderPressed"
+           TargetType="{x:Type Border}"
+           BasedOn="{StaticResource outerBorderPressed}">
+        <Setter Property="CornerRadius" Value="0,2,2,0"/>
+        <Setter Property="BorderThickness" Value="0,1,1,1"/>
+    </Style>
+
+    <Style x:Key="splitDropdownOuterBorderDefaulted"
+           TargetType="{x:Type Border}"
+           BasedOn="{StaticResource outerBorderDefaulted}">
+        <Setter Property="CornerRadius" Value="0,2,2,0"/>
+        <Setter Property="BorderThickness" Value="0,1,1,1"/>
+    </Style>
+
+    <Style x:Key="splitDropdownInnerBorderNormal"
+           TargetType="{x:Type Border}"
+           BasedOn="{StaticResource innerBorderNormal}">
+        <Setter Property="CornerRadius" Value="0,2,2,0"/>
+    </Style>
+
+    <Style x:Key="splitDropdownInnerBorderHover"
+           TargetType="{x:Type Border}"
+           BasedOn="{StaticResource innerBorderHover}">
+        <Setter Property="CornerRadius" Value="0,2,2,0"/>
+    </Style>
+
+    <Style x:Key="splitDropdownInnerBorderPressed"
+           TargetType="{x:Type Border}"
+           BasedOn="{StaticResource innerBorderPressed}">
+        <Setter Property="CornerRadius" Value="0,2,2,0"/>
+    </Style>
+
+    <Style x:Key="splitDropdownInnerBorderDefaulted"
+           TargetType="{x:Type Border}"
+           BasedOn="{StaticResource innerBorderDefaulted}">
+        <Setter Property="CornerRadius" Value="0,2,2,0"/>
+    </Style>
+
+    <Style TargetType="{x:Type local:SplitButton}">
+        <Setter Property="FocusVisualStyle" Value="{StaticResource buttonFocusVisual}"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type local:SplitButton}">
+                    <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="16"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Button Border-->
+                        <Border x:Name="outerBorder1" Grid.Column="0" Style="{StaticResource splitOuterBorderNormal}">
+                            <Border x:Name="innerBorder1" Style="{StaticResource splitInnerBorderNormal}">
+                                <ContentPresenter HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"
+                                                  RecognizesAccessKey="True"/>
+                            </Border>
+                        </Border>
+                        
+                        <!-- Drop Down Button Border-->
+                        <Border x:Name="outerBorder2" Grid.Column="1" Style="{StaticResource splitDropdownOuterBorderNormal}">
+                            <Border x:Name="innerBorder2" Style="{StaticResource splitDropdownInnerBorderNormal}"/>
+                        </Border>
+
+                        <Button x:Name="PART_DropDown"
+						         BorderBrush="{TemplateBinding BorderBrush}"
+						         Foreground="{TemplateBinding Foreground}"
+						         VerticalAlignment="Stretch"
+                                 HorizontalAlignment="Stretch"
+						         Grid.Column="1">
+                            <Button.Style>
+                                <Style TargetType="{x:Type Button}">
+                                    <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="{x:Type Button}">
+                                                <Border Style="{StaticResource splitDropdownOuterBorderNormal}"
+                                                        Background="Transparent">
+                                                    <!--<Border x:Name="innerBorder"
+                                                            Style="{StaticResource splitDropdownInnerBorderNormal}"
+                                                            Background="Transparent">-->
+
+                                                        <Path Data="M0,0L3,3 6,0z" 															  Margin="0,1,0,0" 														  	  Grid.Column="2" 														  	  Stroke="{TemplateBinding Foreground}" 
+													  		  Fill="{TemplateBinding Foreground}" 
+															  HorizontalAlignment="Center" 
+															  VerticalAlignment="Center"/>
+
+                                                    <!--</Border>-->
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsDefault" Value="True">
+                            <Setter Property="Style" TargetName="outerBorder1" Value="{StaticResource splitOuterBorderDefaulted}"/>
+                            <Setter Property="Style" TargetName="innerBorder1" Value="{StaticResource splitInnerBorderDefaulted}"/>
+                            <Setter Property="Style" TargetName="outerBorder2" Value="{StaticResource splitDropdownOuterBorderDefaulted}"/>
+                            <Setter Property="Style" TargetName="innerBorder2" Value="{StaticResource splitDropdownInnerBorderDefaulted}"/>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Style" TargetName="outerBorder1" Value="{StaticResource splitOuterBorderHover}"/>
+                            <Setter Property="Style" TargetName="innerBorder1" Value="{StaticResource splitInnerBorderHover}"/>
+                            <Setter Property="Style" TargetName="outerBorder2" Value="{StaticResource splitDropdownOuterBorderHover}"/>
+                            <Setter Property="Style" TargetName="innerBorder2" Value="{StaticResource splitDropdownInnerBorderHover}"/>
+                        </Trigger>
+                        <Trigger Property="IsContextMenuOpen" Value="True">
+                            <Setter Property="Style" TargetName="outerBorder1" Value="{StaticResource splitOuterBorderHover}"/>
+                            <Setter Property="Style" TargetName="innerBorder1" Value="{StaticResource splitInnerBorderHover}"/>
+                            <Setter Property="Style" TargetName="outerBorder2" Value="{StaticResource splitDropdownOuterBorderPressed}"/>
+                            <Setter Property="Style" TargetName="innerBorder2" Value="{StaticResource splitDropdownInnerBorderPressed}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter Property="Style" TargetName="outerBorder1" Value="{StaticResource splitOuterBorderPressed}"/>
+                            <Setter Property="Style" TargetName="innerBorder1" Value="{StaticResource splitInnerBorderPressed}"/>
+                            <Setter Property="Style" TargetName="outerBorder2" Value="{StaticResource splitDropdownOuterBorderPressed}"/>
+                            <Setter Property="Style" TargetName="innerBorder2" Value="{StaticResource splitDropdownInnerBorderPressed}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" SourceName="PART_DropDown" Value="True">
+                            <Setter Property="Style" TargetName="outerBorder2" Value="{StaticResource splitDropdownOuterBorderPressed}"/>
+                            <Setter Property="Style" TargetName="innerBorder2" Value="{StaticResource splitDropdownInnerBorderPressed}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="false">
+                            <Setter Property="Foreground" Value="#ADADAD"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="NavBackButtonStyle" TargetType="{x:Type Button}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Grid Height="24" Width="24" Background="#00FFFFFF">
+                        <Ellipse Name="Circle" StrokeThickness="1">
+                            <Ellipse.Fill>
+                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                    <LinearGradientBrush.GradientStops>
+                                        <GradientStop Offset="0" Color="#FFFFFFFF" />
+                                        <GradientStop Offset="0.1" Color="#FFCCD4E9" />
+                                        <GradientStop Offset="0.47" Color="#FF4881D2" />
+                                        <GradientStop Offset="0.47" Color="#FF001A5A" />
+                                        <GradientStop Offset="0.7" Color="#FF007BD6" />
+                                        <GradientStop Offset="0.85" Color="#FF54DAFF" />
+                                        <GradientStop Offset="0.95" Color="#FF86FFFF" />
+                                        <GradientStop Offset="1" Color="#FFFFFFFF" />
+                                    </LinearGradientBrush.GradientStops>
+                                </LinearGradientBrush>
+                            </Ellipse.Fill>
+                            <Ellipse.Stroke>
+                                <LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
+                                    <LinearGradientBrush.GradientStops>
+                                        <GradientStop Offset="0" Color="#FF6C90C4" />
+                                        <GradientStop Offset="0.5" Color="#FF315BB4" />
+                                        <GradientStop Offset="0.5" Color="#FF002091" />
+                                        <GradientStop Offset="1" Color="#FF08377C" />
+                                    </LinearGradientBrush.GradientStops>
+                                </LinearGradientBrush>
+                            </Ellipse.Stroke>
+                        </Ellipse>
+                        <Path RenderTransformOrigin="0.5,0" Data="M0.37,7.69L5.74,14.2A1.5,1.5,0,1,0,10.26,12.27L8.42,10.42 14.9,10.39A1.5,1.5,0,1,0,14.92,5.87L8.44,5.9 10.31,4.03A1.5,1.5,0,1,0,5.79,1.77z" HorizontalAlignment="Center" Name="Arrow" VerticalAlignment="Center" StrokeThickness="0.75">
+                            <Path.Fill>
+                                <LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
+                                    <LinearGradientBrush.GradientStops>
+                                        <GradientStop Offset="0.5" Color="#FFFFFFFF" />
+                                        <GradientStop Offset="0.5" Color="#FFEEEEEE" />
+                                        <GradientStop Offset="1" Color="#FFB0B0B0" />
+                                    </LinearGradientBrush.GradientStops>
+                                </LinearGradientBrush>
+                            </Path.Fill>
+                            <Path.Stroke>
+                                <LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
+                                    <LinearGradientBrush.GradientStops>
+                                        <GradientStop Offset="0" Color="#FF8AB1FB" />
+                                        <GradientStop Offset="1" Color="#FF002874" />
+                                    </LinearGradientBrush.GradientStops>
+                                </LinearGradientBrush>
+                            </Path.Stroke>
+                        </Path>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="UIElement.IsEnabled" Value="false">
+                            <Setter Property="Shape.Fill" TargetName="Circle">
+                                <Setter.Value>
+                                    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0" Opacity="0.25">
+                                        <LinearGradientBrush.GradientStops>
+                                            <GradientStop Offset="0" Color="#FFFFFFFF" />
+                                            <GradientStop Offset="0.5" Color="#FFEBEEF5" />
+                                            <GradientStop Offset="0.5" Color="#FFD8DDEB" />
+                                            <GradientStop Offset="1" Color="#FFDFE2F0" />
+                                        </LinearGradientBrush.GradientStops>
+                                    </LinearGradientBrush>
+                                </Setter.Value>
+                            </Setter>
+                            <Setter Property="Shape.Stroke" TargetName="Circle">
+                                <Setter.Value>
+                                    <SolidColorBrush>#FFB5BACE</SolidColorBrush>
+                                </Setter.Value>
+                            </Setter>
+                            <Setter Property="Shape.Stroke" TargetName="Arrow">
+                                <Setter.Value>
+                                    <SolidColorBrush>#B0B5BACE</SolidColorBrush>
+                                </Setter.Value>
+                            </Setter>
+                            <Setter Property="Shape.Fill" TargetName="Arrow">
+                                <Setter.Value>
+                                    <!--#D0FFFFFF-->
+                                    <SolidColorBrush>#0FFFFFFF</SolidColorBrush>
+                                </Setter.Value>
+                            </Setter>
+                        </Trigger>
+                        <Trigger Property="UIElement.IsMouseOver" Value="true">
+                            <Setter Property="Shape.Fill" TargetName="Circle">
+                                <Setter.Value>
+                                    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                        <LinearGradientBrush.GradientStops>
+                                            <GradientStop Offset="0" Color="#FFFFFFFF" />
+                                            <GradientStop Offset="0.1" Color="#FFDFEDF9" />
+                                            <GradientStop Offset="0.47" Color="#FF3086E1" />
+                                            <GradientStop Offset="0.47" Color="#FF003B91" />
+                                            <GradientStop Offset="0.7" Color="#FF1793EF" />
+                                            <GradientStop Offset="0.85" Color="#FF5AD4FF" />
+                                            <GradientStop Offset="0.95" Color="#FFBDFFFF" />
+                                            <GradientStop Offset="1" Color="#FFFFFFFF" />
+                                        </LinearGradientBrush.GradientStops>
+                                    </LinearGradientBrush>
+                                </Setter.Value>
+                            </Setter>
+
+                        </Trigger>
+                        <Trigger Property="ButtonBase.IsPressed" Value="True">
+                            <Setter Property="Shape.Fill" TargetName="Circle">
+                                <Setter.Value>
+                                    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                        <LinearGradientBrush.GradientStops>
+                                            <GradientStop Offset="0" Color="#FFC0D2F5" />
+                                            <GradientStop Offset="0.47" Color="#FF5E7A9C" />
+                                            <GradientStop Offset="0.47" Color="#FF00062D" />
+                                            <GradientStop Offset="0.7" Color="#FF005F9F" />
+                                            <GradientStop Offset="0.85" Color="#FF1FA4E2" />
+                                            <GradientStop Offset="0.95" Color="#FF61DAFF" />
+                                            <GradientStop Offset="1" Color="#FF48CFFF" />
+                                        </LinearGradientBrush.GradientStops>
+                                    </LinearGradientBrush>
+                                </Setter.Value>
+                            </Setter>
+
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <SolidColorBrush x:Key="WizardBottomColor">#F0F0F0</SolidColorBrush>
+    <SolidColorBrush x:Key="WizardBottomBorderColor">#DFDFDF</SolidColorBrush>
+
+    <Style TargetType="{x:Type local:AeroWizard}">
+        <Setter Property="ShowInTaskbar" Value="False"/>
+        <Setter Property="ResizeMode" Value="NoResize"/>
+        <!--<Setter Property="ShowsNavigationUI" Value="False"/>-->
+
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type local:AeroWizard}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition/>
+                            <RowDefinition Height="auto"/>
+                        </Grid.RowDefinitions>
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel x:Name="TopPanel" Grid.Row="0" Height="40" Orientation="Horizontal">
+                            <Button Margin="2" Style="{StaticResource NavBackButtonStyle}" IsEnabled="{Binding PART_Frame.CanGoBack}"/>
+                            <Image Width="16" Height="16" Source="{TemplateBinding Icon}"/>
+                            <Label VerticalAlignment="Center" Content="{TemplateBinding Title}"/>
+                        </StackPanel>
+
+                        <Grid Grid.Row="1" Background="White">
+                            <Frame x:Name="PART_Frame"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   ClipToBounds="True"/>
+                            <!--<AdornerDecorator>
+                                <ContentPresenter HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"
+                                                  Name="PART_NavWinCP"
+                                                  ClipToBounds="True"/>
+                            </AdornerDecorator>-->
+                        </Grid>
+
+                        <Border Grid.Row="2"
+                                BorderThickness="0,1,0,0"
+                                BorderBrush="{StaticResource WizardBottomBorderColor}"
+                                Background="{StaticResource WizardBottomColor}"
+                                Height="auto">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="auto"/>
+                                    <ColumnDefinition Width="auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Button Margin="0,8,9,10"
+                                        Grid.Column="1"
+                                        Grid.Row="0"
+                                        Width="65"
+                                        Height="21"
+                                        Content="_Next"/>
+
+                                <Button Margin="0,8,11,10"
+                                        Grid.Column="2"
+                                        Grid.Row="0"
+                                        Width="65"
+                                        Height="21"
+                                        Content="Cancel"/>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsGlassEnabled" Value="False"/>
+                                <Condition Property="IsActive" Value="True"/>
+                            </MultiTrigger.Conditions>
+                            <Setter Property="Background"
+                                    TargetName="TopPanel"
+                                    Value="{DynamicResource {x:Static SystemColors.GradientActiveCaptionBrushKey}}"/>
+                        </MultiTrigger>
+                        
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsGlassEnabled" Value="False"/>
+                                <Condition Property="IsActive" Value="False"/>
+                            </MultiTrigger.Conditions>
+                            <Setter Property="Background"
+                                    TargetName="TopPanel"
+                                    Value="{DynamicResource {x:Static SystemColors.GradientInactiveCaptionBrushKey}}"/>
+                        </MultiTrigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>

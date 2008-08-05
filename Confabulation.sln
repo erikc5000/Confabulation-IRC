@@ -1,0 +1,45 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Confabulation", "Confabulation\Confabulation.csproj", "{EEE81521-5426-45B8-A01E-A907F47FF1D5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{7B037621-A203-49D8-89C3-35B0B3CA49FA} = {7B037621-A203-49D8-89C3-35B0B3CA49FA}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chat", "IrcLib\Chat.csproj", "{7B037621-A203-49D8-89C3-35B0B3CA49FA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{D3AEC78E-A68C-4678-A28F-780A743170AB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Controls", "Controls\Controls.csproj", "{2E5F7421-AB52-4464-9F40-EB9DFDACB949}"
+EndProject
+Global
+	GlobalSection(SubversionScc) = preSolution
+		Svn-Managed = True
+		Manager = AnkhSVN - Subversion Support for Visual Studio
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EEE81521-5426-45B8-A01E-A907F47FF1D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EEE81521-5426-45B8-A01E-A907F47FF1D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EEE81521-5426-45B8-A01E-A907F47FF1D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EEE81521-5426-45B8-A01E-A907F47FF1D5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7B037621-A203-49D8-89C3-35B0B3CA49FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7B037621-A203-49D8-89C3-35B0B3CA49FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7B037621-A203-49D8-89C3-35B0B3CA49FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7B037621-A203-49D8-89C3-35B0B3CA49FA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D3AEC78E-A68C-4678-A28F-780A743170AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D3AEC78E-A68C-4678-A28F-780A743170AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D3AEC78E-A68C-4678-A28F-780A743170AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D3AEC78E-A68C-4678-A28F-780A743170AB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2E5F7421-AB52-4464-9F40-EB9DFDACB949}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2E5F7421-AB52-4464-9F40-EB9DFDACB949}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2E5F7421-AB52-4464-9F40-EB9DFDACB949}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2E5F7421-AB52-4464-9F40-EB9DFDACB949}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
