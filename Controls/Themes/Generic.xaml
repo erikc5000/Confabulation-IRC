@@ -500,6 +500,19 @@
             </Setter.Value>
         </Setter>
     </Style>
+    
+    <!--<Style x:Key="AeroWizardFrame">
+        <Setter Property="ControlTemplate">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Frame}">
+                    <DockPanel>
+                        <
+                        <ContentPresenter/>
+                    </DockPanel>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>-->
 
     <SolidColorBrush x:Key="WizardBottomColor">#F0F0F0</SolidColorBrush>
     <SolidColorBrush x:Key="WizardBottomBorderColor">#DFDFDF</SolidColorBrush>
@@ -507,7 +520,6 @@
     <Style TargetType="{x:Type local:AeroWizard}">
         <Setter Property="ShowInTaskbar" Value="False"/>
         <Setter Property="ResizeMode" Value="NoResize"/>
-        <!--<Setter Property="ShowsNavigationUI" Value="False"/>-->
 
         <Setter Property="Template">
             <Setter.Value>
@@ -519,28 +531,20 @@
                             <RowDefinition Height="auto"/>
                         </Grid.RowDefinitions>
 
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition/>
-                        </Grid.ColumnDefinitions>
-
                         <StackPanel x:Name="TopPanel" Grid.Row="0" Height="40" Orientation="Horizontal">
-                            <Button Margin="2" Style="{StaticResource NavBackButtonStyle}" IsEnabled="{Binding PART_Frame.CanGoBack}"/>
+                            <Button x:Name="BackButton"
+                                    Margin="2"
+                                    Style="{StaticResource NavBackButtonStyle}"
+                                    Command="{x:Static NavigationCommands.BrowseBack}"
+                                    IsEnabled="{TemplateBinding CanGoBack}"/>
+                            
                             <Image Width="16" Height="16" Source="{TemplateBinding Icon}"/>
                             <Label VerticalAlignment="Center" Content="{TemplateBinding Title}"/>
                         </StackPanel>
 
-                        <Grid Grid.Row="1" Background="White">
-                            <Frame x:Name="PART_Frame"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"
-                                   ClipToBounds="True"/>
-                            <!--<AdornerDecorator>
-                                <ContentPresenter HorizontalAlignment="Center"
-                                                  VerticalAlignment="Center"
-                                                  Name="PART_NavWinCP"
-                                                  ClipToBounds="True"/>
-                            </AdornerDecorator>-->
-                        </Grid>
+                        <Border Grid.Row="1" Background="White">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" ClipToBounds="True"/>
+                        </Border>
 
                         <Border Grid.Row="2"
                                 BorderThickness="0,1,0,0"
@@ -558,19 +562,23 @@
                                     <ColumnDefinition Width="auto"/>
                                 </Grid.ColumnDefinitions>
 
-                                <Button Margin="0,8,9,10"
+                                <Button x:Name="NextButton"
+                                        Margin="0,8,9,10"
                                         Grid.Column="1"
                                         Grid.Row="0"
                                         Width="65"
                                         Height="21"
-                                        Content="_Next"/>
+                                        Content="_Next"
+                                        IsDefault="True"/>
 
-                                <Button Margin="0,8,11,10"
+                                <Button x:Name="CancelButton"
+                                        Margin="0,8,11,10"
                                         Grid.Column="2"
                                         Grid.Row="0"
                                         Width="65"
                                         Height="21"
-                                        Content="Cancel"/>
+                                        Content="Cancel"
+                                        IsCancel="True"/>
                             </Grid>
                         </Border>
                     </Grid>

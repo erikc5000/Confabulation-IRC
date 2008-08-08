@@ -71,6 +71,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="NetworkSelectionPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="NewConnectionWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -89,6 +93,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="NetworkSelectionPage.xaml.cs">
+      <DependentUpon>NetworkSelectionPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="NewConnectionWindow.xaml.cs">
       <DependentUpon>NewConnectionWindow.xaml</DependentUpon>
     </Compile>

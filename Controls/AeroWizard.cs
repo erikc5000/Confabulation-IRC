@@ -16,36 +16,11 @@ using System.Runtime.InteropServices;
 
 namespace Confabulation.Controls
 {
-	/// <summary>
-	/// Follow steps 1a or 1b and then 2 to use this custom control in a XAML file.
-	///
-	/// Step 1a) Using this custom control in a XAML file that exists in the current project.
-	/// Add this XmlNamespace attribute to the root element of the markup file where it is 
-	/// to be used:
-	///
-	///     xmlns:MyNamespace="clr-namespace:Confabulation.Controls"
-	///
-	///
-	/// Step 1b) Using this custom control in a XAML file that exists in a different project.
-	/// Add this XmlNamespace attribute to the root element of the markup file where it is 
-	/// to be used:
-	///
-	///     xmlns:MyNamespace="clr-namespace:Confabulation.Controls;assembly=Confabulation.Controls"
-	///
-	/// You will also need to add a project reference from the project where the XAML file lives
-	/// to this project and Rebuild to avoid compilation errors:
-	///
-	///     Right click on the target project in the Solution Explorer and
-	///     "Add Reference"->"Projects"->[Browse to and select this project]
-	///
-	///
-	/// Step 2)
-	/// Go ahead and use your control in the XAML file.
-	///
-	///     <MyNamespace:AeroWizard/>
-	///
-	/// </summary>
-	public class AeroWizard : Window
+	[TemplatePart(Name = "PART_Frame", Type = typeof(Frame))]
+	[TemplatePart(Name = "NextButton", Type = typeof(Button))]
+	[TemplatePart(Name = "BackButton", Type = typeof(Button))]
+	[TemplatePart(Name = "CancelButton", Type = typeof(Button))]
+	public class AeroWizard : NavigationWindow
 	{
 		[DllImport("user32.dll")]
 		static extern int GetWindowLong(IntPtr hwnd, int index);
@@ -66,11 +41,6 @@ namespace Confabulation.Controls
 
 		public static new readonly DependencyProperty IconProperty = DependencyProperty.Register("Icon",
 			typeof(ImageSource),
-			typeof(AeroWizard),
-			new FrameworkPropertyMetadata());
-
-		public static readonly DependencyProperty InitialPageProperty = DependencyProperty.Register("InitialPage",
-			typeof(Uri),
 			typeof(AeroWizard),
 			new FrameworkPropertyMetadata());
 
@@ -103,18 +73,6 @@ namespace Confabulation.Controls
 			}
 		}
 
-		public Uri InitialPage
-		{
-			get
-			{
-				return (Uri)GetValue(InitialPageProperty);
-			}
-			set
-			{
-				SetValue(InitialPageProperty, value);
-			}
-		}
-
 		public bool IsGlassEnabled
 		{
 			get
@@ -136,15 +94,34 @@ namespace Confabulation.Controls
 		{
 			base.OnApplyTemplate();
 
-			if (InitialPage != null)
-			{
-				frame = Template.FindName("PART_Frame", this) as Frame;
+			//if (InitialPage != null)
+			//{
+			//    frame = Template.FindName("PART_Frame", this) as Frame;
 
-				if (frame != null)
-				{
-					frame.Navigate(InitialPage, null);
-				}
-			}
+			//    if (frame != null)
+			//    {
+			//        Button backButton = Template.FindName("BackButton", this) as Button;
+
+			//        if (backButton != null)
+			//        {
+			//            Binding binding = new Binding("CanGoBack");
+			//            binding.Source = frame;
+			//            backButton.SetBinding(Button.IsEnabledProperty, binding);
+			//        }
+
+			//        frame.Navigate(InitialPage);
+			        LoadCompleted += new LoadCompletedEventHandler(frame_LoadCompleted);
+			//    }
+			//}
+		}
+
+		private void frame_LoadCompleted(object sender, NavigationEventArgs e)
+		{
+			Button nextButton = Template.FindName("NextButton", this) as Button;
+			Button backButton = Template.FindName("BackButton", this) as Button;
+			Button cancelButton = Template.FindName("CancelButton", this) as Button;
+
+			((IAeroWizardPage)e.Content).SetButtons(nextButton, backButton, cancelButton);
 		}
 
 		protected override void OnSourceInitialized(EventArgs e)
@@ -192,7 +169,5 @@ namespace Confabulation.Controls
 		private const int SWP_NOZORDER = 0x0004;
 		private const int SWP_FRAMECHANGED = 0x0020;
 		private const uint WM_SETICON = 0x0080;
-
-		private Frame frame = null;
 	}
 }

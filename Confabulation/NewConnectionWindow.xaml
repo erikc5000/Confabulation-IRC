@@ -5,4 +5,4 @@
                      Width="400"
                      Height="300"
                      Title="New Connection"
-                     InitialPage="UserSettingsPage.xaml"/>
+                     Source="NetworkSelectionPage.xaml"/>

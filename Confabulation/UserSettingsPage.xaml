@@ -4,8 +4,9 @@
                                  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                                  xmlns:chat="clr-namespace:Confabulation.Chat;assembly=ConfabulationChat"
                                  xmlns:controls="clr-namespace:Confabulation.Controls;assembly=ConfabulationControls"
-                                 Title="User Settings">
-    <Grid>
+                                 Title="User Settings"
+                                 ShowsNavigationUI="True">
+    <Grid FocusManager.FocusedElement="{Binding ElementName=Nickname}">
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
             <RowDefinition Height="auto"/>
@@ -20,7 +21,7 @@
         </Grid.ColumnDefinitions>
         
         <Label Grid.Column="0" Grid.Row="0" Margin="4">Nickname</Label>
-        <TextBox Grid.Column="1" Grid.Row="0" Margin="4"/>
+        <TextBox Name="Nickname" Grid.Column="1" Grid.Row="0" Margin="4"/>
         
         <Label Grid.Column="0" Grid.Row="1" Margin="4">User Name</Label>
         <TextBox Grid.Column="1" Grid.Row="1" Margin="4"/>
@@ -33,6 +34,7 @@
                   Grid.ColumnSpan="2"
                   Margin="4"
                   IsChecked="True"
-                  Content="Invisible to users outside of my channels"/>
+                  Content="Invisible to users outside my channels"
+                  ToolTip="Prevent users not in any channels that you are from seeing you."/>
     </Grid>
 </controls:AeroWizardPageFunction>
