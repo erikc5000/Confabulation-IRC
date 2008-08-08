@@ -51,7 +51,11 @@ namespace Confabulation.Controls
 	[DefaultProperty("Items")]
 	public class SplitButton : Button
 	{
-		public static readonly DependencyProperty IsContextMenuOpenProperty;
+		public static readonly DependencyProperty IsContextMenuOpenProperty =
+			DependencyProperty.Register("IsContextMenuOpen",
+			typeof(bool),
+			typeof(SplitButton),
+			new FrameworkPropertyMetadata(false));
 
 		public bool IsContextMenuOpen
 		{
@@ -67,11 +71,6 @@ namespace Confabulation.Controls
 
 		static SplitButton()
 		{
-			IsContextMenuOpenProperty = DependencyProperty.Register("IsContextMenuOpen",
-				typeof(bool),
-				typeof(SplitButton),
-				new FrameworkPropertyMetadata(false));
-
 			DefaultStyleKeyProperty.OverrideMetadata(typeof(SplitButton), new FrameworkPropertyMetadata(typeof(SplitButton)));
 		}
 
@@ -93,7 +92,6 @@ namespace Confabulation.Controls
 
 				Binding binding = new Binding("ContextMenu.IsOpen");
 				binding.Source = this;
-
 				SetBinding(IsContextMenuOpenProperty, binding);
 			}
 
