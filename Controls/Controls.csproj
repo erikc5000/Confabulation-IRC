@@ -37,6 +37,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="PresentationFramework.Aero">
+      <RequiredTargetFramework>3.0</RequiredTargetFramework>
+    </Reference>
     <Reference Include="PresentationFramework.Classic">
       <RequiredTargetFramework>3.0</RequiredTargetFramework>
     </Reference>
@@ -86,6 +89,7 @@
     </Compile>
     <Compile Include="ControlResources.cs" />
     <Compile Include="SplitButton.cs" />
+    <Compile Include="TaskDialog.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
