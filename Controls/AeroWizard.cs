@@ -20,7 +20,7 @@ namespace Confabulation.Controls
 	[TemplatePart(Name = "NextButton", Type = typeof(Button))]
 	[TemplatePart(Name = "BackButton", Type = typeof(Button))]
 	[TemplatePart(Name = "CancelButton", Type = typeof(Button))]
-	public class AeroWizard : NavigationWindow
+	public class AeroWizard : Window
 	{
 		[DllImport("user32.dll")]
 		static extern int GetWindowLong(IntPtr hwnd, int index);
@@ -33,6 +33,9 @@ namespace Confabulation.Controls
 
 		[DllImport("user32.dll")]
 		static extern IntPtr SendMessage(IntPtr hwnd, uint msg, IntPtr wParam, IntPtr lParam);
+
+		public static readonly DependencyProperty InitialPageProperty =
+			DependencyProperty.Register("InitialPage", typeof(Uri), typeof(AeroWizard), new UIPropertyMetadata());
 
 		public static new readonly DependencyProperty TitleProperty = DependencyProperty.Register("Title",
 			typeof(string),
@@ -48,6 +51,14 @@ namespace Confabulation.Controls
 			typeof(bool),
 			typeof(AeroWizard),
 			new FrameworkPropertyMetadata(true));
+
+
+
+		public Uri InitialPage
+		{
+			get { return (Uri)GetValue(InitialPageProperty); }
+			set { SetValue(InitialPageProperty, value); }
+		}
 
 		public new string Title
 		{
@@ -90,29 +101,62 @@ namespace Confabulation.Controls
 			DefaultStyleKeyProperty.OverrideMetadata(typeof(AeroWizard), new FrameworkPropertyMetadata(typeof(AeroWizard)));
 		}
 
+		public AeroWizard()
+		{
+			CommandBinding cb = new CommandBinding(NavigationCommands.BrowseBack);
+			cb.CanExecute += new CanExecuteRoutedEventHandler(cb_CanExecute);
+			cb.Executed += new ExecutedRoutedEventHandler(cb_Executed);
+
+			CommandBindings.Add(cb);
+		}
+
 		public override void OnApplyTemplate()
 		{
 			base.OnApplyTemplate();
 
-			//if (InitialPage != null)
+			//Style style = FindResource("NavigationWindow.Template") as Style; //Get button's default Style
+			//if (style != null)
 			//{
-			//    frame = Template.FindName("PART_Frame", this) as Frame;
-
-			//    if (frame != null)
-			//    {
-			//        Button backButton = Template.FindName("BackButton", this) as Button;
-
-			//        if (backButton != null)
-			//        {
-			//            Binding binding = new Binding("CanGoBack");
-			//            binding.Source = frame;
-			//            backButton.SetBinding(Button.IsEnabledProperty, binding);
-			//        }
-
-			//        frame.Navigate(InitialPage);
-			        LoadCompleted += new LoadCompletedEventHandler(frame_LoadCompleted);
-			//    }
+			//    XmlWriterSettings settings = new XmlWriterSettings();
+			//    settings.Indent = true;
+			//    settings.IndentChars = new string(' ', 4);
+			//    XmlWriter xmlwrite = XmlWriter.Create("NavStyle.xml", settings);
+			//    XamlWriter.Save(style, xmlwrite);//Use XamlWriter to dump the style
+			//    //return strbuild.ToString();
 			//}
+
+			if (InitialPage != null)
+			{
+				frame = Template.FindName("PART_Frame", this) as Frame;
+
+				if (frame != null)
+				{
+					frame.NavigationUIVisibility = NavigationUIVisibility.Hidden;
+
+					Button backButton = Template.FindName("BackButton", this) as Button;
+
+					if (backButton != null)
+					{
+						Binding binding = new Binding("CanGoBack");
+						binding.Source = frame;
+						backButton.SetBinding(Button.IsEnabledProperty, binding);
+					}
+
+					frame.Navigate(InitialPage);
+					frame.LoadCompleted += new LoadCompletedEventHandler(frame_LoadCompleted);
+				}
+			}
+		}
+
+		private void cb_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			if (frame != null && frame.CanGoBack)
+				frame.GoBack();
+		}
+
+		private void cb_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+			e.CanExecute = true;
 		}
 
 		private void frame_LoadCompleted(object sender, NavigationEventArgs e)
@@ -169,5 +213,7 @@ namespace Confabulation.Controls
 		private const int SWP_NOZORDER = 0x0004;
 		private const int SWP_FRAMECHANGED = 0x0020;
 		private const uint WM_SETICON = 0x0080;
+
+		private Frame frame = null;
 	}
 }

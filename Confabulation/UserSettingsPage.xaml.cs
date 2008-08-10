@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -24,6 +23,11 @@ namespace Confabulation
 		public UserSettingsPage()
 		{
 			InitializeComponent();
+		}
+
+		private void Nickname_Loaded(object sender, RoutedEventArgs e)
+		{
+			Keyboard.Focus(Nickname);
 		}
 	}
 }
