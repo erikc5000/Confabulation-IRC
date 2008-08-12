@@ -518,7 +518,7 @@
                         </Grid.RowDefinitions>
 
                         <StackPanel x:Name="TopPanel" Grid.Row="0" Height="40" Orientation="Horizontal">
-                            <Button x:Name="BackButton"
+                            <Button x:Name="PART_BackButton"
                                     Margin="2"
                                     Style="{StaticResource NavBackButtonStyle}"
                                     Command="{x:Static NavigationCommands.BrowseBack}"/>
@@ -547,7 +547,7 @@
                                     <ColumnDefinition Width="auto"/>
                                 </Grid.ColumnDefinitions>
 
-                                <Button x:Name="NextButton"
+                                <Button x:Name="PART_NextButton"
                                         Margin="0,8,9,10"
                                         Grid.Column="1"
                                         Grid.Row="0"
@@ -556,7 +556,7 @@
                                         Content="_Next"
                                         IsDefault="True"/>
 
-                                <Button x:Name="CancelButton"
+                                <Button x:Name="PART_CancelButton"
                                         Margin="0,8,11,10"
                                         Grid.Column="2"
                                         Grid.Row="0"

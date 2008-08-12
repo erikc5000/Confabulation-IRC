@@ -23,19 +23,43 @@ namespace Confabulation
 		public NetworkSelectionPage()
 		{
 			InitializeComponent();
-		}
 
-		public override void OnApplyTemplate()
-		{
-			base.OnApplyTemplate();
-
-			NextButtonClick += new RoutedEventHandler(NetworkSelectionPage_NextButtonClick);
+			if (ExistingNetwork.IsChecked == true && networkCB.SelectedItem == null)
+				IsNextButtonEnabled = false;
 		}
 
 		void NetworkSelectionPage_NextButtonClick(object sender, RoutedEventArgs e)
 		{
-			NextButtonClick -= new RoutedEventHandler(NetworkSelectionPage_NextButtonClick);
-			NavigationService.Navigate(new Uri("UserSettingsPage.xaml", UriKind.Relative));
+			if (ExistingNetwork.IsChecked == true)
+				NavigationService.Navigate(new Uri("UserSettingsPage.xaml", UriKind.Relative));
+			else
+				NavigationService.Navigate(new Uri("ServerSettingsPage.xaml", UriKind.Relative));
+		}
+
+		private void networkCB_SelectionChanged(object sender, SelectionChangedEventArgs e)
+		{
+			if (ExistingNetwork.IsChecked == true && networkCB.SelectedItem == null)
+				IsNextButtonEnabled = false;
+			else
+				IsNextButtonEnabled = true;
+		}
+
+		private void ExistingNetwork_Checked(object sender, RoutedEventArgs e)
+		{
+			if (ExistingNetwork.IsChecked == true && networkCB != null && networkCB.SelectedItem == null)
+				IsNextButtonEnabled = false;
+			else
+				IsNextButtonEnabled = true;
+		}
+
+		private void ManualServer_Checked(object sender, RoutedEventArgs e)
+		{
+			IsNextButtonEnabled = true;
+		}
+
+		private void networkCB_Loaded(object sender, RoutedEventArgs e)
+		{
+			Keyboard.Focus(networkCB);
 		}
 	}
 }

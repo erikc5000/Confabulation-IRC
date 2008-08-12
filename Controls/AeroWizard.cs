@@ -17,9 +17,9 @@ using System.Runtime.InteropServices;
 namespace Confabulation.Controls
 {
 	[TemplatePart(Name = "PART_Frame", Type = typeof(Frame))]
-	[TemplatePart(Name = "NextButton", Type = typeof(Button))]
-	[TemplatePart(Name = "BackButton", Type = typeof(Button))]
-	[TemplatePart(Name = "CancelButton", Type = typeof(Button))]
+	[TemplatePart(Name = "PART_NextButton", Type = typeof(Button))]
+	[TemplatePart(Name = "PART_BackButton", Type = typeof(Button))]
+	[TemplatePart(Name = "PART_CancelButton", Type = typeof(Button))]
 	public class AeroWizard : Window
 	{
 		[DllImport("user32.dll")]
@@ -51,8 +51,6 @@ namespace Confabulation.Controls
 			typeof(bool),
 			typeof(AeroWizard),
 			new FrameworkPropertyMetadata(true));
-
-
 
 		public Uri InitialPage
 		{
@@ -125,6 +123,10 @@ namespace Confabulation.Controls
 			//    //return strbuild.ToString();
 			//}
 
+			Button nextButton = Template.FindName("PART_NextButton", this) as Button;
+			Button backButton = Template.FindName("PART_BackButton", this) as Button;
+			Button cancelButton = Template.FindName("PART_CancelButton", this) as Button;
+
 			if (InitialPage != null)
 			{
 				frame = Template.FindName("PART_Frame", this) as Frame;
@@ -132,8 +134,6 @@ namespace Confabulation.Controls
 				if (frame != null)
 				{
 					frame.NavigationUIVisibility = NavigationUIVisibility.Hidden;
-
-					Button backButton = Template.FindName("BackButton", this) as Button;
 
 					if (backButton != null)
 					{
@@ -146,6 +146,33 @@ namespace Confabulation.Controls
 					frame.LoadCompleted += new LoadCompletedEventHandler(frame_LoadCompleted);
 				}
 			}
+
+			if (nextButton != null)
+				nextButton.Click += new RoutedEventHandler(nextButton_Click);
+
+			if (backButton != null)
+				backButton.Click += new RoutedEventHandler(backButton_Click);
+
+			if (cancelButton != null)
+				cancelButton.Click += new RoutedEventHandler(cancelButton_Click);
+		}
+
+		private void cancelButton_Click(object sender, RoutedEventArgs e)
+		{
+			if (frame != null)
+				((IAeroWizardPage)frame.NavigationService.Content).OnCancelButtonClick(sender, e);
+		}
+
+		private void nextButton_Click(object sender, RoutedEventArgs e)
+		{
+			if (frame != null)
+				((IAeroWizardPage)frame.NavigationService.Content).OnNextButtonClick(sender, e);
+		}
+
+		private void backButton_Click(object sender, RoutedEventArgs e)
+		{
+			if (frame != null)
+				((IAeroWizardPage)frame.NavigationService.Content).OnBackButtonClick(sender, e);
 		}
 
 		private void cb_Executed(object sender, ExecutedRoutedEventArgs e)
@@ -161,11 +188,23 @@ namespace Confabulation.Controls
 
 		private void frame_LoadCompleted(object sender, NavigationEventArgs e)
 		{
-			Button nextButton = Template.FindName("NextButton", this) as Button;
-			Button backButton = Template.FindName("BackButton", this) as Button;
-			Button cancelButton = Template.FindName("CancelButton", this) as Button;
+			Button nextButton = Template.FindName("PART_NextButton", this) as Button;
+			Button backButton = Template.FindName("PART_BackButton", this) as Button;
+			Button cancelButton = Template.FindName("PART_CancelButton", this) as Button;
 
-			((IAeroWizardPage)e.Content).SetButtons(nextButton, backButton, cancelButton);
+			IAeroWizardPage page = ((IAeroWizardPage)e.Content);
+			
+			Binding binding = new Binding("IsNextButtonEnabled");
+			binding.Source = page;
+			nextButton.SetBinding(Button.IsEnabledProperty, binding);
+
+			//binding = new Binding("IsNextButtonVisible");
+			//binding.Source = this;
+			//nextButton.SetBinding(Button.IsVisibleProperty, binding);
+
+			binding = new Binding("NextButtonText");
+			binding.Source = page;
+			nextButton.SetBinding(Button.ContentProperty, binding);
 		}
 
 		protected override void OnSourceInitialized(EventArgs e)

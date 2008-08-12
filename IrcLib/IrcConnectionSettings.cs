@@ -5,12 +5,14 @@ using System.Text;
 
 namespace Confabulation.Chat
 {
-	public class UserSettings
+	public class IrcUserSettings
 	{
-		public UserSettings()
+		public IrcUserSettings()
 		{
 			UserName = null;
 			RealName = null;
+			Invisible = true;
+			ReceiveWallops = false;
 		}
 
 		public List<string> Nicknames
@@ -18,13 +20,6 @@ namespace Confabulation.Chat
 			get
 			{
 				return nicknames;
-			}
-			set
-			{
-				if (value == null)
-					throw new ArgumentNullException("value");
-
-				nicknames = value;
 			}
 		}
 
@@ -35,6 +30,18 @@ namespace Confabulation.Chat
 		}
 
 		public string RealName
+		{
+			get;
+			set;
+		}
+
+		public bool Invisible
+		{
+			get;
+			set;
+		}
+
+		public bool ReceiveWallops
 		{
 			get;
 			set;
@@ -135,6 +142,8 @@ namespace Confabulation.Chat
 		public IrcConnectionSettings()
 		{
 			Name = null;
+			User = null;
+			Server = null;
 			InititialUserModes = InitialUserMode.Invisible;
 			TryOtherServersInNetwork = true;
 		}
@@ -145,20 +154,16 @@ namespace Confabulation.Chat
 			set;
 		}
 
-		public UserSettings User
+		public IrcUserSettings User
 		{
-			get
-			{
-				return userSettings;
-			}
+			get;
+			set;
 		}
 
 		public IrcServer Server
 		{
-			get
-			{
-				return server;
-			}
+			get;
+			set;
 		}
 
 		public InitialUserMode InititialUserModes
@@ -172,8 +177,5 @@ namespace Confabulation.Chat
 			get;
 			set;
 		}
-
-		private UserSettings userSettings = new UserSettings();
-		private IrcServer server;
 	}
 }

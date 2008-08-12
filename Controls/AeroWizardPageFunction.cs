@@ -23,7 +23,30 @@ namespace Confabulation.Controls
 
 	interface IAeroWizardPage
 	{
-		void SetButtons(Button nextButton, Button backButton, Button cancelButton);
+		//void SetButtons(Button nextButton, Button backButton, Button cancelButton);
+		bool IsNextButtonVisible
+		{
+			get;
+			set;
+		}
+
+		bool IsNextButtonEnabled
+		{
+			get;
+			set;
+		}
+
+		string NextButtonText
+		{
+			get;
+			set;
+		}
+
+		void OnNextButtonClick(object sender, RoutedEventArgs e);
+
+		void OnBackButtonClick(object sender, RoutedEventArgs e);
+
+		void OnCancelButtonClick(object sender, RoutedEventArgs e);
 	}
 
 
@@ -76,30 +99,7 @@ namespace Confabulation.Controls
 			DefaultStyleKeyProperty.OverrideMetadata(typeof(AeroWizardPageFunction<T>), new FrameworkPropertyMetadata(typeof(Page)));
 		}
 
-		#region IAeroWizardPage Members
-
-		public void SetButtons(Button nextButton, Button backButton, Button cancelButton)
-		{
-			nextButton.Click += new RoutedEventHandler(nextButton_Click);
-			backButton.Click += new RoutedEventHandler(backButton_Click);
-			cancelButton.Click += new RoutedEventHandler(cancelButton_Click);
-
-			Binding binding = new Binding("IsNextButtonEnabled");
-			binding.Source = this;
-			nextButton.SetBinding(Button.IsEnabledProperty, binding);
-
-			//binding = new Binding("IsNextButtonVisible");
-			//binding.Source = this;
-			//nextButton.SetBinding(Button.IsVisibleProperty, binding);
-
-			binding = new Binding("NextButtonText");
-			binding.Source = this;
-			nextButton.SetBinding(Button.ContentProperty, binding);
-		}
-
-		#endregion
-
-		void cancelButton_Click(object sender, RoutedEventArgs e)
+		public void OnCancelButtonClick(object sender, RoutedEventArgs e)
 		{
 			RoutedEventHandler handler = CancelButtonClick;
 
@@ -107,7 +107,7 @@ namespace Confabulation.Controls
 				handler(this, e);
 		}
 
-		void backButton_Click(object sender, RoutedEventArgs e)
+		public void OnBackButtonClick(object sender, RoutedEventArgs e)
 		{
 			RoutedEventHandler handler = BackButtonClick;
 
@@ -115,7 +115,7 @@ namespace Confabulation.Controls
 				handler(this, e);
 		}
 
-		void nextButton_Click(object sender, RoutedEventArgs e)
+		public void OnNextButtonClick(object sender, RoutedEventArgs e)
 		{
 			RoutedEventHandler handler = NextButtonClick;
 
