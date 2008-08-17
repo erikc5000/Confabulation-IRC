@@ -77,6 +77,9 @@
     <Compile Include="IrcMessage.cs" />
     <Compile Include="IrcMessageEventArgs.cs" />
     <Compile Include="IrcMessagePrefix.cs" />
+    <Compile Include="IrcNetwork.cs" />
+    <Compile Include="IrcServer.cs" />
+    <Compile Include="IrcServerList.cs" />
     <Compile Include="IrcUser.cs" />
     <Compile Include="IrcUserEventArgs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

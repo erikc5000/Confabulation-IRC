@@ -4,6 +4,8 @@ using System.Configuration;
 using System.Data;
 using System.Linq;
 using System.Windows;
+using System.IO;
+using Confabulation.Chat;
 
 namespace Confabulation
 {
@@ -12,5 +14,65 @@ namespace Confabulation
     /// </summary>
     public partial class App : Application
     {
+		static App()
+		{
+			Initialize();
+		}
+
+		public static string GetUserFolder()
+		{
+			string userFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+			userFolder += "\\Confabulation";
+
+			return userFolder;
+		}
+
+		public static string GetUserServersFile()
+		{
+			return GetUserFolder() + "\\Servers.xml";
+		}
+
+		private static void Initialize()
+		{
+			string userFolder = GetUserFolder();
+
+			try
+			{
+				if (!Directory.Exists(userFolder))
+					Directory.CreateDirectory(userFolder);
+			}
+			catch (Exception)
+			{
+				// TODO: Maybe some more sophisticated handling
+			}
+
+			string serversFile = GetUserServersFile();
+			string serversDtd = GetUserFolder() + "\\Servers.dtd";
+
+			try
+			{
+				if (!File.Exists(serversFile))
+					File.Copy("Servers.xml", serversFile);
+
+				if (!File.Exists(serversDtd))
+					File.Copy("Servers.dtd", serversDtd);
+
+				//serverList = new IrcServerList(serversFile);
+			}
+			catch (Exception)
+			{
+				// TODO: Maybe some more sophisticated handling
+			}
+		}
+
+		public static IrcServerList ServerList
+		{
+			get
+			{
+				return serverList;
+			}
+		}
+
+		private static IrcServerList serverList = null;
     }
 }

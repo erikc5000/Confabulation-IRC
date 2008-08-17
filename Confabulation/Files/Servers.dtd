@@ -1,0 +1,16 @@
+<!ELEMENT Servers (Network*)>
+<!ELEMENT Network (Server+)>
+<!ELEMENT Server (Password?,Location?,Provider?,Details?)>
+<!ELEMENT Password (#PCDATA)>
+<!ELEMENT Location (City?,State?,Country?,Region?)>
+<!ELEMENT City (#PCDATA)>
+<!ELEMENT State (#PCDATA)>
+<!ELEMENT Country (#PCDATA)>
+<!ELEMENT Region (#PCDATA)>
+<!ELEMENT Provider (#PCDATA)>
+<!ELEMENT Details (#PCDATA)>
+<!ATTLIST Network Name CDATA #REQUIRED>
+<!ATTLIST Server Index CDATA #REQUIRED>
+<!ATTLIST Server Hostname CDATA #REQUIRED>
+<!ATTLIST Server Ports CDATA "6667">
+<!ATTLIST Location Random (True|False) "False">

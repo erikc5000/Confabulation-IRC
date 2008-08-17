@@ -18,7 +18,7 @@ namespace Confabulation
 	/// <summary>
 	/// Interaction logic for UserSettingsPage.xaml
 	/// </summary>
-	public partial class UserSettingsPage : AeroWizardPageFunction<IrcUserSettings>
+	public partial class UserSettingsPage : AeroWizardPageFunction<IrcConnectionSettings>
 	{
 		public UserSettingsPage()
 		{
@@ -63,16 +63,20 @@ namespace Confabulation
 
 		private void NextButton_Click(object sender, RoutedEventArgs e)
 		{
-			IrcUserSettings settings = new IrcUserSettings();
-			settings.Nicknames.Add(Nickname.Text);
-			settings.Nicknames.Add(Nickname.Text + "`");
-			settings.Nicknames.Add(Nickname.Text + "_");
-			settings.Nicknames.Add(Nickname.Text + "^");
-			settings.UserName = UserName.Text;
-			settings.RealName = RealName.Text;
-			settings.Invisible = (Invisible.IsChecked == true);
+			IrcConnectionSettings settings = new IrcConnectionSettings();
+			settings.User.Nicknames.Add(Nickname.Text);
+			settings.User.Nicknames.Add(Nickname.Text + "`");
+			settings.User.Nicknames.Add(Nickname.Text + "_");
+			settings.User.Nicknames.Add(Nickname.Text + "^");
+			settings.User.UserName = UserName.Text;
+			settings.User.RealName = RealName.Text;
 
-			OnReturn(new ReturnEventArgs<IrcUserSettings>(settings));
+			if (Invisible.IsChecked == true)
+				settings.InitialUserModes = InitialUserMode.Invisible;
+			else
+				settings.InitialUserModes = InitialUserMode.None;
+
+			OnReturn(new ReturnEventArgs<IrcConnectionSettings>(settings));
 		}
 	}
 }

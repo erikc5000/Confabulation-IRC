@@ -1,0 +1,85 @@
+<?xml version="1.0"?>
+<!DOCTYPE Servers SYSTEM "Servers.dtd">
+<Servers>
+  <Network Name="GameSurge">
+    <Server Index="0" Hostname="Aim2Game.TX.US.GameSurge.net" Ports="6665-6669,7000,8080">
+      <Location>
+        <City>Dallas</City>
+        <State>TX</State>
+        <Country>US</Country>
+      </Location>
+      <Provider>Aim2Game</Provider>
+    </Server>
+    <Server Index="1" Hostname="GameServers.NJ.US.GameSurge.net" Ports="6665-6669,7000,8080">
+      <Location>
+        <City>Newark</City>
+        <State>NJ</State>
+        <Country>US</Country>
+      </Location>
+      <Provider>GameServers</Provider>
+    </Server>
+    <Server Index="2" Hostname="Gigenet.IL.US.GameSurge.net" Ports="6667-6669">
+      <Location>
+        <City>Chicago</City>
+        <State>IL</State>
+        <Country>US</Country>
+      </Location>
+      <Provider>GigEnet Servers</Provider>
+    </Server>
+    <Server Index="3" Hostname="Krypt.CA.US.GameSurge.net" Ports="6666-6669">
+      <Location>
+        <City>Santa Ana</City>
+        <State>CA</State>
+        <Country>US</Country>
+      </Location>
+      <Provider>Krypt</Provider>
+    </Server>
+    <Server Index="4" Hostname="NuclearFallout.WA.US.GameSurge.net" Ports="6667,5960">
+      <Location>
+        <City>Seattle</City>
+        <State>WA</State>
+        <Country>US</Country>
+      </Location>
+      <Provider>NuclearFallout</Provider>
+    </Server>
+    <Server Index="5" Hostname="Prothid.CA.US.GameSurge.Net" Ports="6667,5960">
+      <Location>
+        <City>Los Angeles</City>
+        <State>CA</State>
+        <Country>US</Country>
+      </Location>
+    </Server>
+    <Server Index="6" Hostname="Burstfire.UK.EU.GameSurge.net" Ports="6667,6668,7000">
+      <Location>
+        <City>London</City>
+        <Country>UK</Country>
+        <Region>EU</Region>
+      </Location>
+      <Provider>Burstfire</Provider>
+    </Server>
+    <Server Index="7" Hostname="Clan-Server.AT.EU.GameSurge.net" Ports="6667-6669,7000">
+      <Location>
+        <City>Vienna</City>
+        <Country>AT</Country>
+        <Region>EU</Region>
+      </Location>
+      <Provider>Clan-Server</Provider>
+    </Server>
+    <Server Index="8" Hostname="ClanShells.DE.EU.GameSurge.net" Ports="6667,6668">
+      <Location>
+        <City>Coburg</City>
+        <Country>DE</Country>
+        <Region>EU</Region>
+      </Location>
+      <Provider>Clan Shells</Provider>
+    </Server>
+    <Server Index="9" Hostname="GameConnect.NL.EU.GameSurge.net" Ports="6667-6669,7000">
+      <Location>
+        <City>Sittard</City>
+        <Country>NL</Country>
+        <Region>EU</Region>
+      </Location>
+      <Provider>GameConnect</Provider>
+    </Server>
+  </Network>
+</Servers>
