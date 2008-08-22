@@ -82,6 +82,7 @@
     <Compile Include="IrcServerList.cs" />
     <Compile Include="IrcUser.cs" />
     <Compile Include="IrcUserEventArgs.cs" />
+    <Compile Include="Log.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utilities.cs" />
   </ItemGroup>
