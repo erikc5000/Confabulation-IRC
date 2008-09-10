@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -10,7 +11,9 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Microsoft.Win32;
 using System.Xml;
+using System.Xml.Linq;
 using Confabulation.Chat;
 using Confabulation.Controls;
 
@@ -25,37 +28,92 @@ namespace Confabulation
 		{
 			InitializeComponent();
 
-			XmlDataProvider dp = NetworkSP.TryFindResource("NetworkData") as XmlDataProvider;
-			XmlDocument doc = new XmlDocument();
-			doc.Load(App.GetUserServersFile());
-			dp.Document = doc;
-			dp.XPath = "Servers";
-
 			SetNextButtonState();
-			//Loaded += new RoutedEventHandler(NetworkSelectionPage_Loaded);
+			Loaded += new RoutedEventHandler(NetworkSelectionPage_Loaded);
+			//Unloaded += new RoutedEventHandler(NetworkSelectionPage_Unloaded);
 		}
+
+		//void NetworkSelectionPage_Unloaded(object sender, RoutedEventArgs e)
+		//{
+		//    //RegistryKey key = Registry.CurrentUser.OpenSubKey("Software\\Confabulation", true);
+
+		//    //key.SetValue("LastNetworkName", ((XElement)NetworkCB.SelectedItem).Attribute("Name").Value, RegistryValueKind.String );
+		//}
 
 		void NetworkSelectionPage_Loaded(object sender, RoutedEventArgs e)
 		{
-			XmlDataProvider dp = NetworkSP.TryFindResource("NetworkData") as XmlDataProvider;
-			XmlDocument doc = new XmlDocument();
-			doc.Load(App.GetUserServersFile());
-			dp.Document = doc;
-			dp.XPath = "Servers";
-			
-			//dp.IsInitialLoadEnabled = false;
-			//dp.IsAsynchronous = false;
-			//dp.Source = new Uri("Servers.xml", UriKind.Relative);
-			//dp.Refresh();
-			//UpdateLayout();
+			NetworkCB.DataContext = App.ServerList.Networks;
+			//XDocument serverList = App.ServerList;
+
+			//if (serverList == null)
+			//{
+			//    ExistingNetworkRB.IsEnabled = false;
+			//    NetworkCB.IsEnabled = false;
+			//}
+			//else
+			//{
+			//    try
+			//    {
+			//        //NetworkCB.DataContextChanged += new DependencyPropertyChangedEventHandler(NetworkCB_DataContextChanged);
+			//        NetworkCB.DataContext = serverList.Element("Servers").Elements();
+
+			//        RegistryKey key = Registry.CurrentUser.OpenSubKey("Software\\Confabulation");
+
+			//        if (key == null)
+			//            key = Registry.CurrentUser.CreateSubKey("Software\\Confabulation");
+
+			//        string lastNetworkName = (string)key.GetValue("LastNetworkName", null);
+
+			//        if (lastNetworkName == null)
+			//        {
+			//            NetworkCB.SelectedIndex = 0;
+			//        }
+			//        else
+			//        {
+			//            //NetworkCB.Item
+			//            NetworkCB.SelectedItem =
+			//                (from c in serverList.Element("Servers").Elements()
+			//                 where c.Attribute("Name").Value.Equals(lastNetworkName)
+			//                 select c).First();
+
+			//            if (NetworkCB.SelectedItem == null)
+			//                NetworkCB.SelectedIndex = 0;
+			//        }
+
+			//        Keyboard.Focus(NetworkCB);
+			//    }
+			//    catch (NullReferenceException)
+			//    {
+			//        ExistingNetworkRB.IsEnabled = false;
+			//        NetworkCB.IsEnabled = false;
+			//    }
+			//}
 		}
 
 		void NetworkSelectionPage_NextButtonClick(object sender, RoutedEventArgs e)
 		{
 			if (ExistingNetworkRB.IsChecked == true)
-				NavigationService.Navigate(new Uri("UserSettingsPage.xaml", UriKind.Relative));
+				NavigationService.Navigate(new Uri("UserSettingsPage.xaml", UriKind.Relative), this);
 			else
-				NavigationService.Navigate(new Uri("ServerSettingsPage.xaml", UriKind.Relative));
+				NavigationService.Navigate(new Uri("ServerSettingsPage.xaml", UriKind.Relative), this);
+		}
+
+		void NavigationService_LoadCompleted(object sender, NavigationEventArgs e)
+		{
+			if (e.ExtraData == this)
+			{
+				((PageFunction<IrcConnectionSettings>)e.Content).Return += new ReturnEventHandler<IrcConnectionSettings>(NetworkSelectionPage_Return);
+			}
+		}
+
+		void NetworkSelectionPage_Return(object sender, ReturnEventArgs<IrcConnectionSettings> e)
+		{
+			IrcConnectionSettings settings = e.Result;
+
+			settings.Name = (string)NetworkCB.SelectedValue;
+			settings.Server = ((IrcNetwork)NetworkCB.SelectedItem).GetFirstServer();
+
+			OnReturn(new ReturnEventArgs<IrcConnectionSettings>(settings));
 		}
 
 		private void NetworkCB_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -75,11 +133,6 @@ namespace Confabulation
 
 		private void NetworkCB_Loaded(object sender, RoutedEventArgs e)
 		{
-			//foreach (IrcNetwork network in App.ServerList.Networks)
-			//{
-			//    NetworkCB.Items.Add(network.Name);
-			//}
-
 			//NetworkCB.SelectedIndex = 0;
 			Keyboard.Focus(NetworkCB);
 		}

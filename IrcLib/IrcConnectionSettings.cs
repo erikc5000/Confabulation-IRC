@@ -41,7 +41,6 @@ namespace Confabulation.Chat
 		public IrcConnectionSettings()
 		{
 			Name = null;
-			User = null;
 			Server = null;
 			InitialUserModes = InitialUserMode.Invisible;
 			TryOtherServersInNetwork = true;
@@ -55,8 +54,10 @@ namespace Confabulation.Chat
 
 		public IrcUserSettings User
 		{
-			get;
-			set;
+			get
+			{
+				return userSettings;
+			}
 		}
 
 		public IrcServer Server
@@ -76,5 +77,7 @@ namespace Confabulation.Chat
 			get;
 			set;
 		}
+
+		private IrcUserSettings userSettings = new IrcUserSettings();
 	}
 }

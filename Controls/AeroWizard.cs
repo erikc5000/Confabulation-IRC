@@ -142,7 +142,7 @@ namespace Confabulation.Controls
 						backButton.SetBinding(Button.IsEnabledProperty, binding);
 					}
 
-					frame.Navigate(InitialPage);
+					frame.Navigate(InitialPage, this);
 					frame.LoadCompleted += new LoadCompletedEventHandler(frame_LoadCompleted);
 				}
 			}

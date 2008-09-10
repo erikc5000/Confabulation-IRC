@@ -20,26 +20,26 @@ namespace Confabulation.Chat
 			XmlReader reader = XmlReader.Create(serversFile, settings);
 			//reader.MoveToContent();
 			reader.Read();
-			reader.ReadStartElement("servers");
+			reader.ReadStartElement("Servers");
 
 			while (reader.Read())
 			{
 				if (!reader.IsStartElement())
 					continue;
 
-				if (!reader.Name.Equals("network"))
+				if (!reader.Name.Equals("Network"))
 					continue;
 				
 				IrcNetwork newNetwork = new IrcNetwork();
 				networks.Add(newNetwork);
-				newNetwork.Name = reader.GetAttribute("name");
+				newNetwork.Name = reader.GetAttribute("Name");
 
 				while (reader.Read())
 				{
 					if (!reader.IsStartElement())
 						continue;
 
-					if (!reader.Name.Equals("server"))
+					if (!reader.Name.Equals("Server"))
 						continue;
 
 					IrcServer newServer = new IrcServer();
@@ -47,8 +47,10 @@ namespace Confabulation.Chat
 					newNetwork.Servers.Add(newServer);
 
 					newServer.Network = newNetwork;
-					newServer.Hostname = reader.GetAttribute("hostname");
-					newServer.Ports = reader.GetAttribute("ports");
+					newServer.Hostname = reader.GetAttribute("Hostname");
+					newServer.Ports = reader.GetAttribute("Ports");
+
+					break;
 				}
 
 			}

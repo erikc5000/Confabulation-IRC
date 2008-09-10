@@ -19,7 +19,9 @@
         <RadioButton x:Name="ExistingNetworkRB" Grid.Column="0" Grid.Row="0" IsChecked="True" Checked="ExistingNetworkRB_Checked">
             <StackPanel x:Name="NetworkSP" Orientation="Horizontal">
                 <StackPanel.Resources>
-                    <XmlDataProvider x:Key="NetworkData" Source="Files/Servers.xml" XPath="Servers"/>
+                    <DataTemplate x:Key="NetworkItem">
+                        <TextBlock Text="{Binding Path=Name}"/>
+                    </DataTemplate>
                 </StackPanel.Resources>
                 <Label Margin="4">Network</Label>
                 <ComboBox Name="NetworkCB"
@@ -27,15 +29,32 @@
                           Margin="4"
                           Loaded="NetworkCB_Loaded"
                           SelectionChanged="NetworkCB_SelectionChanged"
-                          ItemsSource="{Binding Source={DynamicResource NetworkData}, XPath=Network[@*]}">
-                    <ComboBox.ItemTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding XPath=@Name}"/>
-                        </DataTemplate>
-                    </ComboBox.ItemTemplate>
+                          ItemsSource="{Binding}"
+                          ItemTemplate="{StaticResource NetworkItem}"
+                          IsSynchronizedWithCurrentItem="True">
                 </ComboBox>
             </StackPanel>
         </RadioButton>
+        
+        <!--<RadioButton x:Name="ExistingNetworkRB" Grid.Column="0" Grid.Row="0" IsChecked="True" Checked="ExistingNetworkRB_Checked">
+            <StackPanel x:Name="NetworkSP" Orientation="Horizontal">
+                <StackPanel.Resources>
+                    <DataTemplate x:Key="NetworkItem" DataType="{}Network">
+                        <TextBlock Text="{Binding Path=Attribute[Name].Value}"/>
+                    </DataTemplate>
+                </StackPanel.Resources>
+                <Label Margin="4">Network</Label>
+                <ComboBox Name="NetworkCB"
+                          Width="200"
+                          Margin="4"
+                          Loaded="NetworkCB_Loaded"
+                          SelectionChanged="NetworkCB_SelectionChanged"
+                          ItemsSource="{Binding}"
+                          ItemTemplate="{StaticResource NetworkItem}"
+                          IsSynchronizedWithCurrentItem="True">
+                </ComboBox>
+            </StackPanel>
+        </RadioButton>-->
         
         <RadioButton x:Name="ManualServerRB" Grid.Column="0" Grid.Row="1" Checked="ManualServerRB_Checked">
             <Label Margin="4">Enter server information manually</Label>

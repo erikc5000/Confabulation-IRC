@@ -82,4 +82,14 @@
       <Provider>GameConnect</Provider>
     </Server>
   </Network>
+  <Network Name="Undernet">
+    <Server Index="0" Hostname="Dallas.TX.US.Undernet.org" Ports="6660-6669,7000">
+      <Location>
+        <City>Dallas</City>
+        <State>TX</State>
+        <Country>US</Country>
+      </Location>
+      <Provider>Globalcon.net LLC</Provider>
+    </Server>
+  </Network>
 </Servers>

@@ -5,6 +5,7 @@ using System.Data;
 using System.Linq;
 using System.Windows;
 using System.IO;
+using System.Xml.Linq;
 using Confabulation.Chat;
 
 namespace Confabulation
@@ -57,7 +58,8 @@ namespace Confabulation
 				if (!File.Exists(serversDtd))
 					File.Copy("Servers.dtd", serversDtd);
 
-				//serverList = new IrcServerList(serversFile);
+				serverList = new IrcServerList(GetUserServersFile());
+				//serverList = XDocument.Load(GetUserServersFile());;
 			}
 			catch (Exception)
 			{

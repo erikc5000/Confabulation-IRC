@@ -55,6 +55,6 @@ namespace Confabulation.Chat
 			commandMap.Add("kick", KickCommand.ParseAndExecute);
 		}
 
-		private static Dictionary<string, Action<IrcClient, string>> commandMap = new Dictionary<string, Action<IrcClient, string> >();
+		private static Dictionary<string, Action<IrcClient, string>> commandMap = new Dictionary<string, Action<IrcClient, string>>();
 	}
 }

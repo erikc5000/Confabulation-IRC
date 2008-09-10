@@ -52,6 +52,16 @@ namespace Confabulation.Chat
 			set;
 		}
 
+		public int GetFirstPort()
+		{
+			List<int> ports = GetProcessedPorts();
+
+			if (ports.Count == 0)
+				return Irc.DefaultServerPort;
+
+			return ports.First();
+		}
+
 		public List<int> GetProcessedPorts()
 		{
 			if (processedPorts != null)
