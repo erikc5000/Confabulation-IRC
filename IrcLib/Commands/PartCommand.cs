@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Confabulation.Chat;
 
 namespace Confabulation.Chat.Commands
 {
-	public static class PartCommand
+	public class PartCommand : IrcCommand
 	{
-		public static void ParseAndExecute(IrcClient client, string parameters)
+		public static new PartCommand Parse(string parameters)
 		{
 			if (parameters == null || parameters.Length == 0)
 				throw new IrcCommandException(IrcCommandExceptionType.TooFewParameters, syntax);
@@ -20,61 +21,66 @@ namespace Confabulation.Chat.Commands
 			string[] channelNames = splitParams.First().Split(',');
 
 			if (splitParams.Length == 2)
-				Execute(client, channelNames, splitParams.Last());
+				return new PartCommand(channelNames, splitParams.Last());
 			else
-				Execute(client, channelNames);
+				return new PartCommand(channelNames);
 		}
 
-		public static void Execute(IrcClient client, string channelName)
+		public PartCommand(string channelName)
 		{
-			if (client == null)
-				throw new ArgumentNullException("client");
-			else if (channelName == null)
+			if (channelName == null)
 				throw new ArgumentNullException("channelName");
 
-			DoExecute(client, new string[] { channelName }, null);
+			this.channelNames = new string[] { channelName };
 		}
 
-		public static void Execute(IrcClient client, string channelName, string message)
+		public PartCommand(IrcChannel channel)
 		{
-			if (client == null)
-				throw new ArgumentNullException("client");
-			else if (channelName == null)
+			if (channel == null)
+				throw new ArgumentNullException("channel");
+
+			this.channelNames = new string[] { channel.Name };
+		}
+
+		public PartCommand(string channelName, string message)
+		{
+			if (channelName == null)
 				throw new ArgumentNullException("channelName");
 			else if (message == null)
 				throw new ArgumentNullException("message");
 
-			DoExecute(client, new string[] { channelName }, message);
+			this.channelNames = new string[] { channelName };
+			this.message = message;
 		}
 
-		public static void Execute(IrcClient client, IEnumerable<string> channelNames)
+		public PartCommand(string[] channelNames)
 		{
-			if (client == null)
-				throw new ArgumentNullException("client");
-			else if (channelNames == null)
+			if (channelNames == null)
 				throw new ArgumentNullException("channelNames");
 			else if (channelNames.Count() == 0)
 				throw new ArgumentException("No channel names provided");
 
-			DoExecute(client, channelNames, null);
+			this.channelNames = channelNames;
 		}
 
-		public static void Execute(IrcClient client, IEnumerable<string> channelNames, string message)
+		public PartCommand(string[] channelNames, string message)
 		{
-			if (client == null)
-				throw new ArgumentNullException("client");
-			else if (channelNames == null)
+			if (channelNames == null)
 				throw new ArgumentNullException("channelNames");
 			else if (message == null)
 				throw new ArgumentNullException("message");
 			else if (channelNames.Count() == 0)
 				throw new ArgumentException("No channel names provided");
 
-			DoExecute(client, channelNames, null);
+			this.channelNames = channelNames;
+			this.message = message;
 		}
 
-		private static void DoExecute(IrcClient client, IEnumerable<string> channelNames, string message)
+		public override void Execute(IrcClient client)
 		{
+			if (client == null)
+				throw new ArgumentNullException("client");
+
 			foreach (string channel in channelNames)
 			{
 				if (!Irc.IsValidChannelName(channel))
@@ -98,6 +104,9 @@ namespace Confabulation.Chat.Commands
 				client.Send(new IrcMessage(command, channelList));
 			}
 		}
+
+		private string[] channelNames;
+		private string message = null;
 
 		private static readonly byte[] command = Encoding.UTF8.GetBytes("PART");
 		private const string syntax = "/part <channel>[,<channel>...] [<message>]";

@@ -45,8 +45,8 @@ namespace Confabulation
 					ChatWindowDocument.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal,
 						new AddToWindowDelegate(AddTextToWindow), (Object)"Connected");
 					IrcClient client = (IrcClient)sender;
-					NickCommand.Execute(client, "BlasterTest");
-					UserCommand.Execute(client, "guest", InitialUserMode.Invisible, "The Real Me");
+					//NickCommand.Execute(client, "BlasterTest");
+					//UserCommand.Execute(client, "guest", InitialUserMode.Invisible, "The Real Me");
 					break;
 
 				case IrcConnectionEventType.ConnectFailed:
@@ -69,7 +69,7 @@ namespace Confabulation
 			if (Encoding.ASCII.GetString(e.Message.GetCommand()) == "PING")
 			{
 				IrcClient client = (IrcClient)sender;
-				PongCommand.Execute(client, Encoding.UTF8.GetString(e.Message.Parameters.First()));
+				//PongCommand.Execute(client, Encoding.UTF8.GetString(e.Message.Parameters.First()));
 			}
 		}
 
@@ -131,7 +131,7 @@ namespace Confabulation
 						TextRange textRange = new TextRange(ChatTextBox.Document.ContentStart,
 															ChatTextBox.Document.ContentEnd);
 
-						IrcCommand.ParseAndExecute(client, textRange.Text);
+						//IrcCommand.ParseAndExecute(client, textRange.Text);
 					}
 					catch (IrcCommandException)
 					{

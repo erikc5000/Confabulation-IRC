@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Confabulation.Chat;
 
 namespace Confabulation.Chat.Commands
 {
-	public static class TopicCommand
+	public class TopicCommand : IrcCommand
 	{
-		public static void ParseAndExecute(IrcClient client, string parameters)
+		public static new TopicCommand Parse(string parameters)
 		{
 			if (parameters == null || parameters.Length == 0)
 				throw new IrcCommandException(IrcCommandExceptionType.TooFewParameters, syntax);
@@ -18,35 +19,54 @@ namespace Confabulation.Chat.Commands
 				throw new IrcCommandException(IrcCommandExceptionType.TooFewParameters, syntax);
 
 			if (splitParams.Length == 1)
-				Execute(client, splitParams.First());
+				return new TopicCommand(splitParams.First());
 			else
-				Execute(client, splitParams.First(), splitParams.Last());
+				return new TopicCommand(splitParams.First(), splitParams.Last());
 		}
 
-		public static void Execute(IrcClient client, string channelName)
+		public TopicCommand(string channelName)
 		{
-			if (client == null)
-				throw new ArgumentNullException("client");
-			else if (channelName == null)
+			if (channelName == null)
 				throw new ArgumentNullException("channelName");
 
-			DoExecute(client, channelName, null);
+			this.channelName = channelName;
 		}
 
-		public static void Execute(IrcClient client, string channelName, string topic)
+		public TopicCommand(IrcChannel channel)
 		{
-			if (client == null)
-				throw new ArgumentNullException("client");
-			else if (channelName == null)
+			if (channel == null)
+				throw new ArgumentNullException("channel");
+
+			this.channelName = channel.Name;
+		}
+
+		public TopicCommand(string channelName, string topic)
+		{
+			if (channelName == null)
 				throw new ArgumentNullException("channelName");
 			else if (topic == null)
 				throw new ArgumentNullException("topic");
 
-			DoExecute(client, channelName, topic);
+			this.channelName = channelName;
+			this.topic = topic;
 		}
 
-		private static void DoExecute(IrcClient client, string channelName, string topic)
+		public TopicCommand(IrcChannel channel, string topic)
 		{
+			if (channel == null)
+				throw new ArgumentNullException("channel");
+			else if (topic == null)
+				throw new ArgumentNullException("topic");
+
+			this.channelName = channel.Name;
+			this.topic = topic;
+		}
+
+		public override void Execute(IrcClient client)
+		{
+			if (client == null)
+				throw new ArgumentNullException("client");
+
 			if (!Irc.IsValidChannelName(channelName))
 			{
 				throw new IrcCommandException(IrcCommandExceptionType.InvalidParameter,
@@ -73,6 +93,9 @@ namespace Confabulation.Chat.Commands
 				client.Send(new IrcMessage(command, byteChannelName));
 			}
 		}
+
+		private string channelName;
+		private string topic = null;
 
 		private static readonly byte[] command = Encoding.UTF8.GetBytes("TOPIC");
 		private const string syntax = "/topic <channel> [<topic>]";

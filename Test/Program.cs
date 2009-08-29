@@ -32,7 +32,7 @@ namespace Test
 
 				try
 				{
-					IrcCommand.ParseAndExecute(client, input);
+					//IrcCommand.ParseAndExecute(client, input);
 				}
 				catch (IrcCommandException)
 				{
@@ -57,8 +57,8 @@ namespace Test
 				case IrcConnectionEventType.Connected:
 					System.Console.WriteLine("Connected");
 					IrcClient client = (IrcClient)sender;
-					NickCommand.Execute(client, "BlasterTest");
-					UserCommand.Execute(client, "guest", InitialUserMode.Invisible, "The Real Me");
+					//NickCommand.Execute(client, "BlasterTest");
+					//UserCommand.Execute(client, "guest", InitialUserMode.Invisible, "The Real Me");
 					break;
 
 				case IrcConnectionEventType.ConnectFailed:
@@ -78,7 +78,7 @@ namespace Test
 			if (Encoding.UTF8.GetString(args.Message.GetCommand()) == "PING")
 			{
 				IrcClient client = (IrcClient)sender;
-				PongCommand.Execute(client, Encoding.UTF8.GetString(args.Message.Parameters.First()));
+				//PongCommand.Execute(client, Encoding.UTF8.GetString(args.Message.Parameters.First()));
 			}
 		}
     }

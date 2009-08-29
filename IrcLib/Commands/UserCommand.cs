@@ -2,19 +2,28 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Confabulation.Chat;
 
 namespace Confabulation.Chat.Commands
 {
-	public static class UserCommand
+	public class UserCommand : IrcCommand
 	{
-		public static void Execute(IrcClient client, string userName, InitialUserMode mode, string realName)
+		public UserCommand(string userName, InitialUserMode mode, string realName)
 		{
-			if (client == null)
-				throw new ArgumentNullException("client");
-			else if (userName == null)
+			if (userName == null)
 				throw new ArgumentNullException("userName");
 			else if (realName == null)
 				throw new ArgumentNullException("realName");
+
+			this.userName = userName;
+			this.mode = mode;
+			this.realName = realName;
+		}
+
+		public override void Execute(IrcClient client)
+		{
+			if (client == null)
+				throw new ArgumentNullException("client");
 
 			if (!Irc.IsValidUserName(userName))
 			{
@@ -35,6 +44,10 @@ namespace Confabulation.Chat.Commands
 
 			client.Send(new IrcMessage(command, byteUserName, byteMode, unused, byteRealName));
 		}
+
+		private string userName;
+		private InitialUserMode mode;
+		private string realName;
 
 		private static readonly byte[] command = Encoding.UTF8.GetBytes("USER");
 	}

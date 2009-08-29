@@ -2,17 +2,22 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Confabulation.Chat;
 
 namespace Confabulation.Chat.Commands
 {
-	public static class PartAllCommand
+	public class PartAllCommand : IrcCommand
 	{
-		public static void ParseAndExecute(IrcClient client, string parameters)
+		public static new PartAllCommand Parse(string parameters)
 		{
-			Execute(client);
+			return new PartAllCommand();
 		}
 
-		public static void Execute(IrcClient client)
+		public PartAllCommand()
+		{
+		}
+
+		public override void Execute(IrcClient client)
 		{
 			if (client == null)
 				throw new ArgumentNullException("client");

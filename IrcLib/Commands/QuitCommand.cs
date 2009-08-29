@@ -2,43 +2,55 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Confabulation.Chat;
 
 namespace Confabulation.Chat.Commands
 {
-	public static class QuitCommand
+	public class QuitCommand : IrcCommand
 	{
-		public static void ParseAndExecute(IrcClient client, string parameters)
+		public static new QuitCommand Parse(string parameters)
 		{
 			if (parameters == null || parameters.Length == 0)
-				Execute(client);
+				return new QuitCommand();
 
-			Execute(client, parameters);
+			return new QuitCommand(parameters);
 		}
 
-		public static void Execute(IrcClient client)
+		public QuitCommand()
 		{
-			if (client == null)
-				throw new ArgumentNullException("client");
-
-			client.Send(new IrcMessage(command));
 		}
 
-		public static void Execute(IrcClient client, string message)
+		public QuitCommand(string message)
 		{
-			if (client == null)
-				throw new ArgumentNullException("client");
-			else if (message == null)
+			if (message == null)
 				throw new ArgumentNullException("message");
 
-			if (!Irc.IsValidMessageContent(message))
-			{
-				throw new IrcCommandException(IrcCommandExceptionType.InvalidParameter,
-				                              "Quit message contains invalid characters");
-			}
-
-			// TODO: User server-wide setting for encoding
-			client.Send(new IrcMessage(command, Encoding.UTF8.GetBytes(message)));
+			this.message = message;
 		}
+
+		public override void Execute(IrcClient client)
+		{
+			if (client == null)
+				throw new ArgumentNullException("client");
+
+			if (message != null)
+			{
+				if (!Irc.IsValidMessageContent(message))
+				{
+					throw new IrcCommandException(IrcCommandExceptionType.InvalidParameter,
+												  "Quit message contains invalid characters");
+				}
+
+				// TODO: Use server-wide setting for encoding
+				client.Send(new IrcMessage(command, Encoding.UTF8.GetBytes(message)));
+			}
+			else
+			{
+				client.Send(new IrcMessage(command));
+			}
+		}
+
+		private string message = null;
 
 		private const string syntax = "/quit [<message>]";
 		private static readonly byte[] command = Encoding.UTF8.GetBytes("QUIT");

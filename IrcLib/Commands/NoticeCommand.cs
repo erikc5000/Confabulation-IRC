@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Confabulation.Chat;
 
 namespace Confabulation.Chat.Commands
 {
-	public static class NoticeCommand
+	public class NoticeCommand : IrcCommand
 	{
-		public static void ParseAndExecute(IrcClient client, string parameters)
+		public static new NoticeCommand Parse(string parameters)
 		{
 			if (parameters == null || parameters.Length == 0)
 				throw new IrcCommandException(IrcCommandExceptionType.TooFewParameters, syntax);
@@ -17,17 +18,46 @@ namespace Confabulation.Chat.Commands
 			if (splitParams.Length < 2)
 				throw new IrcCommandException(IrcCommandExceptionType.TooFewParameters, syntax);
 
-			Execute(client, splitParams[0], splitParams[1]);
+			return new NoticeCommand(splitParams[0], splitParams[1]);
 		}
 
-		public static void Execute(IrcClient client, string target, string message)
+		public NoticeCommand(string target, string message)
 		{
-			if (client == null)
-				throw new ArgumentNullException("client");
-			else if (target == null)
+			if (target == null)
 				throw new ArgumentNullException("target");
 			else if (message == null)
 				throw new ArgumentNullException("message");
+
+			this.target = target;
+			this.message = message;
+		}
+
+		public NoticeCommand(IrcUser user, string message)
+		{
+			if (user == null)
+				throw new ArgumentNullException("user");
+			else if (message == null)
+				throw new ArgumentNullException("message");
+
+			this.target = user.Nickname;
+			this.message = message;
+		}
+
+		public NoticeCommand(IrcChannel channel, string message)
+		{
+			if (channel == null)
+				throw new ArgumentNullException("channel");
+			else if (message == null)
+				throw new ArgumentNullException("message");
+
+			this.target = channel.Name;
+			this.message = message;
+		}
+
+		public override void Execute(IrcClient client)
+		{
+			if (client == null)
+				throw new ArgumentNullException("client");
 
 			if (!Irc.IsValidMessageTarget(target))
 			{
@@ -44,7 +74,10 @@ namespace Confabulation.Chat.Commands
 			client.Send(new IrcMessage(command, Encoding.UTF8.GetBytes(target), Encoding.UTF8.GetBytes(message)));
 		}
 
-		private const string syntax = "/msg <target> <message>";
+		private string target;
+		private string message;
+
+		private const string syntax = "/notice <target> <message>";
 		private static readonly byte[] command = Encoding.UTF8.GetBytes("NOTICE");
 	}
 }

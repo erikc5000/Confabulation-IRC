@@ -6,13 +6,11 @@ using Confabulation.Chat.Commands;
 
 namespace Confabulation.Chat
 {
-    public static class IrcCommand
+    public abstract class IrcCommand
     {
-		public static void ParseAndExecute(IrcClient client, string commandString)
+		public static IrcCommand Parse(string commandString)
 		{
-			if (client == null)
-				throw new ArgumentNullException("client");
-			else if (commandString == null)
+			if (commandString == null)
 				throw new ArgumentNullException("commandString");
 
 			commandString = commandString.TrimStart(' ', '\t', '\r', '\n');
@@ -37,24 +35,26 @@ namespace Confabulation.Chat
 											  commandName);
 			}
 
-			commandMap[commandName](client, commandArgs);
+			return commandMap[commandName](commandArgs);
 		}
 
 		static IrcCommand()
 		{
-			commandMap.Add("nick", NickCommand.ParseAndExecute);
-			commandMap.Add("join", JoinCommand.ParseAndExecute);
-			commandMap.Add("quit", QuitCommand.ParseAndExecute);
-			commandMap.Add("msg", MsgCommand.ParseAndExecute);
-			commandMap.Add("notice", NoticeCommand.ParseAndExecute);
-			commandMap.Add("part", PartCommand.ParseAndExecute);
-			commandMap.Add("partall", PartAllCommand.ParseAndExecute);
-			commandMap.Add("topic", TopicCommand.ParseAndExecute);
-			commandMap.Add("away", AwayCommand.ParseAndExecute);
-			commandMap.Add("raw", RawCommand.ParseAndExecute);
-			commandMap.Add("kick", KickCommand.ParseAndExecute);
+			commandMap.Add("nick", NickCommand.Parse);
+			commandMap.Add("join", JoinCommand.Parse);
+			commandMap.Add("quit", QuitCommand.Parse);
+			commandMap.Add("msg", MsgCommand.Parse);
+			commandMap.Add("notice", NoticeCommand.Parse);
+			commandMap.Add("part", PartCommand.Parse);
+			commandMap.Add("partall", PartAllCommand.Parse);
+			commandMap.Add("topic", TopicCommand.Parse);
+			commandMap.Add("away", AwayCommand.Parse);
+			commandMap.Add("raw", RawCommand.Parse);
+			commandMap.Add("kick", KickCommand.Parse);
 		}
 
-		private static Dictionary<string, Action<IrcClient, string>> commandMap = new Dictionary<string, Action<IrcClient, string>>();
+		public abstract void Execute(IrcClient client);
+
+		private static Dictionary<string, Func<string, IrcCommand>> commandMap = new Dictionary<string, Func<string, IrcCommand>>();
 	}
 }

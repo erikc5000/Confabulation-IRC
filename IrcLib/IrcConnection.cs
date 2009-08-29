@@ -44,6 +44,11 @@ namespace Confabulation.Chat
 			client.Disconnect();
 		}
 
+		public void Execute(IrcCommand command)
+		{
+			command.Execute(client);
+		}
+
 		public bool UserRegistered
 		{
 			get
@@ -113,8 +118,8 @@ namespace Confabulation.Chat
 			switch (e.EventType)
 			{
 				case IrcConnectionEventType.Connected:
-					NickCommand.Execute(client, settings.User.Nicknames.First());
-					UserCommand.Execute(client, settings.User.UserName, settings.InitialUserModes, settings.User.RealName);
+					Execute(new NickCommand(settings.User.Nicknames.First()));
+					Execute(new UserCommand(settings.User.UserName, settings.InitialUserModes, settings.User.RealName));
 					break;
 
 				case IrcConnectionEventType.Disconnected:
