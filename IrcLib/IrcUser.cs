@@ -7,21 +7,19 @@ namespace Confabulation.Chat
 {
     public class IrcUser
     {
-        public IrcUser(byte[] nickname)
+        public IrcUser(string nickname)
         {
 			if (nickname == null)
 				throw new ArgumentNullException("nickname");
 
-            this.nickname = nickname;
+            this.Nickname = nickname;
         }
 
-        public byte[] Nickname
-        {
-            get
-            {
-                return nickname;
-            }
-        }
+		public string Nickname
+		{
+			get;
+			private set;
+		}
 
 		public bool IsAway
 		{
@@ -31,7 +29,7 @@ namespace Confabulation.Chat
 			}
 		}
 
-		public byte[] AwayMessage
+		public string AwayMessage
 		{
 			get
 			{
@@ -39,19 +37,13 @@ namespace Confabulation.Chat
 			}
 		}
 
-		internal void SetNickname(byte[] nickname)
-		{
-			this.nickname = nickname;
-		}
-
-		internal void SetAwayState(bool isAway, byte[] message)
+		internal void SetAwayState(bool isAway, string message)
 		{
 			this.isAway = isAway;
 			awayMessage = message;
 		}
 
-        private byte[] nickname;
 		private bool isAway = false;
-		private byte[] awayMessage = null;
+		private string awayMessage = null;
     }
 }

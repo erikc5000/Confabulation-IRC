@@ -36,8 +36,15 @@ namespace Confabulation.Chat
 
 		public string Ports
 		{
-			get;
-			set;
+			get
+			{
+				return Ports;
+			}
+			set
+			{
+				Ports = value;
+				portsDirty = true;
+			}
 		}
 
 		public string Password
@@ -64,7 +71,7 @@ namespace Confabulation.Chat
 
 		public List<int> GetProcessedPorts()
 		{
-			if (processedPorts != null)
+			if (!portsDirty)
 				return processedPorts;
 
 			processedPorts = new List<int>();
@@ -109,9 +116,12 @@ namespace Confabulation.Chat
 				}
 			}
 
+			portsDirty = false;
+
 			return processedPorts;
 		}
 
 		private List<int> processedPorts = null;
+		bool portsDirty = true;
 	}
 }

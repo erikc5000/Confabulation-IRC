@@ -7,23 +7,28 @@ namespace Confabulation.Chat
 {
     public class IrcChannel
     {
-		public IrcChannel(byte[] name)
+		public IrcChannel(string name)
 		{
 			if (name == null)
 				throw new ArgumentNullException("name");
 
-			this.name = name;
+			this.Name = name;
 		}
 
-		public byte[] Name
+		public string Name
+		{
+			get;
+			private set;
+		}
+
+		public List<IrcUser> Users
 		{
 			get
 			{
-				return name;
+				return users;
 			}
 		}
 
-		private byte[] name;
-		private List<IrcUser> users;
+		private List<IrcUser> users = new List<IrcUser>();
     }
 }
