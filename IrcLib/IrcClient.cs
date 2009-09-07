@@ -223,7 +223,16 @@ namespace Confabulation.Chat
 				if (connectionState != IrcConnectionState.Resolving)
 					return;
 
-				IPAddress[] addresses = Dns.EndGetHostAddresses(result);
+				IPAddress[] addresses = null;
+
+				try
+				{
+					addresses = Dns.EndGetHostAddresses(result);
+				}
+				catch (SocketException)
+				{
+					addresses = new IPAddress[0];
+				}
 
 				if (addresses.Length == 0)
 				{

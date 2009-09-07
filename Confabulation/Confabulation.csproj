@@ -116,6 +116,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConnectionEventArgs.cs" />
     <Compile Include="NetworkSelectionPage.xaml.cs">
       <DependentUpon>NetworkSelectionPage.xaml</DependentUpon>
     </Compile>

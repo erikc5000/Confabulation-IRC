@@ -25,16 +25,42 @@ namespace Confabulation
         {
             InitializeComponent();
 
-			client.ConnectionEvent += new EventHandler<IrcConnectionEventArgs>(client_ConnectionEvent);
-			client.MessageReceived += new EventHandler<IrcMessageEventArgs>(client_RawMessageReceived);
+			App app = (App)App.Current;
+			app.ConnectionAdded += new EventHandler<ConnectionEventArgs>(app_ConnectionAdded);
+			app.ConnectionRemoved += new EventHandler<ConnectionEventArgs>(app_ConnectionRemoved);
+			//client.ConnectionEvent += new EventHandler<IrcConnectionEventArgs>(client_ConnectionEvent);
+			//client.MessageReceived += new EventHandler<IrcMessageEventArgs>(client_RawMessageReceived);
         }
+
+		private void app_ConnectionAdded(object sender, ConnectionEventArgs e)
+		{
+			if (activeConnection == null)
+			{
+				activeConnection = e.Connection;
+				activeConnection.StateChanged += new EventHandler<IrcConnectionEventArgs>(client_ConnectionEvent);
+				activeConnection.RawMessageReceived += new EventHandler<IrcMessageEventArgs>(client_RawMessageReceived);
+			}
+		}
+
+		private void app_ConnectionRemoved(object sender, ConnectionEventArgs e)
+		{
+			if (activeConnection == e.Connection)
+			{
+				activeConnection.StateChanged -= new EventHandler<IrcConnectionEventArgs>(client_ConnectionEvent);
+				activeConnection.RawMessageReceived -= new EventHandler<IrcMessageEventArgs>(client_RawMessageReceived);
+				activeConnection = null;
+			}
+		}
 
 		private void ConnectButton_Click(object sender, RoutedEventArgs e)
 		{
-			if (client.ConnectionState == IrcConnectionState.Disconnected)
-				client.Connect();
+			if (activeConnection == null)
+				return;
+
+			if (activeConnection.State == IrcConnectionState.Disconnected)
+				activeConnection.Initiate();
 			else
-				client.Disconnect();
+				activeConnection.Close();
 		}
 
 		private void client_ConnectionEvent(object sender, IrcConnectionEventArgs e)
@@ -44,9 +70,6 @@ namespace Confabulation
 				case IrcConnectionEventType.Connected:
 					ChatWindowDocument.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal,
 						new AddToWindowDelegate(AddTextToWindow), (Object)"Connected");
-					IrcClient client = (IrcClient)sender;
-					//NickCommand.Execute(client, "BlasterTest");
-					//UserCommand.Execute(client, "guest", InitialUserMode.Invisible, "The Real Me");
 					break;
 
 				case IrcConnectionEventType.ConnectFailed:
@@ -65,12 +88,6 @@ namespace Confabulation
 		{
 			ChatWindowDocument.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal,
 						new AddToWindowDelegate(AddTextToWindow), (Object)e.Message.ToString());
-
-			if (Encoding.ASCII.GetString(e.Message.GetCommand()) == "PING")
-			{
-				IrcClient client = (IrcClient)sender;
-				//PongCommand.Execute(client, Encoding.UTF8.GetString(e.Message.Parameters.First()));
-			}
 		}
 
 		private delegate void AddToWindowDelegate(string text);
@@ -114,13 +131,11 @@ namespace Confabulation
 			scrollViewer.ScrollToBottom();
 		}
 
-		IrcClient client = new IrcClient("Krypt.CA.US.GameSurge.net", 6667);
-
 		private void ChatTextBox_KeyDown(object sender, KeyEventArgs e)
 		{
 			if (e.Key == Key.Enter || e.Key == Key.Return)
 			{
-				if (client.ConnectionState != IrcConnectionState.Connected)
+				if (activeConnection == null || activeConnection.State != IrcConnectionState.Connected)
 				{
 					AddTextToWindow("Not connected");
 				}
@@ -131,7 +146,8 @@ namespace Confabulation
 						TextRange textRange = new TextRange(ChatTextBox.Document.ContentStart,
 															ChatTextBox.Document.ContentEnd);
 
-						//IrcCommand.ParseAndExecute(client, textRange.Text);
+						App app = (App)App.Current;
+						app.Connections.First().Execute(IrcCommand.Parse(textRange.Text));
 					}
 					catch (IrcCommandException)
 					{
@@ -156,5 +172,7 @@ namespace Confabulation
 			ncWin.Owner = this;
 			ncWin.ShowDialog();
 		}
+
+		private IrcConnection activeConnection = null;
     }
 }

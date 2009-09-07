@@ -26,33 +26,21 @@ namespace Confabulation.Chat
 		{
 		}
 
-		internal void Add(string property, string value)
-		{
-			if (property == null)
-				throw new ArgumentNullException("property");
-
-			properties[property] = value;
-		}
-
-		internal void Clear()
-		{
-			properties.Clear();
-			channelTypes = null;
-			channelModes = null;
-		}
-
 		public int MaxChannelNameLength
 		{
 			get
 			{
-				if (properties.ContainsKey("CHANNELLEN"))
+				lock (syncObject)
 				{
-					string length = properties["CHANNELLEN"];
+					if (properties.ContainsKey("CHANNELLEN"))
+					{
+						string length = properties["CHANNELLEN"];
 
-					if (length == null)
-						return 0;
-					else
-						return int.Parse(length);
+						if (length == null)
+							return 0;
+						else
+							return int.Parse(length);
+					}
 				}
 
 				return 200;
@@ -63,12 +51,15 @@ namespace Confabulation.Chat
 		{
 			get
 			{
-				if (properties.ContainsKey("KICKLEN"))
+				lock (syncObject)
 				{
-					string length = properties["KICKLEN"];
+					if (properties.ContainsKey("KICKLEN"))
+					{
+						string length = properties["KICKLEN"];
 
-					if (length != null)
-						return int.Parse(length);
+						if (length != null)
+							return int.Parse(length);
+					}
 				}
 
 				return 0;
@@ -79,14 +70,17 @@ namespace Confabulation.Chat
 		{
 			get
 			{
-				if (properties.ContainsKey("NICKLEN"))
+				lock (syncObject)
 				{
-					string length = properties["NICKLEN"];
+					if (properties.ContainsKey("NICKLEN"))
+					{
+						string length = properties["NICKLEN"];
 
-					if (length == null)
-						return 0;
-					else
-						return int.Parse(length);
+						if (length == null)
+							return 0;
+						else
+							return int.Parse(length);
+					}
 				}
 
 				return 9;
@@ -97,12 +91,15 @@ namespace Confabulation.Chat
 		{
 			get
 			{
-				if (properties.ContainsKey("TOPICLEN"))
+				lock (syncObject)
 				{
-					string length = properties["TOPICLEN"];
+					if (properties.ContainsKey("TOPICLEN"))
+					{
+						string length = properties["TOPICLEN"];
 
-					if (length != null)
-						return int.Parse(length);
+						if (length != null)
+							return int.Parse(length);
+					}
 				}
 
 				return 0;
@@ -113,8 +110,11 @@ namespace Confabulation.Chat
 		{
 			get
 			{
-				if (properties.ContainsKey("NETWORK"))
-					return properties["NETWORK"];
+				lock (syncObject)
+				{
+					if (properties.ContainsKey("NETWORK"))
+						return properties["NETWORK"];
+				}
 
 				return null;
 			}
@@ -124,14 +124,17 @@ namespace Confabulation.Chat
 		{
 			get
 			{
-				if (properties.ContainsKey("CASEMAPPING"))
+				lock (syncObject)
 				{
-					string mapping = properties["CASEMAPPING"];
+					if (properties.ContainsKey("CASEMAPPING"))
+					{
+						string mapping = properties["CASEMAPPING"];
 
-					if (mapping.Equals("ascii", StringComparison.OrdinalIgnoreCase))
-						return IrcCaseMapping.Ascii;
-					else if (mapping.Equals("strict-rfc1459", StringComparison.OrdinalIgnoreCase))
-						return IrcCaseMapping.StrictRfc1459;
+						if (mapping.Equals("ascii", StringComparison.OrdinalIgnoreCase))
+							return IrcCaseMapping.Ascii;
+						else if (mapping.Equals("strict-rfc1459", StringComparison.OrdinalIgnoreCase))
+							return IrcCaseMapping.StrictRfc1459;
+					}
 				}
 
 				return IrcCaseMapping.Rfc1459;
@@ -142,25 +145,28 @@ namespace Confabulation.Chat
 		{
 			get
 			{
-				if (channelTypes == null)
+				lock (syncObject)
 				{
-					channelTypes = new List<char>();
-
-					if (properties.ContainsKey("CHANTYPES"))
+					if (channelTypes == null)
 					{
-						string typeString = properties["CHANTYPES"];
+						channelTypes = new List<char>();
 
-						foreach (char c in typeString)
-							channelTypes.Add(c);
+						if (properties.ContainsKey("CHANTYPES"))
+						{
+							string typeString = properties["CHANTYPES"];
+
+							foreach (char c in typeString)
+								channelTypes.Add(c);
+						}
+						else
+						{
+							channelTypes.Add('#');
+							channelTypes.Add('&');
+						}
 					}
-					else
-					{
-						channelTypes.Add('#');
-						channelTypes.Add('&');
-					}
+
+					return channelTypes;
 				}
-
-				return channelTypes;
 			}
 		}
 
@@ -168,8 +174,11 @@ namespace Confabulation.Chat
 		{
 			get
 			{
-				if (properties.ContainsKey("EXCEPTS"))
-					return true;
+				lock (syncObject)
+				{
+					if (properties.ContainsKey("EXCEPTS"))
+						return true;
+				}
 
 				return false;
 			}
@@ -179,15 +188,18 @@ namespace Confabulation.Chat
 		{
 			get
 			{
-				if (!properties.ContainsKey("EXCEPTS"))
-					throw new InvalidOperationException("Ban exceptions are not supported");
+				lock (syncObject)
+				{
+					if (!properties.ContainsKey("EXCEPTS"))
+						throw new InvalidOperationException("Ban exceptions are not supported");
 
-				string modeString = properties["EXCEPTS"];
+					string modeString = properties["EXCEPTS"];
 
-				if (modeString == null)
-					return 'e';
+					if (modeString == null)
+						return 'e';
 
-				return modeString.ToCharArray().First();
+					return modeString.ToCharArray().First();
+				}
 			}
 		}
 
@@ -195,8 +207,11 @@ namespace Confabulation.Chat
 		{
 			get
 			{
-				if (properties.ContainsKey("INVEX"))
-					return true;
+				lock (syncObject)
+				{
+					if (properties.ContainsKey("INVEX"))
+						return true;
+				}
 
 				return false;
 			}
@@ -206,15 +221,18 @@ namespace Confabulation.Chat
 		{
 			get
 			{
-				if (!properties.ContainsKey("INVEX"))
-					throw new InvalidOperationException("Invite exceptions are not supported");
+				lock (syncObject)
+				{
+					if (!properties.ContainsKey("INVEX"))
+						throw new InvalidOperationException("Invite exceptions are not supported");
 
-				string modeString = properties["INVEX"];
+					string modeString = properties["INVEX"];
 
-				if (modeString == null)
-					return 'I';
+					if (modeString == null)
+						return 'I';
 
-				return modeString.ToCharArray().First();
+					return modeString.ToCharArray().First();
+				}
 			}
 		}
 
@@ -222,21 +240,24 @@ namespace Confabulation.Chat
 		{
 			get
 			{
-				if (!properties.ContainsKey("MODES"))
-					return 3;
-
-				string modesString = properties["MODES"];
-
-				if (modesString == null)
-					return 0;
-
-				try
+				lock (syncObject)
 				{
-					return int.Parse(modesString);
-				}
-				catch (FormatException)
-				{
-					return 3;
+					if (!properties.ContainsKey("MODES"))
+						return 3;
+
+					string modesString = properties["MODES"];
+
+					if (modesString == null)
+						return 0;
+
+					try
+					{
+						return int.Parse(modesString);
+					}
+					catch (FormatException)
+					{
+						return 3;
+					}
 				}
 			}
 		}
@@ -253,60 +274,92 @@ namespace Confabulation.Chat
 
 		public List<char> GetChannelModes(IrcChannelModeType type)
 		{
-			// Construct channel modes
-			if (channelModes == null)
+			lock (syncObject)
 			{
-				channelModes = new Dictionary<IrcChannelModeType, List<char>>();
-				channelModes[IrcChannelModeType.AddressRequired] = new List<char>();
-				channelModes[IrcChannelModeType.ParameterRequired] = new List<char>();
-				channelModes[IrcChannelModeType.ParameterRequiredOnSet] = new List<char>();
-				channelModes[IrcChannelModeType.NoParameter] = new List<char>();
-
-				if (properties.ContainsKey("CHANMODES"))
+				// Construct channel modes
+				if (channelModes == null)
 				{
-					string modeString = properties["CHANMODES"];
-					string[] modes = modeString.Split(',');
+					channelModes = new Dictionary<IrcChannelModeType, List<char>>();
+					channelModes[IrcChannelModeType.AddressRequired] = new List<char>();
+					channelModes[IrcChannelModeType.ParameterRequired] = new List<char>();
+					channelModes[IrcChannelModeType.ParameterRequiredOnSet] = new List<char>();
+					channelModes[IrcChannelModeType.NoParameter] = new List<char>();
 
-					if (modes.Length >= 1)
+					if (properties.ContainsKey("CHANMODES"))
 					{
-						foreach (char c in modes[0])
-							channelModes[IrcChannelModeType.AddressRequired].Add(c);
-					}
+						string modeString = properties["CHANMODES"];
+						string[] modes = modeString.Split(',');
 
-					if (modes.Length >= 2)
-					{
-						foreach (char c in modes[1])
-							channelModes[IrcChannelModeType.ParameterRequired].Add(c);
-					}
+						if (modes.Length >= 1)
+						{
+							foreach (char c in modes[0])
+								channelModes[IrcChannelModeType.AddressRequired].Add(c);
+						}
 
-					if (modes.Length >= 3)
-					{
-						foreach (char c in modes[2])
-							channelModes[IrcChannelModeType.ParameterRequiredOnSet].Add(c);
-					}
+						if (modes.Length >= 2)
+						{
+							foreach (char c in modes[1])
+								channelModes[IrcChannelModeType.ParameterRequired].Add(c);
+						}
 
-					if (modes.Length >= 4)
-					{
-						foreach (char c in modes[3])
-							channelModes[IrcChannelModeType.NoParameter].Add(c);
+						if (modes.Length >= 3)
+						{
+							foreach (char c in modes[2])
+								channelModes[IrcChannelModeType.ParameterRequiredOnSet].Add(c);
+						}
+
+						if (modes.Length >= 4)
+						{
+							foreach (char c in modes[3])
+								channelModes[IrcChannelModeType.NoParameter].Add(c);
+						}
 					}
 				}
-			}
 
-			return channelModes[type];
+				return channelModes[type];
+			}
 		}
 
 		public bool SupportsChannelType(char type)
 		{
-			foreach (char t in channelTypes)
+			lock (syncObject)
 			{
-				if (t == type)
-					return true;
+				foreach (char t in channelTypes)
+				{
+					if (t == type)
+						return true;
+				}
 			}
 
 			return false;
 		}
 
+		internal void Add(string property, string value)
+		{
+			lock (syncObject)
+			{
+				if (property == null)
+					throw new ArgumentNullException("property");
+
+				properties[property] = value;
+
+				// Cached data is "dirtied" if properties are added
+				channelTypes = null;
+				channelModes = null;
+			}
+		}
+
+		internal void Clear()
+		{
+			lock (syncObject)
+			{
+				properties.Clear();
+				channelTypes = null;
+				channelModes = null;
+			}
+		}
+
+		private readonly Object syncObject = new Object();
 		private List<char> channelTypes = null;
 		private Dictionary<IrcChannelModeType, List<char>> channelModes = null;
 		private Dictionary<string, string> properties = new Dictionary<string,string>();

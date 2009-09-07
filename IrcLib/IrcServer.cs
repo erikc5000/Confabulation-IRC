@@ -38,11 +38,11 @@ namespace Confabulation.Chat
 		{
 			get
 			{
-				return Ports;
+				return ports;
 			}
 			set
 			{
-				Ports = value;
+				ports = value;
 				portsDirty = true;
 			}
 		}
@@ -61,12 +61,12 @@ namespace Confabulation.Chat
 
 		public int GetFirstPort()
 		{
-			List<int> ports = GetProcessedPorts();
+			List<int> portList = GetProcessedPorts();
 
-			if (ports.Count == 0)
+			if (portList.Count == 0)
 				return Irc.DefaultServerPort;
 
-			return ports.First();
+			return portList.First();
 		}
 
 		public List<int> GetProcessedPorts()
@@ -76,7 +76,7 @@ namespace Confabulation.Chat
 
 			processedPorts = new List<int>();
 
-			string[] separatedPorts = Ports.Split(new char[] { ',', ';' },
+			string[] separatedPorts = ports.Split(new char[] { ',', ';' },
 			                                      StringSplitOptions.RemoveEmptyEntries);
 
 			foreach (string separatedPort in separatedPorts)
@@ -121,6 +121,7 @@ namespace Confabulation.Chat
 			return processedPorts;
 		}
 
+		string ports = "";
 		private List<int> processedPorts = null;
 		bool portsDirty = true;
 	}

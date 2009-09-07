@@ -15,7 +15,7 @@ namespace Confabulation
     /// </summary>
     public partial class App : Application
     {
-		static App()
+		App() : base()
 		{
 			Initialize();
 		}
@@ -33,7 +33,7 @@ namespace Confabulation
 			return GetUserFolder() + "\\Servers.xml";
 		}
 
-		private static void Initialize()
+		private void Initialize()
 		{
 			string userFolder = GetUserFolder();
 
@@ -67,7 +67,30 @@ namespace Confabulation
 			}
 		}
 
-		public static IrcServerList ServerList
+		public event EventHandler<ConnectionEventArgs> ConnectionAdded;
+		public event EventHandler<ConnectionEventArgs> ConnectionRemoved;
+
+		public void AddConnection(IrcConnection connection)
+		{
+			connections.Add(connection);
+
+			EventHandler<ConnectionEventArgs> handler = ConnectionAdded;
+
+			if (handler != null)
+				handler(this, new ConnectionEventArgs(connection));
+		}
+
+		public void RemoveConnection(IrcConnection connection)
+		{
+			connections.Remove(connection);
+
+			EventHandler<ConnectionEventArgs> handler = ConnectionRemoved;
+
+			if (handler != null)
+				handler(this, new ConnectionEventArgs(connection));
+		}
+
+		public IrcServerList ServerList
 		{
 			get
 			{
@@ -75,6 +98,15 @@ namespace Confabulation
 			}
 		}
 
-		private static IrcServerList serverList = null;
+		public IEnumerable<IrcConnection> Connections
+		{
+			get
+			{
+				return connections;
+			}
+		}
+
+		private IrcServerList serverList = null;
+		private List<IrcConnection> connections = new List<IrcConnection>();
     }
 }

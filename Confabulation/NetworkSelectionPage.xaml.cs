@@ -33,6 +33,11 @@ namespace Confabulation
 			//Unloaded += new RoutedEventHandler(NetworkSelectionPage_Unloaded);
 		}
 
+		~NetworkSelectionPage()
+		{
+
+		}
+
 		//void NetworkSelectionPage_Unloaded(object sender, RoutedEventArgs e)
 		//{
 		//    //RegistryKey key = Registry.CurrentUser.OpenSubKey("Software\\Confabulation", true);
@@ -42,7 +47,9 @@ namespace Confabulation
 
 		void NetworkSelectionPage_Loaded(object sender, RoutedEventArgs e)
 		{
-			NetworkCB.DataContext = App.ServerList.Networks;
+			App app = (App)App.Current;
+			NetworkCB.DataContext = app.ServerList.Networks;
+			//NavigationService.LoadCompleted += new LoadCompletedEventHandler(NavigationService_LoadCompleted);
 			//XDocument serverList = App.ServerList;
 
 			//if (serverList == null)
@@ -93,27 +100,39 @@ namespace Confabulation
 		void NetworkSelectionPage_NextButtonClick(object sender, RoutedEventArgs e)
 		{
 			if (ExistingNetworkRB.IsChecked == true)
-				NavigationService.Navigate(new Uri("UserSettingsPage.xaml", UriKind.Relative), this);
-			else
-				NavigationService.Navigate(new Uri("ServerSettingsPage.xaml", UriKind.Relative), this);
-		}
-
-		void NavigationService_LoadCompleted(object sender, NavigationEventArgs e)
-		{
-			if (e.ExtraData == this)
 			{
-				((PageFunction<IrcConnectionSettings>)e.Content).Return += new ReturnEventHandler<IrcConnectionSettings>(NetworkSelectionPage_Return);
+				UserSettingsPage page = new UserSettingsPage();
+				page.Return += new ReturnEventHandler<IrcConnectionSettings>(NetworkSelectionPage_Return);
+				NavigationService.Navigate(page);
+			}
+			else
+			{
+				ServerSettingsPage page = new ServerSettingsPage();
+				page.Return += new ReturnEventHandler<IrcConnectionSettings>(NetworkSelectionPage_Return);
+				NavigationService.Navigate(page);
 			}
 		}
+
+		//void NavigationService_LoadCompleted(object sender, NavigationEventArgs e)
+		//{
+		//    //if (e.ExtraData == this)
+		//    //{
+		//    //    ((PageFunction<IrcConnectionSettings>)e.Content).Return
+		//    //        += new ReturnEventHandler<IrcConnectionSettings>(NetworkSelectionPage_Return);
+		//    //}
+		//}
 
 		void NetworkSelectionPage_Return(object sender, ReturnEventArgs<IrcConnectionSettings> e)
 		{
 			IrcConnectionSettings settings = e.Result;
 
-			settings.Name = (string)NetworkCB.SelectedValue;
-			settings.Server = ((IrcNetwork)NetworkCB.SelectedItem).GetFirstServer();
+			if (settings.Server == null)
+			{
+				settings.Name = ((IrcNetwork)NetworkCB.SelectedItem).Name;
+				settings.Server = ((IrcNetwork)NetworkCB.SelectedItem).GetFirstServer();
+			}
 
-			OnReturn(new ReturnEventArgs<IrcConnectionSettings>(settings));
+			OnReturn(e);
 		}
 
 		private void NetworkCB_SelectionChanged(object sender, SelectionChangedEventArgs e)

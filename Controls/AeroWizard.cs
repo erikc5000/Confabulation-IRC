@@ -127,24 +127,21 @@ namespace Confabulation.Controls
 			Button backButton = Template.FindName("PART_BackButton", this) as Button;
 			Button cancelButton = Template.FindName("PART_CancelButton", this) as Button;
 
-			if (InitialPage != null)
+			frame = Template.FindName("PART_Frame", this) as Frame;
+
+			if (frame != null)
 			{
-				frame = Template.FindName("PART_Frame", this) as Frame;
+				frame.NavigationUIVisibility = NavigationUIVisibility.Hidden;
 
-				if (frame != null)
+				if (backButton != null)
 				{
-					frame.NavigationUIVisibility = NavigationUIVisibility.Hidden;
-
-					if (backButton != null)
-					{
-						Binding binding = new Binding("CanGoBack");
-						binding.Source = frame;
-						backButton.SetBinding(Button.IsEnabledProperty, binding);
-					}
-
-					frame.Navigate(InitialPage, this);
-					frame.LoadCompleted += new LoadCompletedEventHandler(frame_LoadCompleted);
+					Binding binding = new Binding("CanGoBack");
+					binding.Source = frame;
+					backButton.SetBinding(Button.IsEnabledProperty, binding);
 				}
+
+				//frame.Navigate(InitialPage, this);
+				frame.LoadCompleted += new LoadCompletedEventHandler(frame_LoadCompleted);
 			}
 
 			if (nextButton != null)
@@ -193,7 +190,7 @@ namespace Confabulation.Controls
 			Button cancelButton = Template.FindName("PART_CancelButton", this) as Button;
 
 			IAeroWizardPage page = ((IAeroWizardPage)e.Content);
-			
+
 			Binding binding = new Binding("IsNextButtonEnabled");
 			binding.Source = page;
 			nextButton.SetBinding(Button.IsEnabledProperty, binding);

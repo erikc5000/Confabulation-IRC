@@ -6,7 +6,8 @@
                                  xmlns:controls="clr-namespace:Confabulation.Controls;assembly=ConfabulationControls"
                                  Title="User Settings"
                                  NextButtonText="_Finish"
-                                 NextButtonClick="NextButton_Click">
+                                 NextButtonClick="NextButton_Click"
+                                 KeepAlive="True">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>

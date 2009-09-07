@@ -35,7 +35,24 @@ namespace Confabulation
 
 		void NextButton_Click(object sender, RoutedEventArgs e)
 		{
-			NavigationService.Navigate(new Uri("UserSettingsPage.xaml", UriKind.Relative));
+			UserSettingsPage page = new UserSettingsPage();
+			page.Return += new ReturnEventHandler<IrcConnectionSettings>(page_Return);
+			NavigationService.Navigate(page);
+		}
+
+		private void page_Return(object sender, ReturnEventArgs<IrcConnectionSettings> e)
+		{
+			IrcConnectionSettings settings = e.Result;
+
+			settings.Name = Address.Text;
+
+			IrcServer server = new IrcServer();
+			server.Hostname = Address.Text;
+			server.Ports = Ports.Text;
+			server.Password = Password.Password;
+			settings.Server = server;
+
+			OnReturn(e);
 		}
 
 		private void Address_TextChanged(object sender, TextChangedEventArgs e)

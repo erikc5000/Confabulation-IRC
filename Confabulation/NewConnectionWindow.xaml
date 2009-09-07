@@ -4,5 +4,4 @@
                      xmlns:controls="clr-namespace:Confabulation.Controls;assembly=ConfabulationControls"
                      Width="400"
                      Height="300"
-                     Title="New Connection"
-                     InitialPage="NetworkSelectionPage.xaml"/>
+                     Title="New Connection"/>

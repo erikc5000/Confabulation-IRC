@@ -17,6 +17,45 @@ using System.Windows.Markup;
 
 namespace Confabulation
 {
+	public class NewConnectionDummyPage : AeroWizardPageFunction<IrcConnectionSettings>
+	{
+		public NewConnectionDummyPage()
+		{
+			this.KeepAlive = true;
+			Loaded += new RoutedEventHandler(NewConnectionDummyPage_Loaded);
+		}
+
+		public NewConnectionDummyPage(NewConnectionWindow window)
+		{
+			this.KeepAlive = true;
+			this.window = window;
+			Loaded += new RoutedEventHandler(NewConnectionDummyPage_Loaded);
+		}
+
+		void NewConnectionDummyPage_Loaded(object sender, RoutedEventArgs e)
+		{
+			NetworkSelectionPage page = new NetworkSelectionPage();
+			page.Return += new ReturnEventHandler<IrcConnectionSettings>(page_Return);
+			NavigationService.Navigate(page, this);
+		}
+
+		void page_Return(object sender, ReturnEventArgs<IrcConnectionSettings> e)
+		{
+			IrcConnectionSettings settings = e.Result;
+
+			IrcConnection connection = new IrcConnection(settings);
+			App app = (App)App.Current;
+			app.AddConnection(connection);
+
+			connection.Initiate();
+
+			window.Close();
+			OnReturn(e);
+		}
+
+		private NewConnectionWindow window;
+	}
+
 	/// <summary>
 	/// Interaction logic for NewConnectionWindow.xaml
 	/// </summary>
@@ -35,28 +74,36 @@ namespace Confabulation
 
 			if (frame != null)
 			{
-				frame.NavigationService.LoadCompleted += new LoadCompletedEventHandler(NavigationService_LoadCompleted);
+				NewConnectionDummyPage page = new NewConnectionDummyPage(this);
+				page.Return += new ReturnEventHandler<IrcConnectionSettings>(page_Return);
+				frame.NavigationService.Navigate(page, this);
+				//frame.NavigationService.LoadCompleted += new LoadCompletedEventHandler(NavigationService_LoadCompleted);
 			}
 		}
 
-		void NavigationService_LoadCompleted(object sender, NavigationEventArgs e)
+		void page_Return(object sender, ReturnEventArgs<IrcConnectionSettings> e)
 		{
-			if (e.ExtraData == this)
-			{
-				((PageFunction<IrcConnectionSettings>)e.Content).Return +=
-					new ReturnEventHandler<IrcConnectionSettings>(NewConnectionWindow_Return);
-			}
-		}
-
-		void NewConnectionWindow_Return(object sender, ReturnEventArgs<IrcConnectionSettings> e)
-		{
-			IrcConnectionSettings settings = e.Result;
-
-			IrcConnection connection = new IrcConnection(settings);
-			
-			// App.AddConnection
-
 			Close();
 		}
+
+		//void NavigationService_LoadCompleted(object sender, NavigationEventArgs e)
+		//{
+		//    if (e.ExtraData == this)
+		//    {
+		//        ((PageFunction<IrcConnectionSettings>)e.Content).Return +=
+		//            new ReturnEventHandler<IrcConnectionSettings>(NewConnectionWindow_Return);
+		//    }
+		//}
+
+		//void NewConnectionWindow_Return(object sender, ReturnEventArgs<IrcConnectionSettings> e)
+		//{
+		//    IrcConnectionSettings settings = e.Result;
+
+		//    IrcConnection connection = new IrcConnection(settings);
+			
+		//    // App.AddConnection
+
+		//    Close();
+		//}
 	}
 }
