@@ -64,6 +64,7 @@ namespace Confabulation.Chat
 		RPL_UNIQOPIS = 325,
 		RPL_NOTOPIC = 331,
 		RPL_TOPIC = 332,
+		RPL_TOPICWHOTIME = 333,
 		RPL_INVITING = 341,
 		RPL_SUMMONING = 342,
 		RPL_INVITELIST = 346,
@@ -160,7 +161,7 @@ namespace Confabulation.Chat
 			if (offset < 0 || offset >= message.Length)
 				throw new ArgumentOutOfRangeException("offset");
 
-			if (length < 0 || length >= message.Length - offset)
+			if (length < 0 || length > message.Length - offset)
 				throw new ArgumentOutOfRangeException("length");
 
 			// Calculate the message length before anything else

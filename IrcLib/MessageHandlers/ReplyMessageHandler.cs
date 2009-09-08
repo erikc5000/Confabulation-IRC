@@ -160,21 +160,108 @@ namespace Confabulation.Chat.MessageHandlers
 				channel.SetTopic(topic);
 		}
 
+		static void ProcessTopicWhoTime(IrcConnection connection, IrcMessage message)
+		{
+			if (message.Parameters.Count() != 4)
+			{
+				Log.WriteLine("RPL_TOPICWHOTIME doesn't appear to be formatted correctly");
+				return;
+			}
+
+			string channelName = Encoding.UTF8.GetString(message.Parameters.ElementAt(1));
+			IrcChannel channel = connection.FindChannel(channelName);
+
+			if (channel == null)
+			{
+				Log.WriteLine("RPL_TOPICWHOTIME: Channel == null");
+				return;
+			}
+
+			string nickname = Encoding.UTF8.GetString(message.Parameters.ElementAt(2));
+
+			double unixTimestamp = Double.Parse(Encoding.UTF8.GetString(message.Parameters.ElementAt(3)));
+			DateTime time = new System.DateTime(1970, 1, 1, 0, 0, 0, 0);
+			time.AddSeconds(unixTimestamp);
+
+			channel.SetTopicInfo(nickname, time);
+		}
+
 		static void ProcessNameReply(IrcConnection connection, IrcMessage message)
 		{
-			if (message.Parameters.Count() != 3)
+			if (message.Parameters.Count() != 4)
 			{
 				Log.WriteLine("RPL_NAMEREPLY doesn't appear to be formatted correctly");
 				return;
 			}
 
+			string channelName = Encoding.UTF8.GetString(message.Parameters.ElementAt(2));
+			IrcChannel channel = connection.FindChannel(channelName);
 
-			//string channelName = Encoding.UTF8.GetString(message.Parameters.ElementAt(1));
-			//string topic = Encoding.UTF8.GetString(message.Parameters.ElementAt(2));
-			//IrcChannel channel = connection.FindChannel(channelName);
+			// Don't process for channels we aren't in
+			if (channel == null)
+				return;
 
-			//if (channel != null)
-			//    channel.ChangeTopic(topic);
+			// Don't do any further processing if this message wasn't sent as
+			// part of the channel initialization process
+			if (channel.UsersInitialized)
+				return;
+
+			string nameString = Encoding.UTF8.GetString(message.Parameters.ElementAt(3));
+
+			string[] names = nameString.Split(' ');
+			char[][] modes = new char[names.Length][];
+
+			for (int i = 0; i < names.Length; i++)
+			{
+				int numModes = 0;
+
+				for (int j = 0; j < names[i].Length && names[i][j] < 0x41; j++)
+					numModes++;
+
+				modes[i] = new char[numModes];
+
+				for (int j = 0; j < names[i].Length && names[i][j] < 0x41; j++)
+				{
+					char mode = connection.ServerProperties.GetModeFromPrefix(names[i][j]);
+
+					if (mode == '\0')
+						Log.WriteLine("RPL_NAMEREPLY: Couldn't find mode from prefix '" + names[i][j] + "'");
+
+					modes[i][j] = mode;
+				}
+
+				names[i] = names[i].Remove(0, numModes);
+			}
+
+			IrcUser[] users = new IrcUser[names.Length];
+
+			for (int i = 0; i < names.Length; i++)
+			{
+				users[i] = connection.FindUser(names[i]);
+
+				if (users[i] == null)
+					users[i] = connection.AddUser(names[i]);
+			}
+
+			channel.AddUsers(users, modes);
+		}
+
+		static void ProcessEndOfNames(IrcConnection connection, IrcMessage message)
+		{
+			if (message.Parameters.Count() != 3)
+			{
+				Log.WriteLine("RPL_ENDOFNAMES doesn't appear to be formatted correctly");
+				return;
+			}
+
+			string channelName = Encoding.UTF8.GetString(message.Parameters.ElementAt(1));
+			IrcChannel channel = connection.FindChannel(channelName);
+
+			// No need to process this for channels we aren't in
+			if (channel == null)
+				return;
+
+			channel.UsersInitialized = true;
 		}
 
 		static ReplyMessageHandler()
@@ -184,6 +271,8 @@ namespace Confabulation.Chat.MessageHandlers
 			replyMap.Add(IrcNumericReply.RPL_NOTOPIC, ProcessNoTopic);
 			replyMap.Add(IrcNumericReply.RPL_TOPIC, ProcessTopic);
 			replyMap.Add(IrcNumericReply.RPL_NAMEREPLY, ProcessNameReply);
+			replyMap.Add(IrcNumericReply.RPL_ENDOFNAMES, ProcessEndOfNames);
+			replyMap.Add(IrcNumericReply.RPL_TOPICWHOTIME, ProcessTopicWhoTime);
 		}
 
 		private static Dictionary<IrcNumericReply, Action<IrcConnection, IrcMessage>> replyMap =

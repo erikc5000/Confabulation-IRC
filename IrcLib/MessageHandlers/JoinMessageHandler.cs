@@ -35,9 +35,10 @@ namespace Confabulation.Chat.MessageHandlers
 				return;
 			}
 
+			bool isSelf = nickname.Equals(connection.User.Nickname);
 			IrcChannel channel = connection.FindChannel(channelName);
 
-			if (nickname.Equals(connection.User.Nickname))
+			if (isSelf)
 			{
 				if (channel != null)
 				{
@@ -57,15 +58,20 @@ namespace Confabulation.Chat.MessageHandlers
 			if (channel == null)
 				channel = connection.AddChannel(channelName);
 
-			IrcUser user = connection.FindUser(nickname);
+			if (isSelf)
+			{
+				IrcChannelEventArgs e = new IrcChannelEventArgs(channel, connection.User);
+				connection.ChannelJoinEvent(e);
+			}
+			else
+			{
+				IrcUser user = connection.FindUser(nickname);
 
-			if (user == null)
-				user = connection.AddUser(nickname);
+				if (user == null)
+					user = connection.AddUser(nickname);
 
-			channel.AddUser(user);
-
-			IrcChannelEventArgs e = new IrcChannelEventArgs(channel, user);
-			connection.ChannelJoinEvent(e);
+				channel.OnUserJoin(user);
+			}
 		}
 	}
 }

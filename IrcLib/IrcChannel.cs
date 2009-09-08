@@ -204,6 +204,24 @@ namespace Confabulation.Chat
 			}
 		}
 
+		internal bool UsersInitialized
+		{
+			get
+			{
+				lock (usersLock)
+				{
+					return usersInitialized;
+				}
+			}
+			set
+			{
+				lock (usersLock)
+				{
+					usersInitialized = value;
+				}
+			}
+		}
+
 		internal bool HasUser(string nickname)
 		{
 			lock (usersLock)
@@ -302,6 +320,7 @@ namespace Confabulation.Chat
 		private IrcTopicInfo topicInfo = null;
 		private readonly Object usersLock = new Object();
 		private Dictionary<string, IrcChannelUser> users;
+		private bool usersInitialized = false;
 		private string rawModes = "";
     }
 }

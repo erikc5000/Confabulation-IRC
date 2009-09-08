@@ -264,10 +264,29 @@ namespace Confabulation.Chat
 
 		public char GetModeFromPrefix(char prefix)
 		{
-			//if (prefixMap == null)
-			//{
+			lock (syncObject)
+			{
+				if (prefixMap == null)
+				{
+					prefixMap = new Dictionary<char, char>();
+					string prefixString = properties["PREFIX"];
 
-			//}
+					if (prefixString == null || prefixString[0] != '(')
+						return '\0';
+
+					prefixString = prefixString.Remove(0, 1);
+					string[] parts = prefixString.Split(')');
+
+					if (parts.Length != 2 || parts[0].Length != parts[1].Length)
+						return '\0';
+
+					for (int i = 0; i < parts[0].Length; i++)
+						prefixMap.Add(parts[1][i], parts[0][i]);
+				}
+
+				if (prefixMap.ContainsKey(prefix))
+					return prefixMap[prefix];
+			}
 
 			return '\0';
 		}
@@ -346,6 +365,7 @@ namespace Confabulation.Chat
 				// Cached data is "dirtied" if properties are added
 				channelTypes = null;
 				channelModes = null;
+				prefixMap = null;
 			}
 		}
 
@@ -356,6 +376,7 @@ namespace Confabulation.Chat
 				properties.Clear();
 				channelTypes = null;
 				channelModes = null;
+				prefixMap = null;
 			}
 		}
 
@@ -363,5 +384,6 @@ namespace Confabulation.Chat
 		private List<char> channelTypes = null;
 		private Dictionary<IrcChannelModeType, List<char>> channelModes = null;
 		private Dictionary<string, string> properties = new Dictionary<string,string>();
+		private Dictionary<char, char> prefixMap = null;
 	}
 }
