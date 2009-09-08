@@ -62,7 +62,7 @@ namespace Confabulation.Chat.MessageHandlers
 			if (user == null)
 				user = connection.AddUser(nickname);
 
-			channel.Users.Add(user);
+			channel.AddUser(user);
 
 			IrcChannelEventArgs e = new IrcChannelEventArgs(channel, user);
 			connection.ChannelJoinEvent(e);

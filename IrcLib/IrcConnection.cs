@@ -193,7 +193,7 @@ namespace Confabulation.Chat
 			lock (channelsLock)
 			{
 				if (!channels.ContainsKey(channelName))
-					channels[channelName] = new IrcChannel(channelName);
+					channels[channelName] = new IrcChannel(channelName, this);
 
 				return channels[channelName];
 			}
@@ -201,13 +201,15 @@ namespace Confabulation.Chat
 
 		internal void RemoveChannel(IrcChannel channel)
 		{
-			foreach (IrcUser user in channel.Users)
+			channels.Remove(channel.Name);
+
+			foreach (IrcChannelUser user in channel.Users)
 			{
 				bool shouldKeep = false;
 
 				foreach (IrcChannel testChannel in channels.Values)
 				{
-					if (testChannel.Users.Contains(user))
+					if (testChannel.HasUser(user.Nickname))
 					{
 						shouldKeep = true;
 						break;
@@ -217,8 +219,6 @@ namespace Confabulation.Chat
 				if (!shouldKeep)
 					visibleUsers.Remove(user.Nickname);
 			}
-
-			channels.Remove(channel.Name);
 		}
 
 		internal IrcUser FindUser(string nickname)

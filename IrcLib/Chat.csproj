@@ -64,6 +64,7 @@
     <Compile Include="Commands\RawCommand.cs" />
     <Compile Include="Commands\TopicCommand.cs" />
     <Compile Include="Commands\UserCommand.cs" />
+    <Compile Include="IrcChannelUser.cs" />
     <Compile Include="IrcConnectionSettings.cs" />
     <Compile Include="ErrorEventArgs.cs" />
     <Compile Include="IrcChannelEventArgs.cs" />

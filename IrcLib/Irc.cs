@@ -37,22 +37,6 @@ namespace Confabulation.Chat
 			}
 		}*/
 
-		public static bool NicknamesEqual(byte[] nick1, byte[] nick2)
-		{
-			if (nick1.Length != nick2.Length)
-				return false;
-
-			for (int i = 0; i < nick1.Length; i++)
-			{
-				char c1 = (char)nick1[i];
-				char c2 = (char)nick2[i];
-
-				
-			}
-
-			return true;
-		}
-
 		public static bool IsValidCommand(byte[] command)
 		{
 			if (command == null)

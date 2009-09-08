@@ -7,6 +7,15 @@ namespace Confabulation.Chat
 {
 	public class IrcChannelEventArgs : EventArgs
 	{
+		public IrcChannelEventArgs(IrcChannel channel)
+		{
+			if (channel == null)
+				throw new ArgumentNullException("channel");
+
+			Channel = channel;
+			User = null;
+		}
+
 		public IrcChannelEventArgs(IrcChannel channel, IrcUser user)
 		{
 			if (channel == null)

@@ -141,7 +141,7 @@ namespace Confabulation.Chat.MessageHandlers
 			IrcChannel channel = connection.FindChannel(channelName);
 
 			if (channel != null)
-				channel.ChangeTopic(null);
+				channel.SetTopic(null);
 		}
 
 		static void ProcessTopic(IrcConnection connection, IrcMessage message)
@@ -157,7 +157,24 @@ namespace Confabulation.Chat.MessageHandlers
 			IrcChannel channel = connection.FindChannel(channelName);
 
 			if (channel != null)
-				channel.ChangeTopic(topic);
+				channel.SetTopic(topic);
+		}
+
+		static void ProcessNameReply(IrcConnection connection, IrcMessage message)
+		{
+			if (message.Parameters.Count() != 3)
+			{
+				Log.WriteLine("RPL_NAMEREPLY doesn't appear to be formatted correctly");
+				return;
+			}
+
+
+			//string channelName = Encoding.UTF8.GetString(message.Parameters.ElementAt(1));
+			//string topic = Encoding.UTF8.GetString(message.Parameters.ElementAt(2));
+			//IrcChannel channel = connection.FindChannel(channelName);
+
+			//if (channel != null)
+			//    channel.ChangeTopic(topic);
 		}
 
 		static ReplyMessageHandler()
@@ -166,6 +183,7 @@ namespace Confabulation.Chat.MessageHandlers
 			replyMap.Add(IrcNumericReply.RPL_ISUPPORT, ProcessISupport);
 			replyMap.Add(IrcNumericReply.RPL_NOTOPIC, ProcessNoTopic);
 			replyMap.Add(IrcNumericReply.RPL_TOPIC, ProcessTopic);
+			replyMap.Add(IrcNumericReply.RPL_NAMEREPLY, ProcessNameReply);
 		}
 
 		private static Dictionary<IrcNumericReply, Action<IrcConnection, IrcMessage>> replyMap =
