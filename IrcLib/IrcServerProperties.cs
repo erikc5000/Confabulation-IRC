@@ -20,6 +20,11 @@ namespace Confabulation.Chat
 		NoParameter
 	}
 
+	// Not handled yet
+	// TARGMAX 
+	// STATUSMSG
+	// CHANLIMIT
+
 	public class IrcServerProperties
 	{
 		public IrcServerProperties()

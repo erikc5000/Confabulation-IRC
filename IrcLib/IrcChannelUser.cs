@@ -38,6 +38,22 @@ namespace Confabulation.Chat
 			}
 		}
 
+		//public override bool Equals(object obj)
+		//{
+		//    if (obj == null)
+		//        return false;
+
+		//    if (obj is IrcChannelUser)
+		//        return user.Equals(((IrcChannelUser)obj).user);
+
+		//    return user.Equals(obj);
+		//}
+
+		public bool Equals(string nickname)
+		{
+			return user.Equals(nickname);
+		}
+
 		public bool IsOperator()
 		{
 			return modes.Contains('o');
@@ -90,7 +106,8 @@ namespace Confabulation.Chat
 
 		internal void AddMode(char mode)
 		{
-			modes.Add(mode);
+			if (!modes.Contains(mode))
+				modes.Add(mode);
 		}
 
 		internal void RemoveMode(char mode)
@@ -99,6 +116,6 @@ namespace Confabulation.Chat
 		}
 
 		private IrcUser user;
-		private HashSet<char> modes = new HashSet<char>();
+		private List<char> modes = new List<char>();
 	}
 }

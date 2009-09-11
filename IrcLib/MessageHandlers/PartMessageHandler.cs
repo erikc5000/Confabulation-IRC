@@ -9,75 +9,72 @@ namespace Confabulation.Chat.MessageHandlers
 	{
 		internal static void Process(IrcConnection connection, IrcMessage message)
 		{
-			//IrcMessagePrefix prefix = message.Prefix;
+			IrcMessagePrefix prefix = message.Prefix;
 
-			//if (prefix == null)
-			//{
-			//    Log.WriteLine("PART message is missing prefix");
-			//    return;
-			//}
+			if (prefix == null)
+			{
+				Log.WriteLine("PART message is missing prefix");
+				return;
+			}
 
-			//if (message.Parameters.Count() < 1)
-			//{
-			//    Log.WriteLine("PART message is missing parameters");
-			//    return;
-			//}
+			if (message.Parameters.Count() < 1)
+			{
+				Log.WriteLine("PART message is missing parameters");
+				return;
+			}
 
-			//byte[] byteNickname = prefix.ExtractNickname();
-			//string nickname = Encoding.UTF8.GetString(byteNickname);
+			byte[] byteNickname = prefix.ExtractNickname();
+			string nickname = Encoding.UTF8.GetString(byteNickname);
 
-			//byte[] byteChannelName = message.Parameters.ElementAt(0);
-			//string channelName = Encoding.UTF8.GetString(byteChannelName);
+			byte[] byteChannelName = message.Parameters.ElementAt(0);
+			string channelName = Encoding.UTF8.GetString(byteChannelName);
 
-			//string partMessage = null;
+			string partMessage = null;
 
-			//if (message.Parameters.Count() > 1)
-			//{
-			//    byte[] bytePartMessage = message.Parameters.ElementAt(1);
-			//    partMessage = Encoding.UTF8.GetString(bytePartMessage);
-			//}
+			if (message.Parameters.Count() > 1)
+			{
+				byte[] bytePartMessage = message.Parameters.ElementAt(1);
+				partMessage = Encoding.UTF8.GetString(bytePartMessage);
+			}
 
-			//if (connection.self == null)
-			//{
-			//    Log.WriteLine("Received PART message, but user isn't registered");
-			//    return;
-			//}
+			if (connection.User == null)
+			{
+				Log.WriteLine("Received PART message, but user isn't registered");
+				return;
+			}
 
-			//if (nickname.Equals(connection.Self.Nickname))
-			//{
-			//    lock (connection.channelsLock)
-			//    {
-			//        if (!connection.channels.ContainsKey(channelName))
-			//        {
-			//            Log.WriteLine("Received PART message for a channel the user is not in");
-			//            return;
-			//        }
-			//    }
-			//}
-			//else
-			//{
-			//    lock (connection.channelsLock)
-			//    {
-			//        if (connection.channels.ContainsKey(channelName))
-			//        {
-			//            Log.WriteLine("Received PART message for a user not in any existing channels");
-			//            return;
-			//        }
-			//    }
-			//}
+			IrcChannel channel = connection.FindChannel(channelName);
 
-			//IrcChannel channel = connection.GetChannel(channelName);
-			//IrcUser user = connection.GetUser(nickname);
+			if (channel == null)
+			{
+				Log.WriteLine("Received PART message for a channel we aren't in");
+				return;
+			}
 
-			//IrcChannelEventArgs e = new IrcChannelEventArgs(channel, user);
-			//e.Message = partMessage;
-			//EventHandler<IrcChannelEventArgs> handler = connection.OnChannelPart;
+			bool isSelf = connection.User.Equals(nickname);
 
-			//if (handler != null)
-			//    handler(connection, e);
+			if (isSelf)
+			{
+				IrcChannelEventArgs e = new IrcChannelEventArgs(channel, connection.User);
+				e.Message = partMessage;
+				connection.ChannelPartEvent(e);
+				connection.RemoveChannel(channel);
+			}
+			else
+			{
+				IrcUser user = connection.FindUser(nickname);
 
-			//if (nickname.Equals(connection.Self.Nickname))
-			//    connection.RemoveChannel(channel);
+				if (user == null)
+				{
+					Log.WriteLine("Received PART message from a user that doesn't exist");
+					return;
+				}
+
+				channel.OnUserPart(user, partMessage);
+
+				if (user.Channels.Count() == 0)
+					connection.RemoveUser(user);
+			}
 		}
 	}
 }

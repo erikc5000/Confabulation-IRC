@@ -75,13 +75,13 @@ namespace Confabulation.Chat
 			}
 		}
 
-		public List<IrcChannel> Channels
+		public IEnumerable<IrcChannel> Channels
 		{
 			get
 			{
 				lock (channelsLock)
 				{
-					return new List<IrcChannel>(channels.Values);
+					return channels.Values;
 				}
 			}
 		}
@@ -164,6 +164,9 @@ namespace Confabulation.Chat
 
 		internal void SetUser(IrcUser user)
 		{
+			if (user == null)
+				throw new ArgumentNullException("user");
+
 			lock (userRegisteredLock)
 			{
 				self = user;
@@ -179,6 +182,9 @@ namespace Confabulation.Chat
 
 		internal IrcChannel FindChannel(string channelName)
 		{
+			if (channelName == null)
+				throw new ArgumentNullException("channelName");
+
 			lock (channelsLock)
 			{
 				if (!channels.ContainsKey(channelName))
@@ -190,6 +196,9 @@ namespace Confabulation.Chat
 
 		internal IrcChannel AddChannel(string channelName)
 		{
+			if (channelName == null)
+				throw new ArgumentNullException("channelName");
+
 			lock (channelsLock)
 			{
 				if (!channels.ContainsKey(channelName))
@@ -201,28 +210,43 @@ namespace Confabulation.Chat
 
 		internal void RemoveChannel(IrcChannel channel)
 		{
-			channels.Remove(channel.Name);
+			if (channel == null)
+				throw new ArgumentNullException("channel");
 
-			foreach (IrcChannelUser user in channel.Users)
+			lock (channelsLock)
 			{
-				bool shouldKeep = false;
+				channels.Remove(channel.Name);
 
-				foreach (IrcChannel testChannel in channels.Values)
+				foreach (IrcChannelUser channelUser in channel.Users)
 				{
-					if (testChannel.HasUser(user.Nickname))
+					IrcUser user = channelUser.GetUser();
+					user.RemoveChannel(channel);
+
+					lock (userRegisteredLock)
 					{
-						shouldKeep = true;
-						break;
+						if (user != self && user.Channels.Count() == 0)
+						{
+							lock (visibleUsersLock)
+							{
+								visibleUsers.Remove(user.Nickname);
+							}
+						}
 					}
 				}
-
-				if (!shouldKeep)
-					visibleUsers.Remove(user.Nickname);
 			}
 		}
 
 		internal IrcUser FindUser(string nickname)
 		{
+			if (nickname == null)
+				throw new ArgumentNullException("nickname");
+
+			lock (userRegisteredLock)
+			{
+				if (self != null && self.Equals(nickname))
+					return self;
+			}
+
 			lock (visibleUsersLock)
 			{
 				if (!visibleUsers.ContainsKey(nickname))
@@ -234,10 +258,19 @@ namespace Confabulation.Chat
 
 		internal IrcUser AddUser(string nickname)
 		{
+			if (nickname == null)
+				throw new ArgumentNullException("nickname");
+
+			lock (userRegisteredLock)
+			{
+				if (self != null && self.Equals(nickname))
+					return self;
+			}
+
 			lock (visibleUsersLock)
 			{
 				if (!visibleUsers.ContainsKey(nickname))
-					visibleUsers[nickname] = new IrcUser(nickname);
+					visibleUsers[nickname] = new IrcUser(nickname, this);
 
 				return visibleUsers[nickname];
 			}
@@ -245,12 +278,32 @@ namespace Confabulation.Chat
 
 		internal void RemoveUser(IrcUser user)
 		{
+			if (user == null)
+				throw new ArgumentNullException("user");
+
 			lock (visibleUsersLock)
 			{
-				if (!visibleUsers.ContainsKey(user.Nickname))
-					return;
-
 				visibleUsers.Remove(user.Nickname);
+			}
+		}
+
+		internal void UpdateUserNickname(IrcUser user, string newNickname)
+		{
+			if (user == null)
+				throw new ArgumentNullException("user");
+			else if (newNickname == null)
+				throw new ArgumentNullException("newNickname");
+
+			lock (userRegisteredLock)
+			{
+				if (user == self)
+					return;
+			}
+
+			lock (visibleUsersLock)
+			{
+				visibleUsers.Remove(user.Nickname);
+				visibleUsers[newNickname] = user;
 			}
 		}
 

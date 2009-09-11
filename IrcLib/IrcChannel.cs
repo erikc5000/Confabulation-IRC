@@ -48,9 +48,36 @@ namespace Confabulation.Chat
 
 			this.Name = name;
 			this.Connection = connection;
+			this.IsSecret = false;
+			this.IsPrivate = false;
+			this.IsInviteOnly = false;
+			this.IsModerated = false;
+			this.Key = null;
+			this.RequiresKey = false;
+			this.OnlyOperatorsSetTopic = false;
+			this.UserLimit = 0;
 			//this.Type = IrcChannelType.Public;
 
 			this.users = new Dictionary<string, IrcChannelUser>(new IrcNameComparer(connection.ServerProperties));
+		}
+
+		//public override bool Equals(object obj)
+		//{
+		//    if (obj == null)
+		//        return false;
+
+		//    if (obj is IrcChannel)
+		//    {
+		//        IrcChannel other = (IrcChannel)obj;
+		//        return Irc.NamesEqual(other.Name, Name, Connection.ServerProperties);
+		//    }
+
+		//    return false;
+		//}
+
+		public bool Equals(string channelName)
+		{
+			return Irc.NamesEqual(channelName, Name, Connection.ServerProperties);
 		}
 
 		public string Name
@@ -226,11 +253,8 @@ namespace Confabulation.Chat
 		{
 			lock (usersLock)
 			{
-				if (users.ContainsKey(nickname))
-					return true;
+				return users.ContainsKey(nickname);
 			}
-
-			return false;
 		}
 
 		internal void AddUser(IrcUser user, params char[] modes)
@@ -239,6 +263,8 @@ namespace Confabulation.Chat
 			{
 				if (!users.ContainsKey(user.Nickname))
 					users[user.Nickname] = new IrcChannelUser(user, modes);
+
+				user.AddChannel(this);
 
 				IrcChannelEventArgs e = new IrcChannelEventArgs(this);
 				EventHandler<IrcChannelEventArgs> handler = UsersAdded;
@@ -263,6 +289,8 @@ namespace Confabulation.Chat
 				{
 					if (!users.ContainsKey(newUsers[i].Nickname))
 						users[newUsers[i].Nickname] = new IrcChannelUser(newUsers[i], modes[i]);
+
+					newUsers[i].AddChannel(this);
 				}
 
 				IrcChannelEventArgs e = new IrcChannelEventArgs(this);
@@ -277,10 +305,8 @@ namespace Confabulation.Chat
 		{
 			lock (usersLock)
 			{
-				if (!users.ContainsKey(user.Nickname))
-					return;
-
 				users.Remove(user.Nickname);
+				user.RemoveChannel(this);
 			}
 		}
 
@@ -290,6 +316,8 @@ namespace Confabulation.Chat
 			{
 				if (!users.ContainsKey(user.Nickname))
 					users[user.Nickname] = new IrcChannelUser(user);
+
+				user.AddChannel(this);
 
 				IrcChannelEventArgs e = new IrcChannelEventArgs(this, user);
 				EventHandler<IrcChannelEventArgs> handler = UserJoined;
@@ -303,8 +331,8 @@ namespace Confabulation.Chat
 		{
 			lock (usersLock)
 			{
-				if (users.ContainsKey(user.Nickname))
-					users.Remove(user.Nickname);
+				users.Remove(user.Nickname);
+				user.RemoveChannel(this);
 
 				IrcChannelEventArgs e = new IrcChannelEventArgs(this, user);
 				e.Message = message;

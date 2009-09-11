@@ -16,31 +16,6 @@ namespace Confabulation.Chat.MessageHandlers
 				replyMap[replyCode](connection, message);
 				return;
 			}
-
-		//    RPL_WELCOME = 001,
-		//RPL_YOURHOST = 002,
-		//RPL_CREATED = 003,
-		//RPL_MYINFO = 004,
-		//RPL_ISUPPORT = 005,
-		//RPL_TRACELINK = 200,
-		//RPL_TRACECONNECTING = 201,
-		//RPL_TRACEHANDSHAKE = 202,
-		//RPL_TRACEUNKNOWN = 203,
-		//RPL_TRACEOPERATOR = 204,
-		//RPL_TRACEUSER = 205,
-		//RPL_TRACESERVER = 206,
-		//RPL_TRACESERVICE = 207,
-		//RPL_TRACENEWTYPE = 208,
-		//RPL_TRACECLASS = 209,
-		//RPL_TRACERECONNECT = 210,
-		//RPL_STATSLINKINFO = 211,
-		//RPL_STATSCOMMANDS = 212,
-		//RPL_ENDOFSTATS = 219,
-		//RPL_UMODEIS = 221,
-		//RPL_SERVLIST = 234,
-		//RPL_SERVLISTEND = 235,
-		//RPL_STATSUPTIME = 242,
-		//RPL_STATSOLINE = 243,
 		}
 
 		static void ProcessWelcome(IrcConnection connection, IrcMessage message)
@@ -57,7 +32,7 @@ namespace Confabulation.Chat.MessageHandlers
 
 					if (parts.Count() == 1)
 					{
-						IrcUser user = new IrcUser(parts[0]);
+						IrcUser user = new IrcUser(parts[0], connection);
 						connection.SetUser(user);
 						return;
 					}
@@ -71,7 +46,7 @@ namespace Confabulation.Chat.MessageHandlers
 							string userName = parts[0];
 							string hostname = parts[1];
 
-							IrcUser user = new IrcUser(nickname, userName, hostname);
+							IrcUser user = new IrcUser(nickname, userName, hostname, connection);
 							connection.SetUser(user);
 							return;
 						}
@@ -81,7 +56,7 @@ namespace Confabulation.Chat.MessageHandlers
 
 			if (message.Parameters.Count() >= 1)
 			{
-				IrcUser user = new IrcUser(Encoding.UTF8.GetString(message.Parameters.ElementAt(0)));
+				IrcUser user = new IrcUser(Encoding.UTF8.GetString(message.Parameters.ElementAt(0)), connection);
 				connection.SetUser(user);
 				return;
 			}
@@ -224,6 +199,7 @@ namespace Confabulation.Chat.MessageHandlers
 				{
 					char mode = connection.ServerProperties.GetModeFromPrefix(names[i][j]);
 
+					// TODO: Fix handling of this error condition
 					if (mode == '\0')
 						Log.WriteLine("RPL_NAMEREPLY: Couldn't find mode from prefix '" + names[i][j] + "'");
 
@@ -237,6 +213,7 @@ namespace Confabulation.Chat.MessageHandlers
 
 			for (int i = 0; i < names.Length; i++)
 			{
+				// TODO: Fix this... need to handle self differently
 				users[i] = connection.FindUser(names[i]);
 
 				if (users[i] == null)
@@ -270,9 +247,9 @@ namespace Confabulation.Chat.MessageHandlers
 			replyMap.Add(IrcNumericReply.RPL_ISUPPORT, ProcessISupport);
 			replyMap.Add(IrcNumericReply.RPL_NOTOPIC, ProcessNoTopic);
 			replyMap.Add(IrcNumericReply.RPL_TOPIC, ProcessTopic);
+			replyMap.Add(IrcNumericReply.RPL_TOPICWHOTIME, ProcessTopicWhoTime);
 			replyMap.Add(IrcNumericReply.RPL_NAMEREPLY, ProcessNameReply);
 			replyMap.Add(IrcNumericReply.RPL_ENDOFNAMES, ProcessEndOfNames);
-			replyMap.Add(IrcNumericReply.RPL_TOPICWHOTIME, ProcessTopicWhoTime);
 		}
 
 		private static Dictionary<IrcNumericReply, Action<IrcConnection, IrcMessage>> replyMap =

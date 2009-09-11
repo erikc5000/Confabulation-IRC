@@ -35,7 +35,7 @@ namespace Confabulation.Chat.MessageHandlers
 				return;
 			}
 
-			bool isSelf = nickname.Equals(connection.User.Nickname);
+			bool isSelf = connection.User.Equals(nickname);
 			IrcChannel channel = connection.FindChannel(channelName);
 
 			if (isSelf)

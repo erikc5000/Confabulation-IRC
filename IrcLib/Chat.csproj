@@ -88,6 +88,7 @@
     <Compile Include="IrcUserEventArgs.cs" />
     <Compile Include="Log.cs" />
     <Compile Include="MessageHandlers\JoinMessageHandler.cs" />
+    <Compile Include="MessageHandlers\NickMessageHandler.cs" />
     <Compile Include="MessageHandlers\PartMessageHandler.cs" />
     <Compile Include="MessageHandlers\PingMessageHandler.cs" />
     <Compile Include="MessageHandlers\ReplyMessageHandler.cs" />
