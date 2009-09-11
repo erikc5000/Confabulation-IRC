@@ -22,6 +22,8 @@ namespace Confabulation.Chat
 				throw new ArgumentNullException("user");
 
 			this.user = user;
+
+			user.NicknameChanged += new EventHandler<IrcUserEventArgs>(ProcessNicknameChanged);
 		}
 
 		public IrcChannelUser(IrcUser user, params char[] modes)
@@ -99,6 +101,8 @@ namespace Confabulation.Chat
 			}
 		}
 
+		public event EventHandler<IrcUserEventArgs> NicknameChanged;
+
 		internal IrcUser GetUser()
 		{
 			return user;
@@ -113,6 +117,14 @@ namespace Confabulation.Chat
 		internal void RemoveMode(char mode)
 		{
 			modes.Remove(mode);
+		}
+
+		private void ProcessNicknameChanged(object sender, IrcUserEventArgs e)
+		{
+			EventHandler<IrcUserEventArgs> handler = NicknameChanged;
+
+			if (handler != null)
+				handler(this, e);
 		}
 
 		private IrcUser user;
