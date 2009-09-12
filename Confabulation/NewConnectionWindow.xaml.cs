@@ -17,29 +17,33 @@ using System.Windows.Markup;
 
 namespace Confabulation
 {
-	public class NewConnectionDummyPage : AeroWizardPageFunction<IrcConnectionSettings>
+	/// <summary>
+	/// A window cannot process a the result of a PageFunction, so we have to use
+	/// a start page that launches the first real page of the wizard.
+	/// </summary>
+	public class NewConnectionStartPage : AeroWizardPageFunction<IrcConnectionSettings>
 	{
-		public NewConnectionDummyPage()
+		public NewConnectionStartPage()
 		{
 			this.KeepAlive = true;
-			Loaded += new RoutedEventHandler(NewConnectionDummyPage_Loaded);
+			Loaded += new RoutedEventHandler(NewConnectionStartPage_Loaded);
 		}
 
-		public NewConnectionDummyPage(NewConnectionWindow window)
+		public NewConnectionStartPage(NewConnectionWindow window)
 		{
 			this.KeepAlive = true;
 			this.window = window;
-			Loaded += new RoutedEventHandler(NewConnectionDummyPage_Loaded);
+			Loaded += new RoutedEventHandler(NewConnectionStartPage_Loaded);
 		}
 
-		void NewConnectionDummyPage_Loaded(object sender, RoutedEventArgs e)
+		private void NewConnectionStartPage_Loaded(object sender, RoutedEventArgs e)
 		{
 			NetworkSelectionPage page = new NetworkSelectionPage();
 			page.Return += new ReturnEventHandler<IrcConnectionSettings>(page_Return);
 			NavigationService.Navigate(page, this);
 		}
 
-		void page_Return(object sender, ReturnEventArgs<IrcConnectionSettings> e)
+		private void page_Return(object sender, ReturnEventArgs<IrcConnectionSettings> e)
 		{
 			IrcConnectionSettings settings = e.Result;
 
@@ -74,36 +78,9 @@ namespace Confabulation
 
 			if (frame != null)
 			{
-				NewConnectionDummyPage page = new NewConnectionDummyPage(this);
-				page.Return += new ReturnEventHandler<IrcConnectionSettings>(page_Return);
+				NewConnectionStartPage page = new NewConnectionStartPage(this);
 				frame.NavigationService.Navigate(page, this);
-				//frame.NavigationService.LoadCompleted += new LoadCompletedEventHandler(NavigationService_LoadCompleted);
 			}
 		}
-
-		void page_Return(object sender, ReturnEventArgs<IrcConnectionSettings> e)
-		{
-			Close();
-		}
-
-		//void NavigationService_LoadCompleted(object sender, NavigationEventArgs e)
-		//{
-		//    if (e.ExtraData == this)
-		//    {
-		//        ((PageFunction<IrcConnectionSettings>)e.Content).Return +=
-		//            new ReturnEventHandler<IrcConnectionSettings>(NewConnectionWindow_Return);
-		//    }
-		//}
-
-		//void NewConnectionWindow_Return(object sender, ReturnEventArgs<IrcConnectionSettings> e)
-		//{
-		//    IrcConnectionSettings settings = e.Result;
-
-		//    IrcConnection connection = new IrcConnection(settings);
-			
-		//    // App.AddConnection
-
-		//    Close();
-		//}
 	}
 }

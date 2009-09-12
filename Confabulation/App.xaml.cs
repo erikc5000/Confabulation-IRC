@@ -45,6 +45,7 @@ namespace Confabulation
 			catch (Exception)
 			{
 				// TODO: Maybe some more sophisticated handling
+				Log.WriteLine("Failed to create the Confabulation user folder");
 			}
 
 			string serversFile = GetUserServersFile();
@@ -59,11 +60,11 @@ namespace Confabulation
 					File.Copy("Servers.dtd", serversDtd);
 
 				serverList = new IrcServerList(GetUserServersFile());
-				//serverList = XDocument.Load(GetUserServersFile());;
 			}
 			catch (Exception)
 			{
 				// TODO: Maybe some more sophisticated handling
+				Log.WriteLine("Failed to copy data to the Confabulation user folder");
 			}
 		}
 

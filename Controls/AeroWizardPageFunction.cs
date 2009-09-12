@@ -14,16 +14,8 @@ using System.Windows.Shapes;
 
 namespace Confabulation.Controls
 {
-	//public struct AeroWizardData
-	//{
-	//    Object extraData;
-
-
-	//}
-
 	interface IAeroWizardPage
 	{
-		//void SetButtons(Button nextButton, Button backButton, Button cancelButton);
 		bool IsNextButtonVisible
 		{
 			get;

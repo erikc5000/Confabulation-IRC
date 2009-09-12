@@ -2,6 +2,8 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:controls="clr-namespace:Confabulation.Controls;assembly=ConfabulationControls"
+    xmlns:chat="clr-namespace:Confabulation.Chat;assembly=ConfabulationChat"
+    xmlns:local="clr-namespace:Confabulation"
     Title="Confabulation" Height="400" Width="700">
     
     <Window.Resources>
@@ -10,11 +12,152 @@
             <Setter Property="Width" Value="10"/>
             <Setter Property="Margin" Value="1"/>
         </Style>
+        
+        <!--<local:Connections x:Key="Connections"/>-->
+        
+        <HierarchicalDataTemplate x:Key="ConnectionTemplate"
+                                  DataType="{x:Type chat:IrcConnection}"
+                                  ItemsSource="{Binding Path=Channels}">
+            <Grid Width="auto">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="16"/>
+                </Grid.ColumnDefinitions>
+                <Image Grid.Column="0" Source="Icons/Connect.ico" Height="16" Width="16"/>
+                <TextBlock Grid.Column="1" Text="{Binding Path=Settings.Name}" />
+                <Button Grid.Column="2">X</Button>
+            </Grid>
+        </HierarchicalDataTemplate>
+
+        <DataTemplate x:Key="ChatWindowTemplate">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition Height="26"/>
+                    <RowDefinition Height="80"/>
+                </Grid.RowDefinitions>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="120"/>
+                </Grid.ColumnDefinitions>
+
+                <GridSplitter Grid.Row="0" Grid.Column="1" Grid.RowSpan="3" HorizontalAlignment="Center" Width="4"/>
+
+                <ListBox Grid.Row="0" Grid.Column="2" Grid.RowSpan="3" BorderThickness="0">
+                </ListBox>
+
+                <FlowDocumentScrollViewer Name="ChatWindow"
+                                          Grid.Row="0"
+                                          Grid.Column="0"
+                                          BorderThickness="0"
+                                          FontFamily="Courier New">
+                    <FlowDocument Name="ChatWindowDocument"/>
+                </FlowDocumentScrollViewer>
+
+                <ToolBar Grid.Row="1" Grid.Column="0">
+                    <ComboBox Width="40" FontSize="10" IsReadOnly="false">
+                        <ComboBox.ToolTip>Font size</ComboBox.ToolTip>
+                        <ComboBoxItem>Default</ComboBoxItem>
+                        <ComboBoxItem>8</ComboBoxItem>
+                        <ComboBoxItem>10</ComboBoxItem>
+                        <ComboBoxItem>12</ComboBoxItem>
+                        <ComboBoxItem>14</ComboBoxItem>
+                        <ComboBoxItem>16</ComboBoxItem>
+                        <ComboBoxItem>18</ComboBoxItem>
+                        <ComboBoxItem>24</ComboBoxItem>
+                        <ComboBoxItem>36</ComboBoxItem>
+                        <ComboBoxItem>48</ComboBoxItem>
+                        <ComboBoxItem>72</ComboBoxItem>
+                    </ComboBox>
+                    <Button FontSize="10" Width="16">
+                        <Button.ToolTip>Bold</Button.ToolTip>
+                        <Bold>B</Bold>
+                    </Button>
+                    <Button FontSize="10" Width="16">
+                        <Button.ToolTip>Italic</Button.ToolTip>
+                        <Italic>I</Italic>
+                    </Button>
+                    <Button FontSize="10" Width="16">
+                        <Button.ToolTip>Underline</Button.ToolTip>
+                        <Underline>U</Underline>
+                    </Button>
+                    <Button FontSize="10" Width="16">
+                        <Button.ToolTip>Strikethrough</Button.ToolTip>
+                        <TextBlock>
+                            <TextBlock.TextDecorations>
+                                <TextDecoration Location="Strikethrough"/>
+                            </TextBlock.TextDecorations>
+                            S
+                        </TextBlock>
+                    </Button>
+                    <ComboBox Width="40" FontSize="10">
+                        <ComboBoxItem>Default</ComboBoxItem>
+                        <ComboBoxItem>
+                            <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="Black"/>
+                        </ComboBoxItem>
+                        <ComboBoxItem>
+                            <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="Blue"/>
+                        </ComboBoxItem>
+                        <ComboBoxItem>
+                            <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="Green"/>
+                        </ComboBoxItem>
+                        <ComboBoxItem>
+                            <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="Cyan"/>
+                        </ComboBoxItem>
+                        <ComboBoxItem>
+                            <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="DarkRed"/>
+                        </ComboBoxItem>
+                        <ComboBoxItem>
+                            <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="Purple"/>
+                        </ComboBoxItem>
+                        <ComboBoxItem>
+                            <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="Brown"/>
+                        </ComboBoxItem>
+                        <ComboBoxItem>
+                            <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="LightGray"/>
+                        </ComboBoxItem>
+                        <ComboBoxItem>
+                            <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="Gray"/>
+                        </ComboBoxItem>
+                        <ComboBoxItem>
+                            <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="LightBlue"/>
+                        </ComboBoxItem>
+                        <ComboBoxItem>
+                            <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="LightGreen"/>
+                        </ComboBoxItem>
+                        <ComboBoxItem>
+                            <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="LightCyan"/>
+                        </ComboBoxItem>
+                        <ComboBoxItem>
+                            <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="Red"/>
+                        </ComboBoxItem>
+                        <ComboBoxItem>
+                            <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="Pink"/>
+                        </ComboBoxItem>
+                        <ComboBoxItem>
+                            <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="Yellow"/>
+                        </ComboBoxItem>
+                        <ComboBoxItem>
+                            <Border BorderThickness="1" Background="Black">
+                                <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="White"/>
+                            </Border>
+                        </ComboBoxItem>
+                    </ComboBox>
+                </ToolBar>
+
+                <RichTextBox Grid.Row="2" Grid.Column="0" BorderThickness="0" PreviewKeyDown="ChatTextBox_KeyDown">
+
+                </RichTextBox>
+            </Grid>
+        </DataTemplate>
     </Window.Resources>
     
     <DockPanel>
         <StackPanel DockPanel.Dock="Top">
-            <Menu FocusVisualStyle="{DynamicResource {x:Static controls:ControlResources.VistaMenuKey}}">
+            <!--<Menu FocusVisualStyle="{DynamicResource {x:Static controls:ControlResources.VistaMenuKey}}">
                 <MenuItem Header="_File">
                     <MenuItem Header="E_xit" />
                 </MenuItem>
@@ -24,14 +167,13 @@
                 <MenuItem Header="_Help">
                     <MenuItem Header="_About" />
                 </MenuItem>
-            </Menu>
+            </Menu>-->
             
             <ToolBar Style="{DynamicResource {x:Static controls:ControlResources.VistaToolBarKey}}">
                 <controls:SplitButton Click="ConnectButton_Click">
                     <controls:SplitButton.Content>
                         <StackPanel Orientation="Horizontal">
-                            <Image Source="Icons\Connect.ico" Width="16" Height="16"/>
-                            <TextBlock Text="Connect" Padding="3,0,0,0"/>
+                            <TextBlock Text="Connect" Padding="0,0,0,0"/>
                         </StackPanel>
                     </controls:SplitButton.Content>
                     <MenuItem Header="_Connect" Click="ConnectButton_Click"/>
@@ -40,135 +182,38 @@
                 </controls:SplitButton>
                 
                 <Button Style="{DynamicResource {x:Static controls:ControlResources.VistaToolBarButtonKey}}"
-                        Content="Join"
+                        Content="_Join"
                         IsEnabled="False"/>
                 
             </ToolBar>
         </StackPanel>
 
         <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition/>
-                <RowDefinition Height="26"/>
-                <RowDefinition Height="80"/>
-            </Grid.RowDefinitions>
-            
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="150"/>
                 <ColumnDefinition Width="auto"/>
                 <ColumnDefinition/>
-                <ColumnDefinition Width="auto"/>
-                <ColumnDefinition Width="120"/>
             </Grid.ColumnDefinitions>
             
-            <GridSplitter Grid.Row="0" Grid.Column="1" Grid.RowSpan="5" HorizontalAlignment="Center" Width="4"/>
-            <GridSplitter Grid.Row="0" Grid.Column="3" Grid.RowSpan="5" HorizontalAlignment="Center" Width="4"/>
+            <GridSplitter Grid.Column="1" Grid.RowSpan="3" HorizontalAlignment="Center" Width="4"/>
 
-            <TreeView Grid.Row="0" Grid.Column="0" Grid.RowSpan="3" BorderThickness="0">
+            <TreeView Name="ConnectionList"
+                      Grid.Column="0"
+                      Grid.RowSpan="3"
+                      BorderThickness="0"
+                      ItemsSource="{Binding}"
+                      ItemTemplate="{StaticResource ConnectionTemplate}">
+                <!--ItemTemplate="{StaticResource ConnectionTemplate}"-->
+                <!--<TreeViewItem Header="MyConnection">
+                    <TreeViewItem Header="#mychannel"/>
+                </TreeViewItem>-->
             </TreeView>
-
-            <ListBox Grid.Row="0" Grid.Column="4" Grid.RowSpan="3" BorderThickness="0">
-
-            </ListBox>
-
-            <FlowDocumentScrollViewer Name="ChatWindow" Grid.Row="0" Grid.Column="2" BorderThickness="0">
-                <FlowDocument Name="ChatWindowDocument"/>
-            </FlowDocumentScrollViewer>
             
-            <ToolBar Name="ChatWindowBar" Grid.Row="1" Grid.Column="2">
-                <ComboBox Width="40" FontSize="10" IsReadOnly="false">
-                    <ComboBox.ToolTip>Font size</ComboBox.ToolTip>
-                    <ComboBoxItem>Default</ComboBoxItem>
-                    <ComboBoxItem>8</ComboBoxItem>
-                    <ComboBoxItem>10</ComboBoxItem>
-                    <ComboBoxItem>12</ComboBoxItem>
-                    <ComboBoxItem>14</ComboBoxItem>
-                    <ComboBoxItem>16</ComboBoxItem>
-                    <ComboBoxItem>18</ComboBoxItem>
-                    <ComboBoxItem>24</ComboBoxItem>
-                    <ComboBoxItem>36</ComboBoxItem>
-                    <ComboBoxItem>48</ComboBoxItem>
-                    <ComboBoxItem>72</ComboBoxItem>
-                </ComboBox>
-                <Button FontSize="10" Width="16">
-                    <Button.ToolTip>Bold</Button.ToolTip>
-                    <Bold>B</Bold>
-                </Button>
-                <Button FontSize="10" Width="16">
-                    <Button.ToolTip>Italic</Button.ToolTip>
-                    <Italic>I</Italic>
-                </Button>
-                <Button FontSize="10" Width="16">
-                    <Button.ToolTip>Underline</Button.ToolTip>
-                    <Underline>U</Underline>
-                </Button>
-                <Button FontSize="10" Width="16">
-                    <Button.ToolTip>Strikethrough</Button.ToolTip>
-                    <TextBlock>
-                        <TextBlock.TextDecorations>
-                            <TextDecoration Location="Strikethrough"/>
-                        </TextBlock.TextDecorations>
-                        S
-                    </TextBlock>
-                </Button>
-                <ComboBox Width="40" FontSize="10">
-                    <ComboBoxItem>Default</ComboBoxItem>
-                    <ComboBoxItem>
-                        <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="Black"/>
-                    </ComboBoxItem>
-                    <ComboBoxItem>
-                        <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="Blue"/>
-                    </ComboBoxItem>
-                    <ComboBoxItem>
-                        <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="Green"/>
-                    </ComboBoxItem>
-                    <ComboBoxItem>
-                        <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="Cyan"/>
-                    </ComboBoxItem>
-                    <ComboBoxItem>
-                        <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="DarkRed"/>
-                    </ComboBoxItem>
-                    <ComboBoxItem>
-                        <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="Purple"/>
-                    </ComboBoxItem>
-                    <ComboBoxItem>
-                        <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="Brown"/>
-                    </ComboBoxItem>
-                    <ComboBoxItem>
-                        <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="LightGray"/>
-                    </ComboBoxItem>
-                    <ComboBoxItem>
-                        <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="Gray"/>
-                    </ComboBoxItem>
-                    <ComboBoxItem>
-                        <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="LightBlue"/>
-                    </ComboBoxItem>
-                    <ComboBoxItem>
-                        <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="LightGreen"/>
-                    </ComboBoxItem>
-                    <ComboBoxItem>
-                        <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="LightCyan"/>
-                    </ComboBoxItem>
-                    <ComboBoxItem>
-                        <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="Red"/>
-                    </ComboBoxItem>
-                    <ComboBoxItem>
-                        <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="Pink"/>
-                    </ComboBoxItem>
-                    <ComboBoxItem>
-                        <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="Yellow"/>
-                    </ComboBoxItem>
-                    <ComboBoxItem>
-                        <Border BorderThickness="1" Background="Black">
-                            <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="White"/>
-                        </Border>
-                    </ComboBoxItem>
-                </ComboBox>
-            </ToolBar>
-            
-            <RichTextBox Name="ChatTextBox" Grid.Row="2" Grid.Column="2" BorderThickness="0" PreviewKeyDown="ChatTextBox_KeyDown">
-                
-            </RichTextBox>
+            <ContentControl Name="ChatContentArea"
+                            Grid.Column="2"
+                            Content="{Binding ElementName=ConnectionList, Path=SelectedItem}"
+                            ContentTemplate="{StaticResource ChatWindowTemplate}"/>
+
         </Grid>
     </DockPanel>
 </Window>

@@ -4,4 +4,5 @@
                      xmlns:controls="clr-namespace:Confabulation.Controls;assembly=ConfabulationControls"
                      Width="400"
                      Height="300"
+                     WindowStartupLocation="CenterOwner"
                      Title="New Connection"/>
