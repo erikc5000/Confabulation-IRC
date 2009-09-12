@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Confabulation.Chat;
 
 namespace Confabulation.Chat.Commands
 {
-	public static class KickCommand
+	public class KickCommand : IrcCommand
 	{
-		public static void ParseAndExecute(IrcClient client, string parameters)
+		public static new KickCommand Parse(string parameters)
 		{
 			if (parameters == null || parameters.Length == 0)
 				throw new IrcCommandException(IrcCommandExceptionType.TooFewParameters, syntax);
@@ -21,111 +22,106 @@ namespace Confabulation.Chat.Commands
 			string[] nicknames = splitParams[1].Split(',');
 
 			if (splitParams.Length == 3)
-				Execute(client, channelNames, nicknames, splitParams[2]);
+				return new KickCommand(channelNames, nicknames, splitParams[2]);
 			else
-				Execute(client, channelNames, nicknames);
+				return new KickCommand(channelNames, nicknames);
 		}
 
-		public static void Execute(IrcClient client, string channelName, string nickname)
+		public KickCommand(string channelName, string nickname)
 		{
-			if (client == null)
-				throw new ArgumentNullException("client");
-			else if (channelName == null)
+			if (channelName == null)
 				throw new ArgumentNullException("channelName");
 			else if (nickname == null)
 				throw new ArgumentNullException("nickname");
 
-			DoExecute(client, new string[] { channelName }, new string[] { nickname }, null);
+			this.channelNames = new string[] { channelName };
+			this.nicknames = new string[] { nickname };
 		}
 
-		public static void Execute(IrcClient client, string channelName, string nickname, string message)
+		public KickCommand(string channelName, string nickname, string message)
 		{
-			if (client == null)
-				throw new ArgumentNullException("client");
-			else if (channelName == null)
+			if (channelName == null)
 				throw new ArgumentNullException("channelName");
 			else if (nickname == null)
 				throw new ArgumentNullException("nickname");
 			else if (message == null)
 				throw new ArgumentNullException("message");
 
-			DoExecute(client, new string[] { channelName }, new string[] { nickname }, message);
+			this.channelNames = new string[] { channelName };
+			this.nicknames = new string[] { nickname };
+			this.message = message;
 		}
 
-
-		public static void Execute(IrcClient client,
-								   string channelName,
-								   IEnumerable<string> nicknames)
+		public KickCommand(string channelName, string[] nicknames)
 		{
-			if (client == null)
-				throw new ArgumentNullException("client");
-			else if (channelName == null)
+			if (channelName == null)
 				throw new ArgumentNullException("channelName");
 			else if (nicknames == null)
 				throw new ArgumentNullException("nicknames");
+			else if (nicknames.Count() == 0)
+				throw new ArgumentException("No nicknames provided");
 
-			DoExecute(client, new string[] { channelName }, nicknames, null);
+			this.channelNames = new string[] { channelName };
+			this.nicknames = nicknames;
 		}
 
-		public static void Execute(IrcClient client,
-								   string channelName,
-								   IEnumerable<string> nicknames,
-		                           string message)
+		public KickCommand(string channelName, string[] nicknames, string message)
 		{
-			if (client == null)
-				throw new ArgumentNullException("client");
-			else if (channelName == null)
+			if (channelName == null)
 				throw new ArgumentNullException("channelName");
 			else if (nicknames == null)
 				throw new ArgumentNullException("nicknames");
+			else if (nicknames.Count() == 0)
+				throw new ArgumentException("No nicknames provided");
 			else if (message == null)
 				throw new ArgumentNullException("message");
 
-			DoExecute(client, new string[] { channelName }, nicknames, message);
+			this.channelNames = new string[] { channelName };
+			this.nicknames = nicknames;
+			this.message = message;
 		}
 
-		public static void Execute(IrcClient client,
-		                           IEnumerable<string> channelNames,
-		                           IEnumerable<string> nicknames)
+		public KickCommand(string[] channelNames, string[] nicknames)
 		{
-			if (client == null)
-				throw new ArgumentNullException("client");
-			else if (channelNames == null)
+			if (channelNames == null)
 				throw new ArgumentNullException("channelNames");
-			else if (nicknames == null)
-				throw new ArgumentNullException("nicknames");
-
-			DoExecute(client, channelNames, nicknames, null);
-		}
-
-		public static void Execute(IrcClient client,
-								   IEnumerable<string> channelNames,
-								   IEnumerable<string> nicknames,
-		                           string message)
-		{
-			if (client == null)
-				throw new ArgumentNullException("client");
-			else if (channelNames == null)
-				throw new ArgumentNullException("channelNames");
-			else if (nicknames == null)
-				throw new ArgumentNullException("nicknames");
-			else if (message == null)
-				throw new ArgumentNullException("message");
-
-			DoExecute(client, channelNames, nicknames, message);
-		}
-
-		private static void DoExecute(IrcClient client,
-		                              IEnumerable<string> channelNames,
-		                              IEnumerable<string> nicknames,
-		                              string message)
-		{
-			if (channelNames.Count() == 0)
+			else if (channelNames.Count() == 0)
 				throw new ArgumentException("No channel names provided");
+			else if (nicknames == null)
+				throw new ArgumentNullException("nicknames");
 			else if (nicknames.Count() == 0)
 				throw new ArgumentException("No nicknames provided");
 			else if (channelNames.Count() > 1 && channelNames.Count() != nicknames.Count())
 				throw new ArgumentException("The number of channels must be 1, or the number of nicks");
+
+			this.channelNames = channelNames;
+			this.nicknames = nicknames;
+		}
+
+		public KickCommand(string[] channelNames, string[] nicknames, string message)
+		{
+			if (channelNames == null)
+				throw new ArgumentNullException("channelNames");
+			else if (channelNames.Count() == 0)
+				throw new ArgumentException("No channel names provided");
+			else if (nicknames == null)
+				throw new ArgumentNullException("nicknames");
+			else if (nicknames.Count() == 0)
+				throw new ArgumentException("No nicknames provided");
+			else if (message == null)
+				throw new ArgumentNullException("message");
+			else if (channelNames.Count() > 1 && channelNames.Count() != nicknames.Count())
+				throw new ArgumentException("The number of channels must be 1, or the number of nicks");
+
+			this.channelNames = channelNames;
+			this.nicknames = nicknames;
+			this.message = message;
+		}
+
+		public override void Execute(IrcClient client)
+		{
+			if (client == null)
+				throw new ArgumentNullException("client");
 
 			foreach (string channel in channelNames)
 			{
@@ -161,6 +157,10 @@ namespace Confabulation.Chat.Commands
 				client.Send(new IrcMessage(command, channelList, nickList));
 			}
 		}
+
+		private string[] channelNames = null;
+		private string[] nicknames = null;
+		private string message = null;
 
 		private static readonly byte[] command = Encoding.UTF8.GetBytes("KICK");
 		private const string syntax = "/kick channel[,channel...] nick[,nick...] [message]";

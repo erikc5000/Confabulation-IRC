@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Confabulation.Chat;
 
 namespace Confabulation.Chat.Commands
 {
-	public static class JoinCommand
+	public class JoinCommand : IrcCommand
 	{
-		public static void ParseAndExecute(IrcClient client, string parameters)
+		public static new JoinCommand Parse(string parameters)
 		{
 			if (parameters == null || parameters.Length == 0)
 				throw new IrcCommandException(IrcCommandExceptionType.TooFewParameters, syntax);
@@ -22,61 +23,55 @@ namespace Confabulation.Chat.Commands
 			if (splitParams.Length == 2)
 			{
 				string[] keys = splitParams.Last().Split(',');
-				Execute(client, channelNames, keys);
+				return new JoinCommand(channelNames, keys);
 			}
 
-			Execute(client, channelNames);
+			return new JoinCommand(channelNames);
 		}
 
-		public static void Execute(IrcClient client, string channelName)
+		public JoinCommand(string channelName)
 		{
-			if (client == null)
-				throw new ArgumentNullException("client");
-			else if (channelName == null)
+			if (channelName == null)
 				throw new ArgumentNullException("channelName");
 
-			DoExecute(client, new string[] { channelName }, null);
+			this.channelNames = new string[] { channelName };
 		}
 
-		public static void Execute(IrcClient client, string channelName, string key)
+		public JoinCommand(string channelName, string key)
 		{
-			if (client == null)
-				throw new ArgumentNullException("client");
-			else if (channelName == null)
+			if (channelName == null)
 				throw new ArgumentNullException("channelName");
 			else if (key == null)
 				throw new ArgumentNullException("key");
 
-			DoExecute(client, new string[] { channelName }, new string[] { key });
+			this.channelNames = new string[] { channelName };
+			this.keys = new string[] { key };
 		}
 
-		public static void Execute(IrcClient client, IEnumerable<string> channelNames)
+		public JoinCommand(string[] channelNames)
 		{
-			if (client == null)
-				throw new ArgumentNullException("client");
-			else if (channelNames == null)
+			if (channelNames == null)
 				throw new ArgumentNullException("channelNames");
 			else if (channelNames.Count() == 0)
 				throw new ArgumentException("No channel names provided", "channelNames");
 
-			DoExecute(client, channelNames, null);
+			this.channelNames = channelNames;
 		}
 
-		public static void Execute(IrcClient client, IEnumerable<string> channelNames, IEnumerable<string> keys)
+		public JoinCommand(string[] channelNames, string[] keys)
 		{
-			if (client == null)
-				throw new ArgumentNullException("client");
-			else if (channelNames == null)
+			if (channelNames == null)
 				throw new ArgumentNullException("channelNames");
 			else if (keys == null)
 				throw new ArgumentNullException("keys");
 			else if (channelNames.Count() == 0)
 				throw new ArgumentException("No channel names provided", "channelNames");
 
-			DoExecute(client, channelNames, keys);
+			this.channelNames = channelNames;
+			this.keys = keys;
 		}
 
-		private static void DoExecute(IrcClient client, IEnumerable<string> channelNames, IEnumerable<string> keys)
+		public override void Execute(IrcClient client)
 		{
 			foreach (string channel in channelNames)
 			{
@@ -113,6 +108,9 @@ namespace Confabulation.Chat.Commands
 				                           Encoding.UTF8.GetBytes(combinedKeys)));
 			}
 		}
+
+		private string[] channelNames = null;
+		private string[] keys = null;
 
 		private static readonly byte[] command = Encoding.UTF8.GetBytes("JOIN");
 		private const string syntax = "/join <channel>[,<channel>...] [<key>[,<key>...]]";
