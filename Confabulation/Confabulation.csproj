@@ -162,7 +162,7 @@
       <Project>{2E5F7421-AB52-4464-9F40-EB9DFDACB949}</Project>
       <Name>Controls</Name>
     </ProjectReference>
-    <ProjectReference Include="..\IrcLib\Chat.csproj">
+    <ProjectReference Include="..\Chat\Chat.csproj">
       <Project>{7B037621-A203-49D8-89C3-35B0B3CA49FA}</Project>
       <Name>Chat</Name>
     </ProjectReference>

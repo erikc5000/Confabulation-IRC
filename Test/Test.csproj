@@ -54,7 +54,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\IrcLib\Chat.csproj">
+    <ProjectReference Include="..\Chat\Chat.csproj">
       <Project>{7B037621-A203-49D8-89C3-35B0B3CA49FA}</Project>
       <Name>Chat</Name>
     </ProjectReference>
