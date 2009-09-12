@@ -41,7 +41,7 @@ namespace Confabulation.Chat
 			if (hostname == null)
 				throw new ArgumentNullException("server");
 
-			Initialize(hostname, IrcClient.defaultPort);
+			Initialize(hostname, Irc.DefaultServerPort);
         }
 
 		/// <summary>
@@ -73,7 +73,7 @@ namespace Confabulation.Chat
 
 				try
 				{
-					lock (hostname)
+					lock (hostnamePortSyncObject)
 					{
 						IAsyncResult result = Dns.BeginGetHostAddresses(hostname, resolveCallback, null);
 					}
@@ -196,7 +196,10 @@ namespace Confabulation.Chat
 		{
 			get
 			{
-				return connectionState;
+				lock (syncObject)
+				{
+					return connectionState;
+				}
 			}
 		}
 
@@ -220,7 +223,16 @@ namespace Confabulation.Chat
 				if (connectionState != IrcConnectionState.Resolving)
 					return;
 
-				IPAddress[] addresses = Dns.EndGetHostAddresses(result);
+				IPAddress[] addresses = null;
+
+				try
+				{
+					addresses = Dns.EndGetHostAddresses(result);
+				}
+				catch (SocketException)
+				{
+					addresses = new IPAddress[0];
+				}
 
 				if (addresses.Length == 0)
 				{
@@ -280,8 +292,11 @@ namespace Confabulation.Chat
 
 		private void ProcessReceive(object sender, SocketAsyncEventArgs args)
 		{
-			if (connectionState != IrcConnectionState.Connected)
-				return;
+			lock (syncObject)
+			{
+				if (connectionState != IrcConnectionState.Connected)
+					return;
+			}
 
 			if (args.BytesTransferred <= 0 || args.SocketError != SocketError.Success)
 			{
@@ -374,11 +389,9 @@ namespace Confabulation.Chat
 				handler(this, args);
 		}
 
-        private const int defaultPort = 6667;
-
         private string hostname;
         private int port;
-		private volatile IrcConnectionState connectionState = IrcConnectionState.Disconnected;
+		private IrcConnectionState connectionState = IrcConnectionState.Disconnected;
         private Socket socket = null;
 		private AsyncCallback resolveCallback;
 		private SocketAsyncEventArgs connectEventArgs = new SocketAsyncEventArgs();

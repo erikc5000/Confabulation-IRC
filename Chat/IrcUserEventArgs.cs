@@ -7,6 +7,15 @@ namespace Confabulation.Chat
 {
 	public class IrcUserEventArgs : EventArgs
 	{
+		public IrcUserEventArgs(IrcUser user)
+		{
+			if (user == null)
+				throw new ArgumentNullException("user");
+
+			User = user;
+			Message = null;
+		}
+
 		public IrcUserEventArgs(IrcUser user, string message)
 		{
 			if (user == null)

@@ -2,115 +2,329 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Confabulation.Chat.Commands;
+using Confabulation.Chat.MessageHandlers;
 
 namespace Confabulation.Chat
 {
 	public class IrcConnection
 	{
-		static IrcConnection()
-		{
-			//commandMap.Add("JOIN", ProcessJoin);
-
-			//replyMap.Add(IrcNumericReply.RPL_ISUPPORT, ProcessISupport);
-		}
-
 		public IrcConnection(IrcConnectionSettings settings)
 		{
-			//client = new IrcClient(
+			if (settings == null)
+				throw new ArgumentNullException("settings");
+
+			this.settings = settings;
+			this.nameComparer = new IrcNameComparer(serverProperties);
+			this.channels = new Dictionary<string, IrcChannel>(nameComparer);
+			this.visibleUsers = new Dictionary<string, IrcUser>(nameComparer);
+
+			IrcServer server = settings.Server;
+			this.client = new IrcClient(server.Hostname, server.GetFirstPort());
+			this.client.ConnectionEvent += new EventHandler<IrcConnectionEventArgs>(ProcessConnectionEvent);
+			this.client.MessageReceived += new EventHandler<IrcMessageEventArgs>(ProcessRawMessage);
 		}
 
 		~IrcConnection()
 		{
-			client.MessageReceived -= new EventHandler<IrcMessageEventArgs>(ProcessRawMessage);
+			Close();
 		}
 
 		public void Initiate()
 		{
-			
-			client.MessageReceived += new EventHandler<IrcMessageEventArgs>(ProcessRawMessage);
+			client.Connect();
 		}
 
 		public void Close()
 		{
+			client.Disconnect();
+		}
 
+		public void Execute(IrcCommand command)
+		{
+			command.Execute(client);
 		}
 
 		public bool UserRegistered
 		{
 			get
 			{
-				return userRegistered;
+				lock (userRegisteredLock)
+				{
+					return userRegistered;
+				}
 			}
 		}
 
-		public event EventHandler<IrcChannelEventArgs> OnChannelJoin;
-		public event EventHandler<IrcChannelEventArgs> OnChannelPart;
+		public IrcConnectionState State
+		{
+			get
+			{
+				return client.ConnectionState;
+			}
+		}
+
+		public IrcUser User
+		{
+			get
+			{
+				lock (userRegisteredLock)
+				{
+					return self;
+				}
+			}
+		}
+
+		public IEnumerable<IrcChannel> Channels
+		{
+			get
+			{
+				lock (channelsLock)
+				{
+					return channels.Values;
+				}
+			}
+		}
+
+		public IrcServerProperties ServerProperties
+		{
+			get
+			{
+				return serverProperties;
+			}
+		}
+
+		public IrcConnectionSettings Settings
+		{
+			get
+			{
+				return settings;
+			}
+		}
+
+		public event EventHandler<IrcMessageEventArgs> RawMessageReceived;
+		public event EventHandler<IrcConnectionEventArgs> StateChanged;
+		public event EventHandler<IrcChannelEventArgs> ChannelJoined;
+		public event EventHandler<IrcChannelEventArgs> ChannelParted;
 		public event EventHandler<IrcUserEventArgs> UserQuit;
 		//public event EventHandler<InviteEventArgs> OnInvite;
 		//public event EventHandler<PrivateMessageEventArgs> PrivateMessageReceived;
+		//public event EventHandler<PrivateMessageEventArgs> PrivateNoticeReceived;
 		public event EventHandler<ErrorEventArgs> OnError;
 
 		private void ProcessRawMessage(object sender, IrcMessageEventArgs e)
 		{
-			IrcMessage message = e.Message;
+			IrcMessageHandler.Process(this, e.Message);
 
-			if (message.IsNumericReply())
-			{
-				IrcNumericReply replyCode = message.GetReplyCode();
-				string replyMessage = Encoding.UTF8.GetString(message.Parameters.ElementAt(0));
+			EventHandler<IrcMessageEventArgs> handler = RawMessageReceived;
 
-				if ((int)replyCode > 400)
-					ErrorEvent(new ErrorEventArgs(replyCode, replyMessage));
-			}
-			else
-			{
-
-			}
+			if (handler != null)
+				handler(this, e);
 		}
 
-		private void ErrorEvent(ErrorEventArgs args)
+		private void ProcessConnectionEvent(object sender, IrcConnectionEventArgs e)
+		{
+			switch (e.EventType)
+			{
+				case IrcConnectionEventType.Connected:
+					Execute(new NickCommand(settings.User.Nicknames.First()));
+					Execute(new UserCommand(settings.User.UserName, settings.InitialUserModes, settings.User.RealName));
+					break;
+
+				case IrcConnectionEventType.Disconnected:
+					lock (userRegisteredLock)
+					{
+						userRegistered = false;
+						self = null;
+					}
+					break;
+			}
+
+			EventHandler<IrcConnectionEventArgs> handler = StateChanged;
+
+			if (handler != null)
+				handler(this, e);
+		}
+
+		internal void ErrorEvent(ErrorEventArgs e)
 		{
 			EventHandler<ErrorEventArgs> handler = OnError;
 
 			if (handler != null)
-				handler(this, args);
+				handler(this, e);
 		}
 
-		private static void ProcessJoin(IrcConnection connection, IrcMessage message)
+		internal void ChannelJoinEvent(IrcChannelEventArgs e)
 		{
-			IrcMessagePrefix prefix = message.Prefix;
+			EventHandler<IrcChannelEventArgs> handler = ChannelJoined;
 
-			if (prefix == null)
-				return;
+			if (handler != null)
+				handler(this, e);
+		}
 
-			if (message.Parameters.Count() < 1)
-				return;
+		internal void ChannelPartEvent(IrcChannelEventArgs e)
+		{
+			EventHandler<IrcChannelEventArgs> handler = ChannelParted;
 
-			byte[] nickname = prefix.ExtractNickname();
-			byte[] channelName = message.Parameters.ElementAt(0);
+			if (handler != null)
+				handler(this, e);
+		}
 
-			if (nickname.Equals(connection.self.Nickname))
+		internal void SetUser(IrcUser user)
+		{
+			if (user == null)
+				throw new ArgumentNullException("user");
+
+			lock (userRegisteredLock)
 			{
-				IrcChannel newChannel = new IrcChannel(channelName);
-				connection.channels[channelName] = newChannel;
+				self = user;
+				userRegistered = true;
 			}
-			else
-			{
-				if (!connection.channels.ContainsKey(channelName))
-					return;
 
-				IrcChannel channel = connection.channels[channelName];
-				//channel.
+			IrcConnectionEventArgs e = new IrcConnectionEventArgs(IrcConnectionEventType.Registered);
+			EventHandler<IrcConnectionEventArgs> handler = StateChanged;
+
+			if (handler != null)
+				handler(this, e);
+		}
+
+		internal IrcChannel FindChannel(string channelName)
+		{
+			if (channelName == null)
+				throw new ArgumentNullException("channelName");
+
+			lock (channelsLock)
+			{
+				if (!channels.ContainsKey(channelName))
+					return null;
+
+				return channels[channelName];
 			}
 		}
 
-		private static Dictionary<string, Action<IrcMessage>> commandMap = new Dictionary<string,Action<IrcMessage>>();
-		private static Dictionary<IrcNumericReply, Action<IrcMessage>> replyMap = new Dictionary<IrcNumericReply,Action<IrcMessage>>();
+		internal IrcChannel AddChannel(string channelName)
+		{
+			if (channelName == null)
+				throw new ArgumentNullException("channelName");
+
+			lock (channelsLock)
+			{
+				if (!channels.ContainsKey(channelName))
+					channels[channelName] = new IrcChannel(channelName, this);
+
+				return channels[channelName];
+			}
+		}
+
+		internal void RemoveChannel(IrcChannel channel)
+		{
+			if (channel == null)
+				throw new ArgumentNullException("channel");
+
+			lock (channelsLock)
+			{
+				channels.Remove(channel.Name);
+
+				foreach (IrcChannelUser channelUser in channel.Users)
+				{
+					IrcUser user = channelUser.GetUser();
+					user.RemoveChannel(channel);
+
+					lock (userRegisteredLock)
+					{
+						if (user != self && user.Channels.Count() == 0)
+						{
+							lock (visibleUsersLock)
+							{
+								visibleUsers.Remove(user.Nickname);
+							}
+						}
+					}
+				}
+			}
+		}
+
+		internal IrcUser FindUser(string nickname)
+		{
+			if (nickname == null)
+				throw new ArgumentNullException("nickname");
+
+			lock (userRegisteredLock)
+			{
+				if (self != null && self.Equals(nickname))
+					return self;
+			}
+
+			lock (visibleUsersLock)
+			{
+				if (!visibleUsers.ContainsKey(nickname))
+					return null;
+
+				return visibleUsers[nickname];
+			}
+		}
+
+		internal IrcUser AddUser(string nickname)
+		{
+			if (nickname == null)
+				throw new ArgumentNullException("nickname");
+
+			lock (userRegisteredLock)
+			{
+				if (self != null && self.Equals(nickname))
+					return self;
+			}
+
+			lock (visibleUsersLock)
+			{
+				if (!visibleUsers.ContainsKey(nickname))
+					visibleUsers[nickname] = new IrcUser(nickname, this);
+
+				return visibleUsers[nickname];
+			}
+		}
+
+		internal void RemoveUser(IrcUser user)
+		{
+			if (user == null)
+				throw new ArgumentNullException("user");
+
+			lock (visibleUsersLock)
+			{
+				visibleUsers.Remove(user.Nickname);
+			}
+		}
+
+		internal void UpdateUserNickname(IrcUser user, string newNickname)
+		{
+			if (user == null)
+				throw new ArgumentNullException("user");
+			else if (newNickname == null)
+				throw new ArgumentNullException("newNickname");
+
+			lock (userRegisteredLock)
+			{
+				if (user == self)
+					return;
+			}
+
+			lock (visibleUsersLock)
+			{
+				visibleUsers.Remove(user.Nickname);
+				visibleUsers[newNickname] = user;
+			}
+		}
 
 		private IrcClient client;
+		private IrcConnectionSettings settings;
+		private IrcServerProperties serverProperties = new IrcServerProperties();
+		private readonly Object userRegisteredLock = new Object();
 		private bool userRegistered = false;
 		private IrcUser self = null;
-		private Dictionary<byte[], IrcChannel> channels = new Dictionary<byte[],IrcChannel>();
-		private Dictionary<byte[], IrcUser> visibleUsers = new Dictionary<byte[],IrcUser>();
+		private readonly Object channelsLock = new Object();
+		private Dictionary<string, IrcChannel> channels;
+		private readonly Object visibleUsersLock = new Object();
+		private Dictionary<string, IrcUser> visibleUsers;
+		private IrcNameComparer nameComparer;
 	}
 }
