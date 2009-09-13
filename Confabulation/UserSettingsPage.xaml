@@ -23,13 +23,30 @@
         </Grid.ColumnDefinitions>
         
         <Label Grid.Column="0" Grid.Row="0" Margin="4">Nickname</Label>
-        <TextBox x:Name="Nickname" Grid.Column="1" Grid.Row="0" Margin="4" Loaded="Nickname_Loaded" TextChanged="Nickname_TextChanged"/>
+        <TextBox x:Name="Nickname"
+                 Grid.Column="1"
+                 Grid.Row="0"
+                 Margin="4"
+                 Loaded="Nickname_Loaded"
+                 TextChanged="Nickname_TextChanged"
+                 Text="{Binding Source={StaticResource Settings},Path=Default.Nickname,Mode=OneTime}"/>
         
-        <Label Grid.Column="0" Grid.Row="1" Margin="4">User Name</Label>
-        <TextBox x:Name="UserName" Grid.Column="1" Grid.Row="1" Margin="4" TextChanged="UserName_TextChanged"/>
+        <Label Grid.Column="0" Grid.Row="2" Margin="4">User Name</Label>
+        <TextBox x:Name="UserName"
+                 Grid.Column="1"
+                 Grid.Row="2"
+                 Margin="4"
+                 TextChanged="UserName_TextChanged"
+                 Loaded="UserName_Loaded"
+                 Text="{Binding Source={StaticResource Settings},Path=Default.UserName,Mode=OneTime}"/>
         
-        <Label Grid.Column="0" Grid.Row="2" Margin="4">Real Name</Label>
-        <TextBox x:Name="RealName" Grid.Column="1" Grid.Row="2" Margin="4" TextChanged="RealName_TextChanged"/>
+        <Label Grid.Column="0" Grid.Row="1" Margin="4">Real Name</Label>
+        <TextBox x:Name="RealName"
+                 Grid.Column="1"
+                 Grid.Row="1"
+                 Margin="4"
+                 TextChanged="RealName_TextChanged"
+                 Text="{Binding Source={StaticResource Settings},Path=Default.RealName,Mode=OneTime}"/>
         
         <CheckBox x:Name="Invisible"
                   Grid.Column="0"
@@ -38,6 +55,6 @@
                   Margin="4"
                   IsChecked="True"
                   Content="Invisible to users outside my channels"
-                  ToolTip="Prevent users not in any channels that I am from seeing me."/>
+                  ToolTip="Prevent users from seeing me if they are not in any channels that I am."/>
     </Grid>
 </controls:AeroWizardPageFunction>

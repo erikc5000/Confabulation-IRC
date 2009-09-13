@@ -53,6 +53,7 @@ namespace Confabulation
 
 			connection.Initiate();
 
+			Properties.Settings.Default.Save();
 			window.Close();
 			OnReturn(e);
 		}

@@ -29,21 +29,11 @@ namespace Confabulation
 			InitializeComponent();
 
 			SetNextButtonState();
-			Loaded += new RoutedEventHandler(NetworkSelectionPage_Loaded);
-			Unloaded += new RoutedEventHandler(NetworkSelectionPage_Unloaded);
 		}
 
 		~NetworkSelectionPage()
 		{
 
-		}
-
-		void NetworkSelectionPage_Unloaded(object sender, RoutedEventArgs e)
-		{
-			IrcNetwork network = (IrcNetwork)NetworkCB.SelectedItem;
-
-			if (network != null)
-				Properties.Settings.Default.LastNetworkName = network.Name;
 		}
 
 		void NetworkSelectionPage_Loaded(object sender, RoutedEventArgs e)
@@ -80,12 +70,20 @@ namespace Confabulation
 
 		void NetworkSelectionPage_Return(object sender, ReturnEventArgs<IrcConnectionSettings> e)
 		{
-			IrcConnectionSettings settings = e.Result;
+			IrcNetwork network = (IrcNetwork)NetworkCB.SelectedItem;
 
-			if (settings.Server == null)
+			if (network != null)
 			{
-				settings.Name = ((IrcNetwork)NetworkCB.SelectedItem).Name;
-				settings.Server = ((IrcNetwork)NetworkCB.SelectedItem).GetFirstServer();
+				IrcConnectionSettings settings = e.Result;
+
+				// Make sure the server wasn't already set in the ServerSettingsPage
+				if (settings.Server == null)
+				{
+					settings.Name = network.Name;
+					settings.Server = network.GetFirstServer();
+				}
+
+				Properties.Settings.Default.LastNetworkName = network.Name;
 			}
 
 			OnReturn(e);
@@ -98,11 +96,17 @@ namespace Confabulation
 
 		private void ExistingNetworkRB_Checked(object sender, RoutedEventArgs e)
 		{
+			if (NetworkCB != null)
+				NetworkCB.IsEnabled = true;
+			
 			SetNextButtonState();
 		}
 
 		private void ManualServerRB_Checked(object sender, RoutedEventArgs e)
 		{
+			if (NetworkCB != null)
+				NetworkCB.IsEnabled = false;
+
 			SetNextButtonState();
 		}
 

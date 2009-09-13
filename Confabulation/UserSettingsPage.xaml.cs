@@ -10,6 +10,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Security.Principal;
 using Confabulation.Chat;
 using Confabulation.Controls;
 
@@ -30,13 +31,14 @@ namespace Confabulation
 		private void Nickname_Loaded(object sender, RoutedEventArgs e)
 		{
 			Keyboard.Focus(Nickname);
+			Nickname.CaretIndex = Nickname.Text.Length;
 		}
 
 		private void SetNextButtonState()
 		{
-			if (Nickname.Text == null || Nickname.Text.Length == 0
-				|| UserName.Text == null || UserName.Text.Length == 0
-				|| RealName.Text == null || RealName.Text.Length == 0)
+			if (Nickname == null || Nickname.Text == null || Nickname.Text.Length == 0
+				|| UserName == null || UserName.Text == null || UserName.Text.Length == 0
+				|| RealName == null || RealName.Text == null || RealName.Text.Length == 0)
 			{
 				IsNextButtonEnabled = false;
 			}
@@ -76,7 +78,17 @@ namespace Confabulation
 			else
 				settings.InitialUserModes = InitialUserMode.None;
 
+			Properties.Settings.Default.Nickname = Nickname.Text;
+			Properties.Settings.Default.UserName = UserName.Text;
+			Properties.Settings.Default.RealName = RealName.Text;
+
 			OnReturn(new ReturnEventArgs<IrcConnectionSettings>(settings));
+		}
+
+		private void UserName_Loaded(object sender, RoutedEventArgs e)
+		{
+			if (UserName.Text.Length == 0)
+				UserName.Text = WindowsIdentity.GetCurrent().Name.Split('\\')[1];
 		}
 	}
 }
