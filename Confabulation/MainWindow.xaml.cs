@@ -33,7 +33,7 @@ namespace Confabulation
 			//TreeViewItem item = new TreeViewItem();
 			//item.Header = "MyConnection";
 			//ConnectionList.Items.Add(item);
-			ConnectionList.DataContext = app.Connections;
+			//ConnectionList.DataContext = app.Connections;
         }
 
 		private void app_ConnectionAdded(object sender, ConnectionEventArgs e)
@@ -44,7 +44,7 @@ namespace Confabulation
 			//TreeViewItem channelItem = new TreeViewItem();
 			//channelItem.Header = "#mychannel";
 			//item.Items.Add(channelItem);
-			//ConnectionList.Items.Add(item);
+			ConnectionList.Items.Add(e.Connection);
 			//Connections connections = (Connections)FindResource("Connections");
 
 			//if (connections != null)

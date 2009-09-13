@@ -65,6 +65,7 @@ namespace Confabulation
 			{
 				// TODO: Maybe some more sophisticated handling
 				Log.WriteLine("Failed to copy data to the Confabulation user folder");
+				serverList = new IrcServerList();
 			}
 		}
 

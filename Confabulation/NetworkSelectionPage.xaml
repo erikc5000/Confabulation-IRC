@@ -4,6 +4,8 @@
                                  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                                  xmlns:chat="clr-namespace:Confabulation.Chat;assembly=ConfabulationChat"
                                  xmlns:controls="clr-namespace:Confabulation.Controls;assembly=ConfabulationControls"
+                                 xmlns:local="clr-namespace:Confabulation"
+                                 xmlns:system="clr-namespace:System;assembly=mscorlib"
                                  Title="Network Selection"
                                  NextButtonClick="NetworkSelectionPage_NextButtonClick"
                                  KeepAlive="True">
@@ -28,34 +30,15 @@
                 <ComboBox Name="NetworkCB"
                           Width="200"
                           Margin="4"
-                          Loaded="NetworkCB_Loaded"
                           SelectionChanged="NetworkCB_SelectionChanged"
                           ItemsSource="{Binding}"
                           ItemTemplate="{StaticResource NetworkItem}"
+                          SelectedValuePath="Name"
+                          SelectedValue="{Binding Source={StaticResource Settings},Path=Default.LastNetworkName}"
                           IsSynchronizedWithCurrentItem="True">
                 </ComboBox>
             </StackPanel>
         </RadioButton>
-        
-        <!--<RadioButton x:Name="ExistingNetworkRB" Grid.Column="0" Grid.Row="0" IsChecked="True" Checked="ExistingNetworkRB_Checked">
-            <StackPanel x:Name="NetworkSP" Orientation="Horizontal">
-                <StackPanel.Resources>
-                    <DataTemplate x:Key="NetworkItem" DataType="{}Network">
-                        <TextBlock Text="{Binding Path=Attribute[Name].Value}"/>
-                    </DataTemplate>
-                </StackPanel.Resources>
-                <Label Margin="4">Network</Label>
-                <ComboBox Name="NetworkCB"
-                          Width="200"
-                          Margin="4"
-                          Loaded="NetworkCB_Loaded"
-                          SelectionChanged="NetworkCB_SelectionChanged"
-                          ItemsSource="{Binding}"
-                          ItemTemplate="{StaticResource NetworkItem}"
-                          IsSynchronizedWithCurrentItem="True">
-                </ComboBox>
-            </StackPanel>
-        </RadioButton>-->
         
         <RadioButton x:Name="ManualServerRB" Grid.Column="0" Grid.Row="1" Checked="ManualServerRB_Checked">
             <Label Margin="4">Enter server information manually</Label>

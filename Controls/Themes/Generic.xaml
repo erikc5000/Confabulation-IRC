@@ -331,7 +331,7 @@
                                                             Style="{StaticResource splitDropdownInnerBorderNormal}"
                                                             Background="Transparent">-->
 
-                                                        <Path Data="M0,0L3,3 6,0z" 															  Margin="0,1,0,0" 														  	  Grid.Column="2" 														  	  Stroke="{TemplateBinding Foreground}" 
+                                                        <Path Data="M0,0L2,2 4,0z" 															  Margin="0,1,0,0" 														  	  Grid.Column="2" 														  	  Stroke="{TemplateBinding Foreground}" 
 													  		  Fill="{TemplateBinding Foreground}" 
 															  HorizontalAlignment="Center" 
 															  VerticalAlignment="Center"/>

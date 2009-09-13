@@ -8,6 +8,10 @@ namespace Confabulation.Chat
 {
 	public class IrcServerList
 	{
+		public IrcServerList()
+		{
+		}
+
 		public IrcServerList(string serversFile)
 		{
 			if (serversFile == null)

@@ -30,7 +30,7 @@ namespace Confabulation
 
 			SetNextButtonState();
 			Loaded += new RoutedEventHandler(NetworkSelectionPage_Loaded);
-			//Unloaded += new RoutedEventHandler(NetworkSelectionPage_Unloaded);
+			Unloaded += new RoutedEventHandler(NetworkSelectionPage_Unloaded);
 		}
 
 		~NetworkSelectionPage()
@@ -38,63 +38,28 @@ namespace Confabulation
 
 		}
 
-		//void NetworkSelectionPage_Unloaded(object sender, RoutedEventArgs e)
-		//{
-		//    //RegistryKey key = Registry.CurrentUser.OpenSubKey("Software\\Confabulation", true);
+		void NetworkSelectionPage_Unloaded(object sender, RoutedEventArgs e)
+		{
+			IrcNetwork network = (IrcNetwork)NetworkCB.SelectedItem;
 
-		//    //key.SetValue("LastNetworkName", ((XElement)NetworkCB.SelectedItem).Attribute("Name").Value, RegistryValueKind.String );
-		//}
+			if (network != null)
+				Properties.Settings.Default.LastNetworkName = network.Name;
+		}
 
 		void NetworkSelectionPage_Loaded(object sender, RoutedEventArgs e)
 		{
 			App app = (App)App.Current;
 			NetworkCB.DataContext = app.ServerList.Networks;
-			//NavigationService.LoadCompleted += new LoadCompletedEventHandler(NavigationService_LoadCompleted);
-			//XDocument serverList = App.ServerList;
 
-			//if (serverList == null)
-			//{
-			//    ExistingNetworkRB.IsEnabled = false;
-			//    NetworkCB.IsEnabled = false;
-			//}
-			//else
-			//{
-			//    try
-			//    {
-			//        //NetworkCB.DataContextChanged += new DependencyPropertyChangedEventHandler(NetworkCB_DataContextChanged);
-			//        NetworkCB.DataContext = serverList.Element("Servers").Elements();
-
-			//        RegistryKey key = Registry.CurrentUser.OpenSubKey("Software\\Confabulation");
-
-			//        if (key == null)
-			//            key = Registry.CurrentUser.CreateSubKey("Software\\Confabulation");
-
-			//        string lastNetworkName = (string)key.GetValue("LastNetworkName", null);
-
-			//        if (lastNetworkName == null)
-			//        {
-			//            NetworkCB.SelectedIndex = 0;
-			//        }
-			//        else
-			//        {
-			//            //NetworkCB.Item
-			//            NetworkCB.SelectedItem =
-			//                (from c in serverList.Element("Servers").Elements()
-			//                 where c.Attribute("Name").Value.Equals(lastNetworkName)
-			//                 select c).First();
-
-			//            if (NetworkCB.SelectedItem == null)
-			//                NetworkCB.SelectedIndex = 0;
-			//        }
-
-			//        Keyboard.Focus(NetworkCB);
-			//    }
-			//    catch (NullReferenceException)
-			//    {
-			//        ExistingNetworkRB.IsEnabled = false;
-			//        NetworkCB.IsEnabled = false;
-			//    }
-			//}
+			if (app.ServerList.Networks.Count() > 0)
+			{
+			    Keyboard.Focus(NetworkCB);
+			}
+			else
+			{
+				ExistingNetworkRB.IsEnabled = false;
+				ManualServerRB.IsChecked = true;
+			}
 		}
 
 		void NetworkSelectionPage_NextButtonClick(object sender, RoutedEventArgs e)
@@ -112,15 +77,6 @@ namespace Confabulation
 				NavigationService.Navigate(page);
 			}
 		}
-
-		//void NavigationService_LoadCompleted(object sender, NavigationEventArgs e)
-		//{
-		//    //if (e.ExtraData == this)
-		//    //{
-		//    //    ((PageFunction<IrcConnectionSettings>)e.Content).Return
-		//    //        += new ReturnEventHandler<IrcConnectionSettings>(NetworkSelectionPage_Return);
-		//    //}
-		//}
 
 		void NetworkSelectionPage_Return(object sender, ReturnEventArgs<IrcConnectionSettings> e)
 		{
@@ -148,12 +104,6 @@ namespace Confabulation
 		private void ManualServerRB_Checked(object sender, RoutedEventArgs e)
 		{
 			SetNextButtonState();
-		}
-
-		private void NetworkCB_Loaded(object sender, RoutedEventArgs e)
-		{
-			//NetworkCB.SelectedIndex = 0;
-			Keyboard.Focus(NetworkCB);
 		}
 
 		private void SetNextButtonState()
