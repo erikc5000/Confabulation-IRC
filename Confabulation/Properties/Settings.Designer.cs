@@ -26,6 +26,7 @@ namespace Confabulation.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
+        [global::System.Configuration.SettingsManageabilityAttribute(global::System.Configuration.SettingsManageability.Roaming)]
         public string LastNetworkName {
             get {
                 return ((string)(this["LastNetworkName"]));
@@ -38,6 +39,7 @@ namespace Confabulation.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
+        [global::System.Configuration.SettingsManageabilityAttribute(global::System.Configuration.SettingsManageability.Roaming)]
         public string Nickname {
             get {
                 return ((string)(this["Nickname"]));
@@ -50,6 +52,7 @@ namespace Confabulation.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
+        [global::System.Configuration.SettingsManageabilityAttribute(global::System.Configuration.SettingsManageability.Roaming)]
         public string UserName {
             get {
                 return ((string)(this["UserName"]));
@@ -62,12 +65,45 @@ namespace Confabulation.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
+        [global::System.Configuration.SettingsManageabilityAttribute(global::System.Configuration.SettingsManageability.Roaming)]
         public string RealName {
             get {
                 return ((string)(this["RealName"]));
             }
             set {
                 this["RealName"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"<?xml version=""1.0"" encoding=""utf-16""?>
+<WINDOWPLACEMENT xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">
+  <length>0</length>
+  <flags>0</flags>
+  <showCmd>0</showCmd>
+  <minPosition>
+    <X>0</X>
+    <Y>0</Y>
+  </minPosition>
+  <maxPosition>
+    <X>0</X>
+    <Y>0</Y>
+  </maxPosition>
+  <normalPosition>
+    <Left>0</Left>
+    <Top>0</Top>
+    <Right>0</Right>
+    <Bottom>0</Bottom>
+  </normalPosition>
+</WINDOWPLACEMENT>")]
+        [global::System.Configuration.SettingsManageabilityAttribute(global::System.Configuration.SettingsManageability.Roaming)]
+        public global::Confabulation.WINDOWPLACEMENT WindowPlacement {
+            get {
+                return ((global::Confabulation.WINDOWPLACEMENT)(this["WindowPlacement"]));
+            }
+            set {
+                this["WindowPlacement"] = value;
             }
         }
     }

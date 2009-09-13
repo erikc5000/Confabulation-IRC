@@ -55,6 +55,6 @@
                   Margin="4"
                   IsChecked="True"
                   Content="Invisible to users outside my channels"
-                  ToolTip="Prevent users from seeing me if they are not in any channels that I am."/>
+                  ToolTip="Prevent users from seeing me if they are not in any channels that I am in."/>
     </Grid>
 </controls:AeroWizardPageFunction>

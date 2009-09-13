@@ -139,6 +139,7 @@
     <Compile Include="ServerSettingsPage.xaml.cs">
       <DependentUpon>ServerSettingsPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Settings.cs" />
     <Compile Include="UserSettingsPage.xaml.cs">
       <DependentUpon>UserSettingsPage.xaml</DependentUpon>
     </Compile>
