@@ -2,13 +2,13 @@
 <!DOCTYPE Servers SYSTEM "Servers.dtd">
 <Servers>
   <Network Name="GameSurge">
-    <Server Index="0" Hostname="Aim2Game.TX.US.GameSurge.net" Ports="6665-6669,7000,8080">
+    <Server Index="0" Hostname="Co-Locate.NL.EU.GameSurge.net" Ports="6660-6669">
       <Location>
-        <City>Dallas</City>
-        <State>TX</State>
-        <Country>US</Country>
+        <City>Amsterdam</City>
+        <Country>NL</Country>
+        <Region>EU</Region>
       </Location>
-      <Provider>Aim2Game</Provider>
+      <Provider>Co-Locate Internet BV</Provider>
     </Server>
     <Server Index="1" Hostname="GameServers.NJ.US.GameSurge.net" Ports="6665-6669,7000,8080">
       <Location>
@@ -65,21 +65,29 @@
       </Location>
       <Provider>Clan-Server</Provider>
     </Server>
-    <Server Index="8" Hostname="ClanShells.DE.EU.GameSurge.net" Ports="6667,6668">
+    <Server Index="8" Hostname="TAL.DE.EU.GameSurge.net" Ports="6660,6666-6669">
       <Location>
-        <City>Coburg</City>
+        <City>Wuppertal</City>
         <Country>DE</Country>
         <Region>EU</Region>
       </Location>
-      <Provider>Clan Shells</Provider>
+      <Provider>TAL.DE</Provider>
     </Server>
-    <Server Index="9" Hostname="GameConnect.NL.EU.GameSurge.net" Ports="6667-6669,7000">
+    <Server Index="9" Hostname="TechConnect.NL.EU.GameSurge.net" Ports="6667-6669,7000">
       <Location>
         <City>Sittard</City>
         <Country>NL</Country>
         <Region>EU</Region>
       </Location>
-      <Provider>GameConnect</Provider>
+      <Provider>TechConnect</Provider>
+    </Server>
+    <Server Index="10" Hostname="Snoke.NL.EU.GameSurge.net" Ports="6667-6669,7000">
+      <Location>
+        <City>Amsterdam</City>
+        <Country>NL</Country>
+        <Region>EU</Region>
+      </Location>
+      <Provider>Snoke</Provider>
     </Server>
   </Network>
   <Network Name="Undernet">
@@ -90,6 +98,32 @@
         <Country>US</Country>
       </Location>
       <Provider>Globalcon.net LLC</Provider>
+    </Server>
+    <Server Index="1" Hostname="mesa.az.us.undernet.org" Ports="6660,6665-6667,7000">
+      <Location>
+        <City>Mesa</City>
+        <State>AZ</State>
+        <Country>US</Country>
+      </Location>
+      <Provider>Easy News</Provider>
+    </Server>
+  </Network>
+  <Network Name="EFnet">
+    <Server Index="0" Hostname="irc.paraphysics.net" Ports="6660-6669">
+      <Location>
+        <City>Houston</City>
+        <State>TX</State>
+        <Country>US</Country>
+      </Location>
+      <Provider>nLayer</Provider>
+    </Server>
+  </Network>
+  <Network Name="Doolanshire">
+    <Server Index="0" Hostname="irc.doolanshire.net" Ports="6669">
+      <Location>
+        <Country>US</Country>
+      </Location>
+      <Provider>Doolanshire</Provider>
     </Server>
   </Network>
 </Servers>

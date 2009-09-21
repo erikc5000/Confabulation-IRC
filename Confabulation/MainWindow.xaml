@@ -7,15 +7,7 @@
     Title="Confabulation" Height="400" Width="700">
     
     <Window.Resources>
-        <Style x:Key="ColorComboBoxItem" TargetType="{x:Type Rectangle}">
-            <Setter Property="Height" Value="10"/>
-            <Setter Property="Width" Value="10"/>
-            <Setter Property="Margin" Value="1"/>
-        </Style>
-        
-        <HierarchicalDataTemplate x:Key="ConnectionTemplate"
-                                  DataType="{x:Type chat:IrcConnection}"
-                                  ItemsSource="{Binding Path=Channels}">
+        <HierarchicalDataTemplate DataType="{x:Type local:ConnectionItem}" ItemsSource="{Binding Path=Items}">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="auto"/>
@@ -23,132 +15,21 @@
                     <ColumnDefinition Width="16"/>
                 </Grid.ColumnDefinitions>
                 <Image Grid.Column="0" Source="Icons/Connect.ico" Height="16" Width="16"/>
-                <TextBlock Grid.Column="1" Text="{Binding Path=Settings.Name}" />
+                <TextBlock Grid.Column="1" Text="{Binding Path=Connection.Settings.Name}" />
                 <Button Grid.Column="2">X</Button>
             </Grid>
         </HierarchicalDataTemplate>
-
-        <DataTemplate x:Key="ChatWindowTemplate">
+        
+        <DataTemplate DataType="{x:Type local:ChannelItem}">
             <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition/>
-                    <RowDefinition Height="26"/>
-                    <RowDefinition Height="80"/>
-                </Grid.RowDefinitions>
-
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition/>
                     <ColumnDefinition Width="auto"/>
-                    <ColumnDefinition Width="120"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
                 </Grid.ColumnDefinitions>
-
-                <GridSplitter Grid.Row="0" Grid.Column="1" Grid.RowSpan="3" HorizontalAlignment="Center" Width="4"/>
-
-                <ListBox Grid.Row="0" Grid.Column="2" Grid.RowSpan="3" BorderThickness="0">
-                </ListBox>
-
-                <FlowDocumentScrollViewer Name="ChatWindow"
-                                          Grid.Row="0"
-                                          Grid.Column="0"
-                                          BorderThickness="0"
-                                          FontFamily="Courier New">
-                    <FlowDocument Name="ChatWindowDocument"/>
-                </FlowDocumentScrollViewer>
-
-                <ToolBar Grid.Row="1" Grid.Column="0">
-                    <ComboBox Width="40" FontSize="10" IsReadOnly="false">
-                        <ComboBox.ToolTip>Font size</ComboBox.ToolTip>
-                        <ComboBoxItem>Default</ComboBoxItem>
-                        <ComboBoxItem>8</ComboBoxItem>
-                        <ComboBoxItem>10</ComboBoxItem>
-                        <ComboBoxItem>12</ComboBoxItem>
-                        <ComboBoxItem>14</ComboBoxItem>
-                        <ComboBoxItem>16</ComboBoxItem>
-                        <ComboBoxItem>18</ComboBoxItem>
-                        <ComboBoxItem>24</ComboBoxItem>
-                        <ComboBoxItem>36</ComboBoxItem>
-                        <ComboBoxItem>48</ComboBoxItem>
-                        <ComboBoxItem>72</ComboBoxItem>
-                    </ComboBox>
-                    <Button FontSize="10" Width="16">
-                        <Button.ToolTip>Bold</Button.ToolTip>
-                        <Bold>B</Bold>
-                    </Button>
-                    <Button FontSize="10" Width="16">
-                        <Button.ToolTip>Italic</Button.ToolTip>
-                        <Italic>I</Italic>
-                    </Button>
-                    <Button FontSize="10" Width="16">
-                        <Button.ToolTip>Underline</Button.ToolTip>
-                        <Underline>U</Underline>
-                    </Button>
-                    <Button FontSize="10" Width="16">
-                        <Button.ToolTip>Strikethrough</Button.ToolTip>
-                        <TextBlock>
-                            <TextBlock.TextDecorations>
-                                <TextDecoration Location="Strikethrough"/>
-                            </TextBlock.TextDecorations>
-                            S
-                        </TextBlock>
-                    </Button>
-                    <ComboBox Width="40" FontSize="10">
-                        <ComboBoxItem>Default</ComboBoxItem>
-                        <ComboBoxItem>
-                            <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="Black"/>
-                        </ComboBoxItem>
-                        <ComboBoxItem>
-                            <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="Blue"/>
-                        </ComboBoxItem>
-                        <ComboBoxItem>
-                            <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="Green"/>
-                        </ComboBoxItem>
-                        <ComboBoxItem>
-                            <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="Cyan"/>
-                        </ComboBoxItem>
-                        <ComboBoxItem>
-                            <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="DarkRed"/>
-                        </ComboBoxItem>
-                        <ComboBoxItem>
-                            <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="Purple"/>
-                        </ComboBoxItem>
-                        <ComboBoxItem>
-                            <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="Brown"/>
-                        </ComboBoxItem>
-                        <ComboBoxItem>
-                            <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="LightGray"/>
-                        </ComboBoxItem>
-                        <ComboBoxItem>
-                            <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="Gray"/>
-                        </ComboBoxItem>
-                        <ComboBoxItem>
-                            <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="LightBlue"/>
-                        </ComboBoxItem>
-                        <ComboBoxItem>
-                            <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="LightGreen"/>
-                        </ComboBoxItem>
-                        <ComboBoxItem>
-                            <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="LightCyan"/>
-                        </ComboBoxItem>
-                        <ComboBoxItem>
-                            <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="Red"/>
-                        </ComboBoxItem>
-                        <ComboBoxItem>
-                            <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="Pink"/>
-                        </ComboBoxItem>
-                        <ComboBoxItem>
-                            <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="Yellow"/>
-                        </ComboBoxItem>
-                        <ComboBoxItem>
-                            <Border BorderThickness="1" Background="Black">
-                                <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="White"/>
-                            </Border>
-                        </ComboBoxItem>
-                    </ComboBox>
-                </ToolBar>
-
-                <RichTextBox Grid.Row="2" Grid.Column="0" BorderThickness="0" PreviewKeyDown="ChatTextBox_KeyDown">
-
-                </RichTextBox>
+                <Image Grid.Column="0" Source="Icons/Connect.ico" Height="16" Width="16"/>
+                <TextBlock Grid.Column="1" Text="{Binding Path=Channel.Name}" />
+                <Button Grid.Column="2">X</Button>
             </Grid>
         </DataTemplate>
     </Window.Resources>
@@ -199,7 +80,13 @@
                       Grid.Column="0"
                       Grid.RowSpan="3"
                       BorderThickness="0"
-                      ItemTemplate="{StaticResource ConnectionTemplate}">
+                      ItemsSource="{Binding}">
+                <TreeView.Resources>
+                    <Style TargetType="TreeViewItem">
+                        <Setter Property="IsSelected" Value="{Binding Path=IsSelected}"/>
+                        <Setter Property="IsExpanded" Value="{Binding Path=IsExpanded}"/>
+                    </Style>
+                </TreeView.Resources>
                 <!--ItemTemplate="{StaticResource ConnectionTemplate}"-->
                 <!--<TreeViewItem Header="MyConnection">
                     <TreeViewItem Header="#mychannel"/>
@@ -207,9 +94,10 @@
             </TreeView>
             
             <ContentControl Name="ChatContentArea"
-                            Grid.Column="2"
-                            Content="{Binding ElementName=ConnectionList, Path=SelectedItem}"
-                            ContentTemplate="{StaticResource ChatWindowTemplate}"/>
+                            Grid.Column="2"/>
+            
+            <!--Content="{Binding ElementName=ConnectionList, Path=SelectedItem}"
+                            ContentTemplate="{StaticResource ChatWindowTemplate}"-->
 
         </Grid>
     </DockPanel>

@@ -1,0 +1,135 @@
+﻿<UserControl x:Class="Confabulation.ChatWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Height="auto" Width="auto">
+    
+    <UserControl.Resources>
+        <Style x:Key="ColorComboBoxItem" TargetType="{x:Type Rectangle}">
+            <Setter Property="Height" Value="10"/>
+            <Setter Property="Width" Value="10"/>
+            <Setter Property="Margin" Value="1"/>
+        </Style>
+    </UserControl.Resources>
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="26"/>
+            <RowDefinition Height="80"/>
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition Width="120"/>
+        </Grid.ColumnDefinitions>
+
+        <GridSplitter Grid.Row="0" Grid.Column="1" Grid.RowSpan="3" HorizontalAlignment="Center" Width="4"/>
+
+        <ListBox Grid.Row="0" Grid.Column="2" Grid.RowSpan="3" BorderThickness="0">
+        </ListBox>
+
+        <FlowDocumentScrollViewer Name="ChatLog"
+                                          Grid.Row="0"
+                                          Grid.Column="0"
+                                          BorderThickness="0"
+                                          FontFamily="Courier New">
+            <FlowDocument Name="ChatLogDocument"/>
+        </FlowDocumentScrollViewer>
+
+        <ToolBar Grid.Row="1" Grid.Column="0">
+            <ComboBox Width="40" FontSize="10" IsReadOnly="false">
+                <ComboBox.ToolTip>Font size</ComboBox.ToolTip>
+                <ComboBoxItem>Default</ComboBoxItem>
+                <ComboBoxItem>8</ComboBoxItem>
+                <ComboBoxItem>10</ComboBoxItem>
+                <ComboBoxItem>12</ComboBoxItem>
+                <ComboBoxItem>14</ComboBoxItem>
+                <ComboBoxItem>16</ComboBoxItem>
+                <ComboBoxItem>18</ComboBoxItem>
+                <ComboBoxItem>24</ComboBoxItem>
+                <ComboBoxItem>36</ComboBoxItem>
+                <ComboBoxItem>48</ComboBoxItem>
+                <ComboBoxItem>72</ComboBoxItem>
+            </ComboBox>
+            <Button FontSize="10" Width="16">
+                <Button.ToolTip>Bold</Button.ToolTip>
+                <Bold>B</Bold>
+            </Button>
+            <Button FontSize="10" Width="16">
+                <Button.ToolTip>Italic</Button.ToolTip>
+                <Italic>I</Italic>
+            </Button>
+            <Button FontSize="10" Width="16">
+                <Button.ToolTip>Underline</Button.ToolTip>
+                <Underline>U</Underline>
+            </Button>
+            <Button FontSize="10" Width="16">
+                <Button.ToolTip>Strikethrough</Button.ToolTip>
+                <TextBlock>
+                            <TextBlock.TextDecorations>
+                                <TextDecoration Location="Strikethrough"/>
+                            </TextBlock.TextDecorations>
+                            S
+                </TextBlock>
+            </Button>
+            <ComboBox Width="40" FontSize="10">
+                <ComboBoxItem>Default</ComboBoxItem>
+                <ComboBoxItem>
+                    <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="Black"/>
+                </ComboBoxItem>
+                <ComboBoxItem>
+                    <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="Blue"/>
+                </ComboBoxItem>
+                <ComboBoxItem>
+                    <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="Green"/>
+                </ComboBoxItem>
+                <ComboBoxItem>
+                    <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="Cyan"/>
+                </ComboBoxItem>
+                <ComboBoxItem>
+                    <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="DarkRed"/>
+                </ComboBoxItem>
+                <ComboBoxItem>
+                    <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="Purple"/>
+                </ComboBoxItem>
+                <ComboBoxItem>
+                    <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="Brown"/>
+                </ComboBoxItem>
+                <ComboBoxItem>
+                    <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="LightGray"/>
+                </ComboBoxItem>
+                <ComboBoxItem>
+                    <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="Gray"/>
+                </ComboBoxItem>
+                <ComboBoxItem>
+                    <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="LightBlue"/>
+                </ComboBoxItem>
+                <ComboBoxItem>
+                    <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="LightGreen"/>
+                </ComboBoxItem>
+                <ComboBoxItem>
+                    <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="LightCyan"/>
+                </ComboBoxItem>
+                <ComboBoxItem>
+                    <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="Red"/>
+                </ComboBoxItem>
+                <ComboBoxItem>
+                    <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="Pink"/>
+                </ComboBoxItem>
+                <ComboBoxItem>
+                    <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="Yellow"/>
+                </ComboBoxItem>
+                <ComboBoxItem>
+                    <Border BorderThickness="1" Background="Black">
+                        <Rectangle Style="{StaticResource ColorComboBoxItem}" Fill="White"/>
+                    </Border>
+                </ComboBoxItem>
+            </ComboBox>
+        </ToolBar>
+
+        <RichTextBox Name="ChatTextBox" Grid.Row="2" Grid.Column="0" BorderThickness="0" PreviewKeyDown="ChatTextBox_PreviewKeyDown">
+
+        </RichTextBox>
+    </Grid>
+</UserControl>

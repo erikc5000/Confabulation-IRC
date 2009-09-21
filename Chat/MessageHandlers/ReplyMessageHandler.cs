@@ -213,7 +213,6 @@ namespace Confabulation.Chat.MessageHandlers
 
 			for (int i = 0; i < names.Length; i++)
 			{
-				// TODO: Fix this... need to handle self differently
 				users[i] = connection.FindUser(names[i]);
 
 				if (users[i] == null)

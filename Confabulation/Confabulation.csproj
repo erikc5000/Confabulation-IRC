@@ -86,6 +86,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="ChatWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -116,7 +120,13 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ChannelItem.cs" />
+    <Compile Include="ChatWindow.xaml.cs">
+      <DependentUpon>ChatWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ConnectionEventArgs.cs" />
+    <Compile Include="ConnectionItem.cs" />
+    <Compile Include="ConnectionListItem.cs" />
     <Compile Include="NetworkSelectionPage.xaml.cs">
       <DependentUpon>NetworkSelectionPage.xaml</DependentUpon>
     </Compile>
@@ -139,6 +149,7 @@
     <Compile Include="ServerSettingsPage.xaml.cs">
       <DependentUpon>ServerSettingsPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ServerWindow.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="UserSettingsPage.xaml.cs">
       <DependentUpon>UserSettingsPage.xaml</DependentUpon>

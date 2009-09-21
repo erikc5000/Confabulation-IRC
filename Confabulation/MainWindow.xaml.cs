@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Windows;
@@ -93,39 +94,61 @@ namespace Confabulation
 			//TreeViewItem item = new TreeViewItem();
 			//item.Header = "MyConnection";
 			//ConnectionList.Items.Add(item);
-			//ConnectionList.DataContext = app.Connections;
+			ConnectionList.SelectedItemChanged += new RoutedPropertyChangedEventHandler<object>(ConnectionList_SelectedItemChanged);
+			ConnectionList.DataContext = connectionItems;
         }
+
+		private void ConnectionList_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+		{
+			if (!(e.NewValue is ConnectionListItem))
+				return;
+
+			ConnectionListItem item = (ConnectionListItem)e.NewValue;
+			IrcConnection connection = item.Connection;
+
+			if (connection == null)
+				return;
+
+			if (activeConnection != null || activeConnection != connection)
+			{
+				if (activeConnection != null)
+					activeConnection.StateChanged -= new EventHandler<IrcConnectionEventArgs>(activeConnection_StateChanged);
+			}
+
+			activeConnection = connection;
+			activeConnection.StateChanged += new EventHandler<IrcConnectionEventArgs>(activeConnection_StateChanged);
+			ChatContentArea.Content = item.ChatWindow;
+		}
 
 		private void app_ConnectionAdded(object sender, ConnectionEventArgs e)
 		{
-			//TreeViewItem item = new TreeViewItem();
-			//item.Header = e.Connection.Settings.Name;
-
-			//TreeViewItem channelItem = new TreeViewItem();
-			//channelItem.Header = "#mychannel";
-			//item.Items.Add(channelItem);
-			//ConnectionList.Items.Add(e.Connection);
-			//Connections connections = (Connections)FindResource("Connections");
-
-			//if (connections != null)
-			//	connections.Add(e.Connection);
-
-			if (activeConnection == null)
-			{
-				activeConnection = e.Connection;
-				activeConnection.StateChanged += new EventHandler<IrcConnectionEventArgs>(client_ConnectionEvent);
-				activeConnection.RawMessageReceived += new EventHandler<IrcMessageEventArgs>(client_RawMessageReceived);
-			}
+			ConnectionItem item = new ConnectionItem(e.Connection);
+			item.IsSelected = true;
+			item.IsExpanded = true;
+			connectionItems.Add(item);
 		}
 
 		private void app_ConnectionRemoved(object sender, ConnectionEventArgs e)
 		{
+			foreach (ConnectionItem item in connectionItems)
+			{
+				if (item.Connection == e.Connection)
+				{
+					ConnectionList.Items.Remove(item);
+					break;
+				}
+			}
+
 			if (activeConnection == e.Connection)
 			{
-				activeConnection.StateChanged -= new EventHandler<IrcConnectionEventArgs>(client_ConnectionEvent);
-				activeConnection.RawMessageReceived -= new EventHandler<IrcMessageEventArgs>(client_RawMessageReceived);
-				activeConnection = null;
+			    activeConnection.StateChanged -= new EventHandler<IrcConnectionEventArgs>(activeConnection_StateChanged);
+			    activeConnection = null;
 			}
+		}
+
+		private void activeConnection_StateChanged(object sender, IrcConnectionEventArgs e)
+		{
+
 		}
 
 		private void ConnectButton_Click(object sender, RoutedEventArgs e)
@@ -137,110 +160,6 @@ namespace Confabulation
 				activeConnection.Initiate();
 			else
 				activeConnection.Close();
-		}
-
-		private void client_ConnectionEvent(object sender, IrcConnectionEventArgs e)
-		{
-			switch (e.EventType)
-			{
-				case IrcConnectionEventType.Connected:
-					//ChatWindowDocument.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal,
-					//	new AddToWindowDelegate(AddTextToWindow), (Object)"Connected");
-					break;
-
-				case IrcConnectionEventType.ConnectFailed:
-					//ChatWindowDocument.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal,
-					//	new AddToWindowDelegate(AddTextToWindow), (Object)"Connection Failed");
-					break;
-
-				case IrcConnectionEventType.Disconnected:
-					//ChatWindowDocument.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal,
-					//	new AddToWindowDelegate(AddTextToWindow), (Object)"Disconnected");
-					break;
-			}
-		}
-
-		private void client_RawMessageReceived(object sender, IrcMessageEventArgs e)
-		{
-			//ChatWindowDocument.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal,
-			//			new AddToWindowDelegate(AddTextToWindow), (Object)e.Message.ToString());
-		}
-
-		private delegate void AddToWindowDelegate(string text);
-
-		private void AddTextToWindow(string text)
-		{
-			// 2 = Bold
-			// 15 = Plain
-			// 22 = Italic
-			// 31 = Underline
-			// 3 [followed by 2 digits] = color code
-			string[] boldParts = text.Split((char)0x02);
-			Paragraph p = new Paragraph();
-			p.KeepWithNext = true;
-			p.FontSize = 12;
-			p.Margin = new Thickness(0.0);
-			p.TextAlignment = TextAlignment.Left;
-
-			bool bold = false;
-
-			foreach (string s in boldParts)
-			{
-				if (!bold)
-					p.Inlines.Add(new Run(s));
-				else
-					p.Inlines.Add(new Bold(new Run(s)));
-
-				bold = !bold;
-			}
-
-			//ChatWindowDocument.Blocks.Add(p);
-
-			//DependencyObject obj = ChatWindow;
-
-			//do
-			//{
-			//    obj = VisualTreeHelper.GetChild(obj as Visual, 0);
-			//}
-			//while (!(obj is ScrollViewer));
-
-			//ScrollViewer scrollViewer = obj as ScrollViewer;
-			//scrollViewer.ScrollToBottom();
-		}
-
-		private void ChatTextBox_KeyDown(object sender, KeyEventArgs e)
-		{
-			if (e.Key == Key.Enter || e.Key == Key.Return)
-			{
-				if (activeConnection == null || activeConnection.State != IrcConnectionState.Connected)
-				{
-					AddTextToWindow("Not connected");
-				}
-				else
-				{
-					try
-					{
-						//TextRange textRange = new TextRange(ChatTextBox.Document.ContentStart,
-						//									ChatTextBox.Document.ContentEnd);
-
-						//App app = (App)App.Current;
-						//app.Connections.First().Execute(IrcCommand.Parse(textRange.Text));
-					}
-					catch (IrcCommandException)
-					{
-						AddTextToWindow("Invalid command");
-					}
-					catch (ArgumentException ae)
-					{
-						AddTextToWindow("Invalid argument: " + ae.ParamName);
-					}
-				}
-
-				//ChatTextBox.Document.Blocks.Clear();
-				//ChatTextBox.CaretPosition = ChatTextBox.Document.ContentStart;
-
-				e.Handled = true;
-			}
 		}
 
 		private void Button_Click(object sender, RoutedEventArgs e)
@@ -292,5 +211,6 @@ namespace Confabulation
 		}
 
 		private IrcConnection activeConnection = null;
+		private ObservableCollection<ConnectionItem> connectionItems = new ObservableCollection<ConnectionItem>();
     }
 }

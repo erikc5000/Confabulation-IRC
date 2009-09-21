@@ -12,25 +12,25 @@ namespace Confabulation.Chat
 			Name = null;
 		}
 
-		public override bool Equals(object obj)
-		{
-			if (obj == null)
-				return false;
+		//public override bool Equals(object obj)
+		//{
+		//    if (obj == null)
+		//        return false;
 
-			if (obj is string)
-			{
-				if (Name == null)
-					return false;
+		//    if (obj is string)
+		//    {
+		//        if (Name == null)
+		//            return false;
 
-				return Name.Equals((string)obj);
-			}
-			else if (obj is IrcNetwork)
-			{
-				return ((IrcNetwork)obj).Name.Equals(Name);
-			}
+		//        return Name.Equals((string)obj);
+		//    }
+		//    else if (obj is IrcNetwork)
+		//    {
+		//        return ((IrcNetwork)obj).Name.Equals(Name);
+		//    }
 
-			return false;
-		}
+		//    return false;
+		//}
 
 		public IrcServer GetFirstServer()
 		{
