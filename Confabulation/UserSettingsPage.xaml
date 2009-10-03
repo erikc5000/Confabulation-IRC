@@ -31,15 +31,6 @@
                  TextChanged="Nickname_TextChanged"
                  Text="{Binding Source={StaticResource Settings},Path=Default.Nickname,Mode=OneTime}"/>
         
-        <Label Grid.Column="0" Grid.Row="2" Margin="4">User Name</Label>
-        <TextBox x:Name="UserName"
-                 Grid.Column="1"
-                 Grid.Row="2"
-                 Margin="4"
-                 TextChanged="UserName_TextChanged"
-                 Loaded="UserName_Loaded"
-                 Text="{Binding Source={StaticResource Settings},Path=Default.UserName,Mode=OneTime}"/>
-        
         <Label Grid.Column="0" Grid.Row="1" Margin="4">Real Name</Label>
         <TextBox x:Name="RealName"
                  Grid.Column="1"
@@ -56,5 +47,14 @@
                   IsChecked="True"
                   Content="Invisible to users outside my channels"
                   ToolTip="Prevent users from seeing me if they are not in any channels that I am in."/>
+        
+        <Label Grid.Column="0" Grid.Row="2" Margin="4">User Name</Label>
+        <TextBox x:Name="UserName"
+                 Grid.Column="1"
+                 Grid.Row="2"
+                 Margin="4"
+                 TextChanged="UserName_TextChanged"
+                 Loaded="UserName_Loaded"
+                 Text="{Binding Source={StaticResource Settings},Path=Default.UserName,Mode=OneTime}"/>
     </Grid>
 </controls:AeroWizardPageFunction>
