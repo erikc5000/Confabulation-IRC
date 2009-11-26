@@ -14,6 +14,8 @@ namespace Confabulation.Chat
 
 			User = user;
 			Message = null;
+			OldNickname = null;
+			NewNickname = null;
 		}
 
 		public IrcUserEventArgs(IrcUser user, string message)
@@ -23,6 +25,19 @@ namespace Confabulation.Chat
 
 			User = user;
 			Message = message;
+			OldNickname = null;
+			NewNickname = null;
+		}
+
+		public IrcUserEventArgs(IrcUser user, string oldNickname, string newNickname)
+		{
+			if (user == null)
+				throw new ArgumentNullException("user");
+
+			User = user;
+			Message = null;
+			OldNickname = oldNickname;
+			NewNickname = newNickname;
 		}
 
 		public IrcUser User
@@ -32,6 +47,18 @@ namespace Confabulation.Chat
 		}
 
 		public string Message
+		{
+			get;
+			private set;
+		}
+
+		public string OldNickname
+		{
+			get;
+			private set;
+		}
+
+		public string NewNickname
 		{
 			get;
 			private set;

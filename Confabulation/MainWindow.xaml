@@ -7,7 +7,7 @@
     Title="Confabulation" Height="400" Width="700">
     
     <Window.Resources>
-        <HierarchicalDataTemplate DataType="{x:Type local:ConnectionItem}" ItemsSource="{Binding Path=Items}">
+        <!--<HierarchicalDataTemplate DataType="{x:Type local:ConnectionItem}" ItemsSource="{Binding Path=Items}">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="auto"/>
@@ -31,74 +31,31 @@
                 <TextBlock Grid.Column="1" Text="{Binding Path=Channel.Name}" />
                 <Button Grid.Column="2">X</Button>
             </Grid>
-        </DataTemplate>
+        </DataTemplate>-->
     </Window.Resources>
     
     <DockPanel>
-        <StackPanel DockPanel.Dock="Top">
-            <!--<Menu FocusVisualStyle="{DynamicResource {x:Static controls:ControlResources.VistaMenuKey}}">
-                <MenuItem Header="_File">
-                    <MenuItem Header="E_xit" />
-                </MenuItem>
-                <MenuItem Header="_Tools">
-                    <MenuItem Header="_Options..." />
-                </MenuItem>
-                <MenuItem Header="_Help">
-                    <MenuItem Header="_About" />
-                </MenuItem>
-            </Menu>-->
+        <ToolBar DockPanel.Dock="Top"
+                 Style="{DynamicResource {x:Static controls:ControlResources.VistaToolBarKey}}">
+            <controls:SplitButton Click="ConnectButton_Click">
+                <controls:SplitButton.Content>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Name="connectButtonTextBlock" Text="Connect" Padding="0,0,0,0"/>
+                    </StackPanel>
+                </controls:SplitButton.Content>
+                <MenuItem Header="_Connect" Click="ConnectButton_Click"/>
+                <MenuItem Header="_New connection..." Click="NewConnection_Click"/>
+                <MenuItem Header="_Manage connections..." Click="ManageConnections_Click"/>
+            </controls:SplitButton>
             
-            <ToolBar Style="{DynamicResource {x:Static controls:ControlResources.VistaToolBarKey}}">
-                <controls:SplitButton Click="ConnectButton_Click">
-                    <controls:SplitButton.Content>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="Connect" Padding="0,0,0,0"/>
-                        </StackPanel>
-                    </controls:SplitButton.Content>
-                    <MenuItem Header="_Connect" Click="ConnectButton_Click"/>
-                    <MenuItem Header="_New connection..." Click="Button_Click"/>
-                    <MenuItem Header="_Manage connections..."/>
-                </controls:SplitButton>
-                
-                <Button Style="{DynamicResource {x:Static controls:ControlResources.VistaToolBarButtonKey}}"
-                        Content="_Join"
-                        IsEnabled="False"/>
-                
-            </ToolBar>
-        </StackPanel>
+            <Button Style="{DynamicResource {x:Static controls:ControlResources.VistaToolBarButtonKey}}"
+                    Content="_Join"
+                    IsEnabled="False"/>
+            
+        </ToolBar>
 
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="150"/>
-                <ColumnDefinition Width="auto"/>
-                <ColumnDefinition/>
-            </Grid.ColumnDefinitions>
+        <TabControl Name="tabControl" SelectionChanged="tabControl_SelectionChanged">
             
-            <GridSplitter Grid.Column="1" Grid.RowSpan="3" HorizontalAlignment="Center" Width="4"/>
-
-            <TreeView Name="ConnectionList"
-                      Grid.Column="0"
-                      Grid.RowSpan="3"
-                      BorderThickness="0"
-                      ItemsSource="{Binding}">
-                <TreeView.Resources>
-                    <Style TargetType="TreeViewItem">
-                        <Setter Property="IsSelected" Value="{Binding Path=IsSelected}"/>
-                        <Setter Property="IsExpanded" Value="{Binding Path=IsExpanded}"/>
-                    </Style>
-                </TreeView.Resources>
-                <!--ItemTemplate="{StaticResource ConnectionTemplate}"-->
-                <!--<TreeViewItem Header="MyConnection">
-                    <TreeViewItem Header="#mychannel"/>
-                </TreeViewItem>-->
-            </TreeView>
-            
-            <ContentControl Name="ChatContentArea"
-                            Grid.Column="2"/>
-            
-            <!--Content="{Binding ElementName=ConnectionList, Path=SelectedItem}"
-                            ContentTemplate="{StaticResource ChatWindowTemplate}"-->
-
-        </Grid>
+        </TabControl>
     </DockPanel>
 </Window>

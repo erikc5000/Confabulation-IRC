@@ -45,6 +45,8 @@ namespace Confabulation.Chat.MessageHandlers
 					Log.WriteLine("Received JOIN message for a channel the user is already in");
 					return;
 				}
+
+				connection.JoinChannel(channelName);
 			}
 			else
 			{
@@ -53,18 +55,7 @@ namespace Confabulation.Chat.MessageHandlers
 					Log.WriteLine("Received JOIN message for a user not in any existing channels");
 					return;
 				}
-			}
 
-			if (channel == null)
-				channel = connection.AddChannel(channelName);
-
-			if (isSelf)
-			{
-				IrcChannelEventArgs e = new IrcChannelEventArgs(channel, connection.User);
-				connection.ChannelJoinEvent(e);
-			}
-			else
-			{
 				IrcUser user = connection.FindUser(nickname);
 
 				if (user == null)

@@ -71,7 +71,7 @@ namespace Confabulation.Chat.MessageHandlers
 
 			if (count < 3)
 			{
-				Log.WriteLine("RPL_ISUPPORT doesn't appear to be formatted correctly");
+				LogError(message);
 				return;
 			}
 
@@ -108,7 +108,7 @@ namespace Confabulation.Chat.MessageHandlers
 		{
 			if (message.Parameters.Count() != 3)
 			{
-				Log.WriteLine("RPL_NOTOPIC doesn't appear to be formatted correctly");
+				LogError(message);
 				return;
 			}
 
@@ -123,7 +123,7 @@ namespace Confabulation.Chat.MessageHandlers
 		{
 			if (message.Parameters.Count() != 3)
 			{
-				Log.WriteLine("RPL_TOPIC doesn't appear to be formatted correctly");
+				LogError(message);
 				return;
 			}
 
@@ -139,7 +139,7 @@ namespace Confabulation.Chat.MessageHandlers
 		{
 			if (message.Parameters.Count() != 4)
 			{
-				Log.WriteLine("RPL_TOPICWHOTIME doesn't appear to be formatted correctly");
+				LogError(message);
 				return;
 			}
 
@@ -165,7 +165,7 @@ namespace Confabulation.Chat.MessageHandlers
 		{
 			if (message.Parameters.Count() != 4)
 			{
-				Log.WriteLine("RPL_NAMEREPLY doesn't appear to be formatted correctly");
+				LogError(message);
 				return;
 			}
 
@@ -226,7 +226,7 @@ namespace Confabulation.Chat.MessageHandlers
 		{
 			if (message.Parameters.Count() != 3)
 			{
-				Log.WriteLine("RPL_ENDOFNAMES doesn't appear to be formatted correctly");
+				LogError(message);
 				return;
 			}
 
@@ -240,6 +240,103 @@ namespace Confabulation.Chat.MessageHandlers
 			channel.UsersInitialized = true;
 		}
 
+		static void ProcessNoNicknameGiven(IrcConnection connection, IrcMessage message)
+		{
+			if (message.Parameters.Count() != 2)
+			{
+				LogError(message);
+				return;
+			}
+
+			//string errorMessage = Encoding.UTF8.GetString(message.Parameters.ElementAt(1));
+
+			if (!connection.UserRegistered)
+				connection.TryNextNickname();
+
+		}
+
+		static void ProcessNicknameInUse(IrcConnection connection, IrcMessage message)
+		{
+			if (message.Parameters.Count() != 3)
+			{
+				LogError(message);
+				return;
+			}
+
+			//string nickname = Encoding.UTF8.GetString(message.Parameters.ElementAt(1));
+
+			if (!connection.UserRegistered)
+				connection.TryNextNickname();
+		}
+
+		static void ProcessErroneousNickname(IrcConnection connection, IrcMessage message)
+		{
+			if (message.Parameters.Count() != 3)
+			{
+				LogError(message);
+				return;
+			}
+
+			//string nickname = Encoding.UTF8.GetString(message.Parameters.ElementAt(1));
+
+			if (!connection.UserRegistered)
+				connection.TryNextNickname();
+		}
+
+		static void ProcessNickCollision(IrcConnection connection, IrcMessage message)
+		{
+			if (message.Parameters.Count() != 3)
+			{
+				LogError(message);
+				return;
+			}
+
+			//string nickname = Encoding.UTF8.GetString(message.Parameters.ElementAt(1));
+
+			if (!connection.UserRegistered)
+				connection.TryNextNickname();
+		}
+
+		static void ProcessUnavailableResource(IrcConnection connection, IrcMessage message)
+		{
+			if (message.Parameters.Count() != 3)
+			{
+				LogError(message);
+				return;
+			}
+
+			//string nickOrChannel = Encoding.UTF8.GetString(message.Parameters.ElementAt(1));
+
+			if (!connection.UserRegistered)
+				connection.TryNextNickname();
+
+		}
+
+		static void ProcessRestricted(IrcConnection connection, IrcMessage message)
+		{
+			if (message.Parameters.Count() != 2)
+			{
+				LogError(message);
+				return;
+			}
+
+			// This happens in response to the NICK message at initial login I believe.  It's
+			// supposed to indicate the +r (restricted) user mode.  Not really clear exactly how
+			// it all works.
+
+			//string nickname = Encoding.UTF8.GetString(message.Parameters.ElementAt(0));
+
+			//if (!connection.UserRegistered)
+			//	connection.TryNextNickname();
+
+		}
+
+		static void LogError(IrcMessage message)
+		{
+			Log.WriteLine("ERROR: " + message.GetReplyCode() + "is not formatted correctly");
+			Log.WriteLine(message.ToString());
+		}
+
 		static ReplyMessageHandler()
 		{
 			replyMap.Add(IrcNumericReply.RPL_WELCOME, ProcessWelcome);
@@ -249,6 +346,12 @@ namespace Confabulation.Chat.MessageHandlers
 			replyMap.Add(IrcNumericReply.RPL_TOPICWHOTIME, ProcessTopicWhoTime);
 			replyMap.Add(IrcNumericReply.RPL_NAMEREPLY, ProcessNameReply);
 			replyMap.Add(IrcNumericReply.RPL_ENDOFNAMES, ProcessEndOfNames);
+			replyMap.Add(IrcNumericReply.ERR_NONICKNAMEGIVEN, ProcessNoNicknameGiven);
+			replyMap.Add(IrcNumericReply.ERR_NICKNAMEINUSE, ProcessNicknameInUse);
+			replyMap.Add(IrcNumericReply.ERR_ERRONEUSNICKNAME, ProcessErroneousNickname);
+			replyMap.Add(IrcNumericReply.ERR_NICKCOLLISION, ProcessNickCollision);
+			replyMap.Add(IrcNumericReply.ERR_UNAVAILRESOURCE, ProcessUnavailableResource);
+			replyMap.Add(IrcNumericReply.ERR_RESTRICTED, ProcessRestricted);
 		}
 
 		private static Dictionary<IrcNumericReply, Action<IrcConnection, IrcMessage>> replyMap =

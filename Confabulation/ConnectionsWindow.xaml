@@ -1,0 +1,19 @@
+﻿<Window x:Class="Confabulation.ConnectionsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Connections" Height="200" Width="400"
+        WindowStartupLocation="CenterOwner">
+    <DockPanel>
+        <DockPanel.Resources>
+            
+        </DockPanel.Resources>
+        
+        <ToolBar Name="toolbar" DockPanel.Dock="Top" Height="26">
+            <Button Name="connectButton">Connect</Button>
+            <Button Name="addButton">Add</Button>
+            <Button Name="removeButton" IsEnabled="False">Remove</Button>
+        </ToolBar>
+        
+        <ListBox Name="connectionListBox" ItemsSource="{Binding}"/>
+    </DockPanel>
+</Window>

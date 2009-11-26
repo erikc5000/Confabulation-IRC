@@ -90,6 +90,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="ConnectionsWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -121,12 +125,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ChannelItem.cs" />
+    <Compile Include="ChannelWindow.cs" />
     <Compile Include="ChatWindow.xaml.cs">
       <DependentUpon>ChatWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="ConnectionEventArgs.cs" />
     <Compile Include="ConnectionItem.cs" />
     <Compile Include="ConnectionListItem.cs" />
+    <Compile Include="ConnectionsWindow.xaml.cs">
+      <DependentUpon>ConnectionsWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="NetworkSelectionPage.xaml.cs">
       <DependentUpon>NetworkSelectionPage.xaml</DependentUpon>
     </Compile>

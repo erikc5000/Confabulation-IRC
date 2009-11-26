@@ -250,11 +250,13 @@ namespace Confabulation.Chat
 
 				// We ignore zero length parameters, but maybe they should be
 				// error conditions
-				if (paramLength <= 0)
-					throw new ArgumentException("Zero length arguments are not allowed");
+				//if (paramLength <= 0)
+				//	throw new ArgumentException("Zero length arguments are not allowed");
 
 				byte[] param = new byte[paramLength];
-				Array.Copy(message, currentIndex, param, 0, paramLength);
+
+                if (paramLength > 0)
+				    Array.Copy(message, currentIndex, param, 0, paramLength);
 
 				if (!Irc.IsValidMessageContent(param))
 					throw new ArgumentException("Invalid parameter");

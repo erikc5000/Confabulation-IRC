@@ -18,26 +18,275 @@ namespace Confabulation
 	/// <summary>
 	/// Interaction logic for ChatWindow.xaml
 	/// </summary>
-	public partial class ChatWindow : UserControl
+	public abstract partial class ChatWindow : UserControl
 	{
-		public ChatWindow()
+		public abstract IrcConnection Connection
 		{
-			InitializeComponent();
+			get;
 		}
 
-		private delegate void AddToWindowDelegate(string text);
-
-		private void AddTextToWindow(string text)
+		public virtual void UserQuit(IrcUser user, string message)
 		{
-			// 2 = Bold
-			// 15 = Plain
-			// 22 = Italic
-			// 31 = Underline
-			// 3 [followed by 2 digits] = color code
+		}
+
+		public virtual void Activated()
+		{
+			Keyboard.Focus(chatTextBox);
+		}
+
+		protected delegate void AddMessageDelegate(IrcUser user, string message);
+		protected delegate void AddToWindowDelegate(string text);
+
+		protected void AddMessage(IrcUser user, string message)
+		{
+			Paragraph p = new Paragraph();
+			//p.KeepWithNext = true;
+			p.FontSize = 12;
+			p.FontFamily = new FontFamily("Arial");
+			p.Margin = new Thickness(0.0);
+			p.TextAlignment = TextAlignment.Left;
+
+			Run nicknameRun = new Run(user.Nickname + ": ");
+
+			if (user.IsSelf)
+				nicknameRun.Foreground = Brushes.Red;
+			else
+				nicknameRun.Foreground = Brushes.Blue;
+
+			p.Inlines.Add(new Bold(nicknameRun));
+
+			bool bold = false;
+			bool underline = false;
+			bool italic = false;
+			bool defaultBGColor = true;
+			bool defaultFGColor = true;
+			MircColor bgColor = MircColor.White;
+			MircColor fgColor = MircColor.Black;
+
+			int runStart = 0;
+			int runLength = 0;
+
+			for (int i = 0; i < message.Length; i++)
+			{
+				if (!IsFormattingCode(message[i]))
+					continue;
+
+				runLength = i - runStart;
+
+				if (runLength > 0)
+				{
+					string runText = message.Substring(runStart, runLength);
+					Run run = new Run(runText);
+
+					if (!defaultFGColor)
+						run.Foreground = GetBrushFromMircColor(fgColor);
+
+					if (!defaultBGColor)
+						run.Background = GetBrushFromMircColor(bgColor);
+
+					Inline insertInline = run;
+
+					if (bold)
+						insertInline = new Bold(insertInline);
+
+					if (underline)
+						insertInline = new Underline(insertInline);
+
+					if (italic)
+						insertInline = new Italic(insertInline);
+
+					p.Inlines.Add(insertInline);
+					chatLogDocument.Blocks.Add(p);
+					ScrollChatLogToBottom();
+				}
+
+				switch (message[i])
+				{
+					case (char)0x02:
+						bold = !bold;
+						runStart = i + 1;
+						break;
+
+					case (char)0x03:
+						int j = i + 1;
+
+						if (j >= message.Length)
+							return;
+
+						char c1 = message[j];
+
+						if (!Utilities.IsDigit(c1))
+						{
+							defaultBGColor = true;
+							defaultFGColor = true;
+							runStart = j;
+							i = runStart - 1;
+							break;
+						}
+
+						j++;
+
+						if (j >= message.Length)
+							return;
+
+						char c2 = message[j];
+
+						bool hasBGColor = false;
+						string code = "";
+						code += c1;
+
+						if (Utilities.IsDigit(c2))
+						{
+							code += c2;
+
+							j++;
+
+							if (j < message.Length)
+							{
+								if (message[j] == ',')
+									hasBGColor = true;
+							}
+						}
+						else if (c2 == ',')
+						{
+							hasBGColor = true;
+						}
+
+						fgColor = (MircColor)Int32.Parse(code);
+						defaultFGColor = false;
+
+						if (!hasBGColor)
+						{
+							runStart = j;
+							i = runStart - 1;
+							break;
+						}
+
+						j++;
+
+						if (j >= message.Length)
+						{
+							runStart = j - 1;
+							i = runStart - 1;
+							break;
+						}
+
+						c1 = message[j];
+
+						if (!Utilities.IsDigit(c1))
+						{
+							runStart = j - 1;
+							i = runStart - 1;
+							break;
+						}
+
+						j++;
+
+						if (j >= message.Length)
+							return;
+
+						c2 = message[j];
+
+						string code2 = "";
+						code2 += c1;
+
+						if (Utilities.IsDigit(c2))
+						{
+							code2 += c2;
+							runStart = j + 1;
+							i = j;
+						}
+						else
+						{
+							runStart = j;
+							i = j - 1;
+						}
+
+						bgColor = (MircColor)Int32.Parse(code2);
+						defaultBGColor = false;
+
+						break;
+
+					case (char)0x0F:
+						bold = false;
+						underline = false;
+						italic = false;
+						defaultBGColor = true;
+						defaultFGColor = true;
+						runStart = i + 1;
+						break;
+
+					case (char)0x16:
+						italic = !italic;
+						runStart = i + 1;
+						break;
+
+					case (char)0x1F:
+						underline = !underline;
+						runStart = i + 1;
+						break;
+				}
+			}
+
+			runLength = message.Length - runStart;
+
+			if (runLength > 0)
+			{
+				string runText = message.Substring(runStart, runLength);
+				Run run = new Run(runText);
+
+				if (!defaultFGColor)
+					run.Foreground = GetBrushFromMircColor(fgColor);
+
+				if (!defaultBGColor)
+					run.Background = GetBrushFromMircColor(bgColor);
+
+				Inline insertInline = run;
+
+				if (bold)
+					insertInline = new Bold(insertInline);
+
+				if (underline)
+					insertInline = new Underline(insertInline);
+
+				if (italic)
+					insertInline = new Italic(insertInline);
+
+				p.Inlines.Add(insertInline);
+				chatLogDocument.Blocks.Add(p);
+				ScrollChatLogToBottom();
+			}
+		}
+
+		protected void AddControlMessage(string message)
+		{
+			Paragraph p = new Paragraph();
+			//p.KeepWithNext = true;
+			p.FontSize = 12;
+			p.FontFamily = new FontFamily("Arial");
+			p.Margin = new Thickness(4.0);
+			p.TextAlignment = TextAlignment.Left;
+
+			Run run = new Run(message);
+			run.Foreground = Brushes.LightGray;
+			p.Inlines.Add(new Bold(run));
+			chatLogDocument.Blocks.Add(p);
+
+			ScrollChatLogToBottom();
+		}
+
+		protected void AddTextToWindow(string text)
+		{
+			// 0x02 = Bold
+			// 0x0F = Plain
+			// 0x16 = Italic
+			// 0x1F = Underline
+			// 0x03 [FF,BB] = color code
 			string[] boldParts = text.Split((char)0x02);
 			Paragraph p = new Paragraph();
 			p.KeepWithNext = true;
 			p.FontSize = 12;
+			p.FontFamily = new FontFamily("Courier New");
 			p.Margin = new Thickness(0.0);
 			p.TextAlignment = TextAlignment.Left;
 
@@ -53,9 +302,31 @@ namespace Confabulation
 				bold = !bold;
 			}
 
-			ChatLogDocument.Blocks.Add(p);
+			chatLogDocument.Blocks.Add(p);
+			ScrollChatLogToBottom();
+		}
 
-			DependencyObject obj = ChatLog;
+		protected abstract void TextEntered(string text);
+
+		protected void ChatTextBox_PreviewKeyDown(object sender, KeyEventArgs e)
+		{
+			if (e.Key == Key.Enter || e.Key == Key.Return)
+			{
+				TextRange textRange = new TextRange(chatTextBox.Document.ContentStart,
+													chatTextBox.Document.ContentEnd);
+
+				TextEntered(textRange.Text);
+
+				chatTextBox.Document.Blocks.Clear();
+				chatTextBox.CaretPosition = chatTextBox.Document.ContentStart;
+
+				e.Handled = true;
+			}
+		}
+
+		protected void ScrollChatLogToBottom()
+		{
+			DependencyObject obj = chatLog;
 
 			do
 			{
@@ -67,75 +338,74 @@ namespace Confabulation
 			scrollViewer.ScrollToBottom();
 		}
 
-		private void ChatTextBox_PreviewKeyDown(object sender, KeyEventArgs e)
+		private bool IsFormattingCode(char c)
 		{
-			if (e.Key == Key.Enter || e.Key == Key.Return)
+			if (c == (char)0x02
+				|| c == (char)0x03
+				|| c == (char)0x0F
+				|| c == (char)0x16
+				|| c == (char)0x1F)
 			{
-				try
-				{
-					TextRange textRange = new TextRange(ChatTextBox.Document.ContentStart,
-														ChatTextBox.Document.ContentEnd);
-
-					if (Connection != null)
-						Connection.Execute(IrcCommand.Parse(textRange.Text));
-				}
-				catch (IrcCommandException)
-				{
-					AddTextToWindow("Invalid command");
-				}
-				catch (ArgumentException ae)
-				{
-					AddTextToWindow("Invalid argument: " + ae.ParamName);
-				}
-
-				ChatTextBox.Document.Blocks.Clear();
-				ChatTextBox.CaretPosition = ChatTextBox.Document.ContentStart;
-
-				e.Handled = true;
+				return true;
 			}
+
+			return false;
 		}
 
-		public IrcConnection Connection
+		private Brush GetBrushFromMircColor(MircColor color)
 		{
-			get
+			switch (color)
 			{
-				return connection;
+				case MircColor.White:
+					return Brushes.White;
+
+				case MircColor.Black:
+					return Brushes.Black;
+
+				case MircColor.DarkBlue:
+					return Brushes.DarkBlue;
+
+				case MircColor.DarkGreen:
+					return Brushes.DarkGreen;
+
+				case MircColor.Red:
+					return Brushes.Red;
+
+				case MircColor.Brown:
+					return Brushes.Brown;
+
+				case MircColor.Purple:
+					return Brushes.Purple;
+
+				case MircColor.Olive:
+					return Brushes.Olive;
+
+				case MircColor.Yellow:
+					return Brushes.Yellow;
+
+				case MircColor.Green:
+					return Brushes.Green;
+
+				case MircColor.Teal:
+					return Brushes.Teal;
+
+				case MircColor.Cyan:
+					return Brushes.Cyan;
+
+				case MircColor.Blue:
+					return Brushes.Blue;
+
+				case MircColor.Magenta:
+					return Brushes.Magenta;
+
+				case MircColor.DarkGray:
+					return Brushes.DarkGray;
+
+				case MircColor.LightGray:
+					return Brushes.LightGray;
 			}
-			set
-			{
-				connection = value;
-				connection.StateChanged += new EventHandler<IrcConnectionEventArgs>(connection_StateChanged);
-				connection.RawMessageReceived += new EventHandler<IrcMessageEventArgs>(connection_RawMessageReceived);
-			}
+
+			return Brushes.Black;
 		}
-
-		private void connection_StateChanged(object sender, IrcConnectionEventArgs e)
-		{
-			switch (e.EventType)
-			{
-				case IrcConnectionEventType.Connected:
-					ChatLogDocument.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal,
-						new AddToWindowDelegate(AddTextToWindow), (Object)"*Connected*");
-					break;
-
-				case IrcConnectionEventType.ConnectFailed:
-					ChatLogDocument.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal,
-						new AddToWindowDelegate(AddTextToWindow), (Object)"*Connection Failed*");
-					break;
-
-				case IrcConnectionEventType.Disconnected:
-					ChatLogDocument.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal,
-						new AddToWindowDelegate(AddTextToWindow), (Object)"*Disconnected*");
-					break;
-			}
-		}
-
-		private void connection_RawMessageReceived(object sender, IrcMessageEventArgs e)
-		{
-			ChatLogDocument.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal,
-				new AddToWindowDelegate(AddTextToWindow), (Object)e.Message.ToString());
-		}
-
-		private IrcConnection connection;
 	}
 }

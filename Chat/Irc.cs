@@ -13,6 +13,26 @@ namespace Confabulation.Chat
 		Invisible = 8
 	}
 
+    public enum MircColor
+    {
+        White = 0,
+        Black = 1,
+        DarkBlue = 2,
+        DarkGreen = 3,
+        Red = 4,
+        Brown = 5,
+        Purple = 6,
+        Olive = 7,
+        Yellow = 8,
+        Green = 9,
+        Teal = 10,
+        Cyan = 11,
+        Blue = 12,
+        Magenta = 13,
+        DarkGray = 14,
+        LightGray = 15
+    }
+
 	public static class Irc
 	{
 		/*public static byte[] StringToByteArray(string s)

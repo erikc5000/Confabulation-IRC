@@ -6,6 +6,7 @@ using System.Linq;
 using System.Windows;
 using System.IO;
 using System.Xml.Linq;
+using System.Collections.ObjectModel;
 using Confabulation.Chat;
 
 namespace Confabulation
@@ -109,6 +110,6 @@ namespace Confabulation
 		}
 
 		private IrcServerList serverList = null;
-		private List<IrcConnection> connections = new List<IrcConnection>();
+		private ObservableCollection<IrcConnection> connections = new ObservableCollection<IrcConnection>();
     }
 }

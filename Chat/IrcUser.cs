@@ -5,18 +5,18 @@ using System.Text;
 
 namespace Confabulation.Chat
 {
-    public class IrcUser
-    {
-        public IrcUser(string nickname, IrcConnection connection)
-        {
+	public class IrcUser
+	{
+		public IrcUser(string nickname, IrcConnection connection)
+		{
 			if (nickname == null)
 				throw new ArgumentNullException("nickname");
 			else if (connection == null)
 				throw new ArgumentNullException("connection");
 
-            this.nickname = nickname;
+			this.nickname = nickname;
 			this.Connection = connection;
-        }
+		}
 
 		public IrcUser(string nickname, string userName, string hostname, IrcConnection connection)
 		{
@@ -66,7 +66,7 @@ namespace Confabulation.Chat
 			{
 				lock (syncObject)
 				{
-					return channels;
+					return new List<IrcChannel>(channels);
 				}
 			}
 		}
@@ -104,6 +104,14 @@ namespace Confabulation.Chat
 			}
 		}
 
+		public bool IsSelf
+		{
+			get
+			{
+				return Connection.User == this;
+			}
+		}
+
 		public bool IsAway
 		{
 			get
@@ -132,7 +140,8 @@ namespace Confabulation.Chat
 			{
 				lock (syncObject)
 				{
-					return nicknameHistory;
+
+					return new List<string>(nicknameHistory);
 				}
 			}
 		}
@@ -161,10 +170,16 @@ namespace Confabulation.Chat
 
 		internal void ChangeNickname(string newNickname)
 		{
-			nicknameHistory.Add(nickname);
-			nickname = newNickname;
+			string oldNickname;
 
-			IrcUserEventArgs e = new IrcUserEventArgs(this);
+			lock (syncObject)
+			{
+				nicknameHistory.Add(nickname);
+				oldNickname = nickname;
+				nickname = newNickname;
+			}
+
+			IrcUserEventArgs e = new IrcUserEventArgs(this, oldNickname, newNickname);
 			EventHandler<IrcUserEventArgs> handler = NicknameChanged;
 
 			if (handler != null)
@@ -173,13 +188,19 @@ namespace Confabulation.Chat
 
 		internal void AddChannel(IrcChannel channel)
 		{
-			if (!channels.Contains(channel))
-				channels.Add(channel);
+			lock (syncObject)
+			{
+				if (!channels.Contains(channel))
+					channels.Add(channel);
+			}
 		}
 
 		internal void RemoveChannel(IrcChannel channel)
 		{
-			channels.Remove(channel);
+			lock (syncObject)
+			{
+				channels.Remove(channel);
+			}
 		}
 
 		private readonly Object syncObject = new Object();
@@ -190,5 +211,5 @@ namespace Confabulation.Chat
 		private string awayMessage = null;
 		private List<IrcChannel> channels = new List<IrcChannel>();
 		private List<string> nicknameHistory = new List<string>();
-    }
+	}
 }

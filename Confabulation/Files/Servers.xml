@@ -119,7 +119,7 @@
     </Server>
   </Network>
   <Network Name="Doolanshire">
-    <Server Index="0" Hostname="irc.doolanshire.net" Ports="6669">
+    <Server Index="0" Hostname="irc.doolanshire.net" Ports="6667">
       <Location>
         <Country>US</Country>
       </Location>

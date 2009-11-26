@@ -55,10 +55,7 @@ namespace Confabulation.Chat.MessageHandlers
 
 			if (isSelf)
 			{
-				IrcChannelEventArgs e = new IrcChannelEventArgs(channel, connection.User);
-				e.Message = partMessage;
-				connection.ChannelPartEvent(e);
-				connection.RemoveChannel(channel);
+				connection.LeaveChannel(channel, partMessage);
 			}
 			else
 			{

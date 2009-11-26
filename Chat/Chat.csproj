@@ -16,6 +16,7 @@
     <SccLocalPath>Svn</SccLocalPath>
     <SccAuxPath>Svn</SccAuxPath>
     <SccProvider>SubversionScc</SccProvider>
+    <TargetFrameworkSubset>Client</TargetFrameworkSubset>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -90,6 +91,8 @@
     <Compile Include="MessageHandlers\NickMessageHandler.cs" />
     <Compile Include="MessageHandlers\PartMessageHandler.cs" />
     <Compile Include="MessageHandlers\PingMessageHandler.cs" />
+    <Compile Include="MessageHandlers\PrivmsgMessageHandler.cs" />
+    <Compile Include="MessageHandlers\QuitMessageHandler.cs" />
     <Compile Include="MessageHandlers\ReplyMessageHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utilities.cs" />

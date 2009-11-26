@@ -81,7 +81,7 @@ namespace Confabulation.Chat
 			{
 				lock (channelsLock)
 				{
-					return channels.Values;
+					return new List<IrcChannel>(channels.Values);
 				}
 			}
 		}
@@ -127,6 +127,7 @@ namespace Confabulation.Chat
 			switch (e.EventType)
 			{
 				case IrcConnectionEventType.Connected:
+					nextNickname = 1;
 					Execute(new NickCommand(settings.User.Nicknames.First()));
 					Execute(new UserCommand(settings.User.UserName, settings.InitialUserModes, settings.User.RealName));
 					break;
@@ -154,21 +155,42 @@ namespace Confabulation.Chat
 				handler(this, e);
 		}
 
-		internal void ChannelJoinEvent(IrcChannelEventArgs e)
+		internal void JoinChannel(string channelName)
 		{
+			IrcChannel channel = AddChannel(channelName);
+
+			IrcChannelEventArgs e = new IrcChannelEventArgs(channel, User);
 			EventHandler<IrcChannelEventArgs> handler = ChannelJoined;
 
 			if (handler != null)
 				handler(this, e);
 		}
 
-		internal void ChannelPartEvent(IrcChannelEventArgs e)
+		internal void LeaveChannel(IrcChannel channel, string message)
 		{
+			IrcChannelEventArgs e = new IrcChannelEventArgs(channel, User);
+			e.Message = message;
 			EventHandler<IrcChannelEventArgs> handler = ChannelParted;
 
 			if (handler != null)
 				handler(this, e);
+
+			RemoveChannel(channel);
 		}
+
+        internal void OnUserQuit(IrcUser user, string message)
+        {
+            IrcUserEventArgs e = new IrcUserEventArgs(user, message);
+            EventHandler<IrcUserEventArgs> handler = UserQuit;
+
+            if (handler != null)
+                handler(this, e);
+
+            foreach (IrcChannel channel in user.Channels)
+                channel.RemoveUser(user);
+
+            RemoveUser(user);
+        }
 
 		internal void SetUser(IrcUser user)
 		{
@@ -315,6 +337,25 @@ namespace Confabulation.Chat
 			}
 		}
 
+		internal void TryNextNickname()
+		{
+			lock (userRegisteredLock)
+			{
+				if (userRegistered)
+					return;
+			}
+
+			if (settings.User.Nicknames.Count > nextNickname)
+			{
+				Execute(new NickCommand(settings.User.Nicknames[nextNickname]));
+				nextNickname++;
+			}
+			else
+			{
+				// Send out error notification
+			}
+		}
+
 		private IrcClient client;
 		private IrcConnectionSettings settings;
 		private IrcServerProperties serverProperties = new IrcServerProperties();
@@ -326,5 +367,6 @@ namespace Confabulation.Chat
 		private readonly Object visibleUsersLock = new Object();
 		private Dictionary<string, IrcUser> visibleUsers;
 		private IrcNameComparer nameComparer;
+		int nextNickname = 0;
 	}
 }
