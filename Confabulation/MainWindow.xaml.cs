@@ -315,6 +315,9 @@ namespace Confabulation
 
         private void tabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+			if (!(sender is TabControl))
+				return;
+
             TabItem item = (TabItem)tabControl.SelectedItem;
 
             if (item == null)

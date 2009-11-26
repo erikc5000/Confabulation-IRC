@@ -25,6 +25,7 @@ namespace Confabulation
 			InitializeComponent();
 
 			this.channel = channel;
+			nicknameChangedEventHandler = new EventHandler<IrcUserEventArgs>(user_NicknameChanged);
 			channel.MessageReceived += new EventHandler<IrcChannelEventArgs>(channel_MessageReceived);
 			channel.UsersAdded += new EventHandler<IrcChannelEventArgs>(channel_UsersAdded);
 			channel.UserJoined += new EventHandler<IrcChannelEventArgs>(channel_UserJoined);
@@ -57,6 +58,7 @@ namespace Confabulation
 				if (channelUser.Equals(user.Nickname))
 				{
 					found = true;
+					usersList.Items.Remove(channelUser);
 					break;
 				}
 			}
@@ -70,8 +72,6 @@ namespace Confabulation
 				text += " (" + message + ")";
 
 			AddControlMessage(text);
-
-			usersList.Items.Remove(user);
 		}
 
 		protected override void TextEntered(string text)
@@ -154,7 +154,10 @@ namespace Confabulation
 			foreach (IrcChannelUser user in Channel.Users)
 			{
 				if (!usersList.Items.Contains(user))
+				{
+					user.NicknameChanged += nicknameChangedEventHandler;
 					usersList.Items.Add(user);
+				}
 			}
 		}
 
@@ -163,8 +166,7 @@ namespace Confabulation
 			AddControlMessage(user.Nickname + " entered the channel");
 
 			usersList.Items.Add(user);
-
-			user.NicknameChanged += new EventHandler<IrcUserEventArgs>(user_NicknameChanged);
+			user.NicknameChanged += nicknameChangedEventHandler;
 		}
 
 		private void UserParted(IrcChannelUser user, string message)
@@ -176,6 +178,7 @@ namespace Confabulation
 
 			AddControlMessage(text);
 
+			user.NicknameChanged -= nicknameChangedEventHandler;
 			usersList.Items.Remove(user);
 		}
 
@@ -187,5 +190,6 @@ namespace Confabulation
 		}
 
 		private IrcChannel channel = null;
+		private EventHandler<IrcUserEventArgs> nicknameChangedEventHandler;
 	}
 }

@@ -22,7 +22,6 @@ namespace Confabulation.Chat
 				throw new ArgumentNullException("user");
 
 			this.user = user;
-
 			user.NicknameChanged += new EventHandler<IrcUserEventArgs>(ProcessNicknameChanged);
 		}
 
@@ -32,6 +31,7 @@ namespace Confabulation.Chat
 				throw new ArgumentNullException("user");
 
 			this.user = user;
+			user.NicknameChanged += new EventHandler<IrcUserEventArgs>(ProcessNicknameChanged);
 
 			if (modes != null)
 			{
