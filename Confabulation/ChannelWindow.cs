@@ -15,6 +15,7 @@ using System.Collections.ObjectModel;
 using Confabulation;
 using Confabulation.Chat;
 using Confabulation.Chat.Commands;
+using Confabulation.Chat.Events;
 
 namespace Confabulation
 {
@@ -26,13 +27,13 @@ namespace Confabulation
 			InitializeComponent();
 
 			this.channel = channel;
-			nicknameChangedEventHandler = new EventHandler<IrcUserEventArgs>(user_NicknameChanged);
-			channel.MessageReceived += new EventHandler<IrcChannelEventArgs>(channel_MessageReceived);
-			channel.UsersAdded += new EventHandler<IrcChannelEventArgs>(channel_UsersAdded);
-			channel.UserJoined += new EventHandler<IrcChannelEventArgs>(channel_UserJoined);
-			channel.UserParted += new EventHandler<IrcChannelEventArgs>(channel_UserParted);
-			channel.UserKicked += new EventHandler<IrcKickEventArgs>(channel_UserKicked);
-			channel.Connection.UserQuit += new EventHandler<IrcUserEventArgs>(Connection_UserQuit);
+			nicknameChangedEventHandler = new EventHandler<NicknameEventArgs>(user_NicknameChanged);
+			channel.MessageReceived += new EventHandler<UserEventArgs>(channel_MessageReceived);
+			channel.UsersAdded += new EventHandler<ChannelEventArgs>(channel_UsersAdded);
+			channel.UserJoined += new EventHandler<ChannelEventArgs>(channel_UserJoined);
+			channel.UserParted += new EventHandler<ChannelEventArgs>(channel_UserParted);
+			channel.UserKicked += new EventHandler<KickEventArgs>(channel_UserKicked);
+			channel.Connection.UserQuit += new EventHandler<UserEventArgs>(Connection_UserQuit);
 			channel.Connection.StateChanged += new EventHandler<IrcConnectionEventArgs>(Connection_StateChanged);
 
 			usersList.DataContext = userItems;
@@ -88,7 +89,7 @@ namespace Confabulation
 		}
 
 		private delegate void DisconnectedDelegate();
-		private delegate void AddUsersDelegate();
+		private delegate void AddUsersDelegate(IEnumerable<IrcChannelUser> users);
 		private delegate void UserJoinedDelegate(IrcChannelUser user);
 		private delegate void UserPartedDelegate(IrcChannelUser user, string message);
 		private delegate void UserKickedDelegate(IrcChannelUser kicked, IrcChannelUser kickedBy, string message);
@@ -101,28 +102,29 @@ namespace Confabulation
 			RemoveAllUserItems();
 		}
 
-		private void channel_UsersAdded(object sender, IrcChannelEventArgs e)
+		private void channel_UsersAdded(object sender, ChannelEventArgs e)
 		{
 			chatLogDocument.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal,
-						new AddUsersDelegate(AddUsers));
+						new AddUsersDelegate(AddUsers),
+						e.AddedUsers);
 		}
 
-		private void channel_UserJoined(object sender, IrcChannelEventArgs e)
+		private void channel_UserJoined(object sender, ChannelEventArgs e)
 		{
 			Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal,
 						new UserJoinedDelegate(UserJoined),
-						e.ChannelUser);
+						e.User);
 		}
 
-		private void channel_UserParted(object sender, IrcChannelEventArgs e)
+		private void channel_UserParted(object sender, ChannelEventArgs e)
 		{
 			Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal,
 						new UserPartedDelegate(UserParted),
-						e.ChannelUser,
+						e.User,
 						e.Message);
 		}
 
-		private void channel_UserKicked(object sender, IrcKickEventArgs e)
+		private void channel_UserKicked(object sender, KickEventArgs e)
 		{
 			Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal,
 						new UserKickedDelegate(UserKicked),
@@ -131,7 +133,7 @@ namespace Confabulation
 						e.Message);
 		}
 
-		private void Connection_UserQuit(object sender, IrcUserEventArgs e)
+		private void Connection_UserQuit(object sender, UserEventArgs e)
 		{
 			Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal,
 						new UserQuitDelegate(UserQuit),
@@ -139,7 +141,7 @@ namespace Confabulation
 						e.Message);
 		}
 
-		private void user_NicknameChanged(object sender, IrcUserEventArgs e)
+		private void user_NicknameChanged(object sender, NicknameEventArgs e)
 		{
 			Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal,
 						new UserChangedNicknameDelegate(UserChangedNickname),
@@ -148,7 +150,7 @@ namespace Confabulation
 						e.NewNickname);
 		}
 
-		private void channel_MessageReceived(object sender, IrcChannelEventArgs e)
+		private void channel_MessageReceived(object sender, UserEventArgs e)
 		{
 			Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal,
 						new AddMessageDelegate(AddMessage),
@@ -170,12 +172,17 @@ namespace Confabulation
 					// this functionality into the core library as an option.
 					Connection.Execute(new JoinCommand(Channel.Name));
 					break;
-		}
+			}
 		}
 
 		private void AddUsers()
 		{
-			foreach (IrcChannelUser user in Channel.Users)
+			AddUsers(Channel.Users);
+		}
+
+		private void AddUsers(IEnumerable<IrcChannelUser> users)
+		{
+			foreach (IrcChannelUser user in users)
 			{
 				string nickname = user.Nickname;
 
@@ -338,6 +345,6 @@ namespace Confabulation
 		private IrcChannel channel = null;
 		private Dictionary<string, ChannelUserItem> userItemMap = new Dictionary<string, ChannelUserItem>();
 		private ObservableCollection<ChannelUserItem> userItems = new ObservableCollection<ChannelUserItem>();
-		private EventHandler<IrcUserEventArgs> nicknameChangedEventHandler;
+		private EventHandler<NicknameEventArgs> nicknameChangedEventHandler;
 	}
 }

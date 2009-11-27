@@ -193,20 +193,20 @@ namespace Confabulation.Chat.MessageHandlers
 				for (int j = 0; j < names[i].Length && names[i][j] < 0x41; j++)
 					numModes++;
 
-				modes[i] = new char[numModes];
-
+				List<char> modeList = new List<char>();
+	
 				for (int j = 0; j < names[i].Length && names[i][j] < 0x41; j++)
 				{
 					char mode = connection.ServerProperties.GetModeFromPrefix(names[i][j]);
 
-					// TODO: Fix handling of this error condition
 					if (mode == '\0')
 						Log.WriteLine("RPL_NAMEREPLY: Couldn't find mode from prefix '" + names[i][j] + "'");
-
-					modes[i][j] = mode;
+					else
+						modeList.Add(mode);
 				}
 
 				names[i] = names[i].Remove(0, numModes);
+				modes[i] = modeList.ToArray();
 			}
 
 			IrcUser[] users = new IrcUser[names.Length];

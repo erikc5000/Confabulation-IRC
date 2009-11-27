@@ -132,11 +132,11 @@ namespace Confabulation
             tabControl.Items.Add(item);
             tabControl.SelectedItem = item;
 
-            e.Connection.ChannelJoined += new EventHandler<IrcChannelEventArgs>(ChannelJoined);
-            e.Connection.ChannelParted += new EventHandler<IrcChannelEventArgs>(ChannelParted);
+            e.Connection.ChannelJoined += new EventHandler<ChannelEventArgs>(ChannelJoined);
+            e.Connection.ChannelParted += new EventHandler<ChannelEventArgs>(ChannelParted);
 		}
 
-        private void ChannelParted(object sender, IrcChannelEventArgs e)
+        private void ChannelParted(object sender, ChannelEventArgs e)
         {
             Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal,
                                    new AddChannelDelegate(RemoveChannel),
@@ -162,7 +162,7 @@ namespace Confabulation
             }
         }
 
-        private void ChannelJoined(object sender, IrcChannelEventArgs e)
+        private void ChannelJoined(object sender, ChannelEventArgs e)
         {
             Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal,
                                    new AddChannelDelegate(AddChannel),

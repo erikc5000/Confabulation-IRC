@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Confabulation.Chat.Events;
 
 namespace Confabulation.Chat
 {
@@ -203,16 +204,16 @@ namespace Confabulation.Chat
 			private set;
 		}
 
-		public event EventHandler<IrcChannelEventArgs> TopicSet;
-		public event EventHandler<IrcChannelEventArgs> TopicInfoSet;
-		public event EventHandler<IrcChannelEventArgs> UsersAdded;
+		public event EventHandler<TopicEventArgs> TopicSet;
+		public event EventHandler<TopicEventArgs> TopicInfoSet;
+		public event EventHandler<ChannelEventArgs> UsersAdded;
 
-		public event EventHandler<IrcChannelEventArgs> UserJoined;
-		public event EventHandler<IrcChannelEventArgs> UserParted;
-		public event EventHandler<IrcKickEventArgs> UserKicked;
-		public event EventHandler<IrcChannelEventArgs> MessageReceived;
-		public event EventHandler<IrcChannelEventArgs> NoticeReceived;
-		public event EventHandler<IrcChannelEventArgs> TopicChanged;
+		public event EventHandler<ChannelEventArgs> UserJoined;
+		public event EventHandler<ChannelEventArgs> UserParted;
+		public event EventHandler<KickEventArgs> UserKicked;
+		public event EventHandler<UserEventArgs> MessageReceived;
+		public event EventHandler<UserEventArgs> NoticeReceived;
+		public event EventHandler<TopicEventArgs> TopicChanged;
 
 		internal void SetTopic(string topic)
 		{
@@ -221,10 +222,8 @@ namespace Confabulation.Chat
 				this.topic = topic;
 			}
 
-			IrcChannelEventArgs e = new IrcChannelEventArgs(this);
-			e.Message = topic;
-
-			EventHandler<IrcChannelEventArgs> handler = TopicSet;
+			TopicEventArgs e = new TopicEventArgs(this, topic);
+			EventHandler<TopicEventArgs> handler = TopicSet;
 
 			if (handler != null)
 				handler(this, e);
@@ -232,13 +231,16 @@ namespace Confabulation.Chat
 
 		internal void SetTopicInfo(string setBy, DateTime time)
 		{
+			IrcTopicInfo info;
+
 			lock (syncObject)
 			{
-				this.topicInfo = new IrcTopicInfo(setBy, time);
+				info = new IrcTopicInfo(setBy, time);
+				this.topicInfo = info;
 			}
 
-			IrcChannelEventArgs e = new IrcChannelEventArgs(this);
-			EventHandler<IrcChannelEventArgs> handler = TopicInfoSet;
+			TopicEventArgs e = new TopicEventArgs(this, info);
+			EventHandler<TopicEventArgs> handler = TopicInfoSet;
 
 			if (handler != null)
 				handler(this, e);
@@ -246,15 +248,17 @@ namespace Confabulation.Chat
 
 		internal void ChangeTopic(string topic, IrcUser user)
 		{
+			IrcTopicInfo info;
+
 			lock (syncObject)
 			{
 				this.topic = topic;
-				this.topicInfo = new IrcTopicInfo(user.Nickname, DateTime.Now);
+				info = new IrcTopicInfo(user.Nickname, DateTime.Now);
+				this.topicInfo = info;
 			}
 
-			IrcChannelEventArgs e = new IrcChannelEventArgs(this, user);
-			e.Message = topic;
-			EventHandler<IrcChannelEventArgs> handler = TopicChanged;
+			TopicEventArgs e = new TopicEventArgs(this, topic, info);
+			EventHandler<TopicEventArgs> handler = TopicChanged;
 
 			if (handler != null)
 				handler(this, e);
@@ -286,24 +290,7 @@ namespace Confabulation.Chat
 			}
 		}
 
-		internal void AddUser(IrcUser user, params char[] modes)
-		{
-			lock (syncObject)
-			{
-				if (!users.ContainsKey(user.Nickname))
-					users[user.Nickname] = new IrcChannelUser(user, modes);
-
-				user.AddChannel(this);
-			}
-
-			IrcChannelEventArgs e = new IrcChannelEventArgs(this);
-			EventHandler<IrcChannelEventArgs> handler = UsersAdded;
-
-			if (handler != null)
-				handler(this, e);
-		}
-
-		internal void AddUsers(IrcUser[] newUsers, char[][] modes)
+		internal void AddUsers(IEnumerable<IrcUser> newUsers, IEnumerable<char[]> modes)
 		{
 			if (newUsers == null)
 				throw new ArgumentNullException("newUsers");
@@ -312,19 +299,27 @@ namespace Confabulation.Chat
 			else if (newUsers.Count() != modes.Count())
 				throw new ArgumentException("Number of user should be equal to the number of modes");
 
+			List<IrcChannelUser> channelUsers = new List<IrcChannelUser>();
+
 			lock (syncObject)
 			{
 				for (int i = 0; i < newUsers.Count(); i++)
 				{
-					if (!users.ContainsKey(newUsers[i].Nickname))
-						users[newUsers[i].Nickname] = new IrcChannelUser(newUsers[i], modes[i]);
+					IrcUser newUser = newUsers.ElementAt(i);
+					string nickname = newUser.Nickname;
 
-					newUsers[i].AddChannel(this);
+					if (!users.ContainsKey(nickname))
+					{
+						users[nickname] = new IrcChannelUser(newUser, modes.ElementAt(i));
+						channelUsers.Add(users[nickname]);
+					}
+
+					newUser.AddChannel(this);
 				}
 			}
 
-			IrcChannelEventArgs e = new IrcChannelEventArgs(this);
-			EventHandler<IrcChannelEventArgs> handler = UsersAdded;
+			ChannelEventArgs e = new ChannelEventArgs(this, channelUsers);
+			EventHandler<ChannelEventArgs> handler = UsersAdded;
 
 			if (handler != null)
 				handler(this, e);
@@ -341,7 +336,7 @@ namespace Confabulation.Chat
 
 		internal void OnUserJoin(IrcUser user)
 		{
-			IrcChannelUser channelUser = null;
+			IrcChannelUser channelUser;
 			string nickname = user.Nickname;
 
 			lock (syncObject)
@@ -360,8 +355,8 @@ namespace Confabulation.Chat
 				}
 			}
 
-			IrcChannelEventArgs e = new IrcChannelEventArgs(this, channelUser);
-			EventHandler<IrcChannelEventArgs> handler = UserJoined;
+			ChannelEventArgs e = new ChannelEventArgs(this, channelUser);
+			EventHandler<ChannelEventArgs> handler = UserJoined;
 
 			if (handler != null)
 				handler(this, e);
@@ -369,7 +364,7 @@ namespace Confabulation.Chat
 
 		internal void OnUserPart(IrcUser user, string message)
 		{
-			IrcChannelUser channelUser = null;
+			IrcChannelUser channelUser;
 
 			lock (syncObject)
 			{
@@ -383,9 +378,8 @@ namespace Confabulation.Chat
 				user.RemoveChannel(this);
 			}
 
-			IrcChannelEventArgs e = new IrcChannelEventArgs(this, channelUser);
-			e.Message = message;
-			EventHandler<IrcChannelEventArgs> handler = UserParted;
+			ChannelEventArgs e = new ChannelEventArgs(this, channelUser, message);
+			EventHandler<ChannelEventArgs> handler = UserParted;
 
 			if (handler != null)
 				handler(this, e);
@@ -393,8 +387,8 @@ namespace Confabulation.Chat
 
 		internal void OnKick(IrcUser kicked, IrcUser kickedBy, string message)
 		{
-			IrcChannelUser kickedUser = null;
-			IrcChannelUser kickedByUser = null;
+			IrcChannelUser kickedUser;
+			IrcChannelUser kickedByUser;
 
 			lock (syncObject)
 			{
@@ -425,9 +419,8 @@ namespace Confabulation.Chat
 				kicked.RemoveChannel(this);
 			}
 
-			IrcKickEventArgs e = new IrcKickEventArgs(this, kickedUser, kickedByUser);
-			e.Message = message;
-			EventHandler<IrcKickEventArgs> handler = UserKicked;
+			KickEventArgs e = new KickEventArgs(this, kickedUser, kickedByUser, message);
+			EventHandler<KickEventArgs> handler = UserKicked;
 
 			if (handler != null)
 				handler(this, e);
@@ -435,25 +428,8 @@ namespace Confabulation.Chat
 
         internal void OnMessageReceived(IrcUser user, string message)
         {
-			IrcChannelUser channelUser = null;
-
-			lock (syncObject)
-			{
-				string nickname = user.Nickname;
-
-				if (users.ContainsKey(nickname))
-					channelUser = users[nickname];
-			}
-
-			IrcChannelEventArgs e;
-			
-			if (channelUser != null)
-				e = new IrcChannelEventArgs(this, channelUser); 
-			else
-				e = new IrcChannelEventArgs(this, user);
-
-            e.Message = message;
-            EventHandler<IrcChannelEventArgs> handler = MessageReceived;
+			UserEventArgs e = new UserEventArgs(user, message);
+            EventHandler<UserEventArgs> handler = MessageReceived;
 
             if (handler != null)
                 handler(this, e);

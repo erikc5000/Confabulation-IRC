@@ -104,9 +104,9 @@ namespace Confabulation.Chat
 
 		public event EventHandler<IrcMessageEventArgs> RawMessageReceived;
 		public event EventHandler<IrcConnectionEventArgs> StateChanged;
-		public event EventHandler<IrcChannelEventArgs> ChannelJoined;
-		public event EventHandler<IrcChannelEventArgs> ChannelParted;
-		public event EventHandler<IrcUserEventArgs> UserQuit;
+		public event EventHandler<ChannelEventArgs> ChannelJoined;
+		public event EventHandler<ChannelEventArgs> ChannelParted;
+		public event EventHandler<UserEventArgs> UserQuit;
 		//public event EventHandler<InviteEventArgs> OnInvite;
 		//public event EventHandler<PrivateMessageEventArgs> PrivateMessageReceived;
 		//public event EventHandler<PrivateMessageEventArgs> PrivateNoticeReceived;
@@ -165,8 +165,8 @@ namespace Confabulation.Chat
 		{
 			IrcChannel channel = AddChannel(channelName);
 
-			IrcChannelEventArgs e = new IrcChannelEventArgs(channel, User);
-			EventHandler<IrcChannelEventArgs> handler = ChannelJoined;
+			ChannelEventArgs e = new ChannelEventArgs(channel);
+			EventHandler<ChannelEventArgs> handler = ChannelJoined;
 
 			if (handler != null)
 				handler(this, e);
@@ -174,9 +174,8 @@ namespace Confabulation.Chat
 
 		internal void LeaveChannel(IrcChannel channel, string message)
 		{
-			IrcChannelEventArgs e = new IrcChannelEventArgs(channel, User);
-			e.Message = message;
-			EventHandler<IrcChannelEventArgs> handler = ChannelParted;
+			ChannelEventArgs e = new ChannelEventArgs(channel);
+			EventHandler<ChannelEventArgs> handler = ChannelParted;
 
 			if (handler != null)
 				handler(this, e);
@@ -186,8 +185,8 @@ namespace Confabulation.Chat
 
         internal void OnUserQuit(IrcUser user, string message)
         {
-            IrcUserEventArgs e = new IrcUserEventArgs(user, message);
-            EventHandler<IrcUserEventArgs> handler = UserQuit;
+            UserEventArgs e = new UserEventArgs(user, message);
+            EventHandler<UserEventArgs> handler = UserQuit;
 
             if (handler != null)
                 handler(this, e);

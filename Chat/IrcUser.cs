@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Confabulation.Chat.Events;
 
 namespace Confabulation.Chat
 {
@@ -157,7 +158,7 @@ namespace Confabulation.Chat
 			}
 		}
 
-		public event EventHandler<IrcUserEventArgs> NicknameChanged;
+		public event EventHandler<NicknameEventArgs> NicknameChanged;
 
 		internal void SetAwayState(bool isAway, string message)
 		{
@@ -179,8 +180,8 @@ namespace Confabulation.Chat
 				nickname = newNickname;
 			}
 
-			IrcUserEventArgs e = new IrcUserEventArgs(this, oldNickname, newNickname);
-			EventHandler<IrcUserEventArgs> handler = NicknameChanged;
+			NicknameEventArgs e = new NicknameEventArgs(this, oldNickname, newNickname);
+			EventHandler<NicknameEventArgs> handler = NicknameChanged;
 
 			if (handler != null)
 				handler(this, e);

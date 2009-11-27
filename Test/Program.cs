@@ -45,7 +45,7 @@ namespace Test
 			}
         }
 
-		static void OnChannelJoin(object sender, IrcChannelEventArgs e)
+		static void OnChannelJoin(object sender, ChannelEventArgs e)
 		{
 			throw new NotImplementedException();
 		}

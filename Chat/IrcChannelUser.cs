@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Confabulation.Chat.Events;
 
 namespace Confabulation.Chat
 {
@@ -22,7 +23,7 @@ namespace Confabulation.Chat
 				throw new ArgumentNullException("user");
 
 			this.user = user;
-			user.NicknameChanged += new EventHandler<IrcUserEventArgs>(ProcessNicknameChanged);
+			user.NicknameChanged += new EventHandler<NicknameEventArgs>(ProcessNicknameChanged);
 		}
 
 		public IrcChannelUser(IrcUser user, params char[] modes)
@@ -31,7 +32,7 @@ namespace Confabulation.Chat
 				throw new ArgumentNullException("user");
 
 			this.user = user;
-			user.NicknameChanged += new EventHandler<IrcUserEventArgs>(ProcessNicknameChanged);
+			user.NicknameChanged += new EventHandler<NicknameEventArgs>(ProcessNicknameChanged);
 
 			if (modes != null)
 			{
@@ -123,7 +124,7 @@ namespace Confabulation.Chat
 			}
 		}
 
-		public event EventHandler<IrcUserEventArgs> NicknameChanged;
+		public event EventHandler<NicknameEventArgs> NicknameChanged;
 
 		internal void AddMode(char mode)
 		{
@@ -136,9 +137,9 @@ namespace Confabulation.Chat
 			modes.Remove(mode);
 		}
 
-		private void ProcessNicknameChanged(object sender, IrcUserEventArgs e)
+		private void ProcessNicknameChanged(object sender, NicknameEventArgs e)
 		{
-			EventHandler<IrcUserEventArgs> handler = NicknameChanged;
+			EventHandler<NicknameEventArgs> handler = NicknameChanged;
 
 			if (handler != null)
 				handler(this, e);
