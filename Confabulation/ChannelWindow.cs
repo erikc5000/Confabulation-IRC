@@ -33,6 +33,7 @@ namespace Confabulation
 			channel.UserJoined += new EventHandler<ChannelEventArgs>(channel_UserJoined);
 			channel.UserParted += new EventHandler<ChannelEventArgs>(channel_UserParted);
 			channel.UserKicked += new EventHandler<KickEventArgs>(channel_UserKicked);
+			channel.TopicChanged += new EventHandler<TopicEventArgs>(channel_TopicChanged);
 			channel.Connection.UserQuit += new EventHandler<UserEventArgs>(Connection_UserQuit);
 			channel.Connection.StateChanged += new EventHandler<IrcConnectionEventArgs>(Connection_StateChanged);
 
@@ -93,6 +94,7 @@ namespace Confabulation
 		private delegate void UserJoinedDelegate(IrcChannelUser user);
 		private delegate void UserPartedDelegate(IrcChannelUser user, string message);
 		private delegate void UserKickedDelegate(IrcChannelUser kicked, IrcChannelUser kickedBy, string message);
+		private delegate void TopicChangedDelegate(string topic, IrcUser setBy);
 		private delegate void UserQuitDelegate(IrcUser user, string message);
 		private delegate void UserChangedNicknameDelegate(IrcUser user, string oldNickname, string newNickname);
 
@@ -148,6 +150,14 @@ namespace Confabulation
 						e.User,
 						e.OldNickname,
 						e.NewNickname);
+		}
+
+		private void channel_TopicChanged(object sender, TopicEventArgs e)
+		{
+			Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal,
+						new TopicChangedDelegate(TopicChanged),
+						e.Topic,
+						e.User);
 		}
 
 		private void channel_MessageReceived(object sender, UserEventArgs e)
@@ -319,6 +329,23 @@ namespace Confabulation
 				Log.WriteLine("ChannelWindow.UserNicknameChanged: New nickname overwrites existing item");
 
 			userItemMap[newNickname] = item;
+		}
+
+		private void TopicChanged(string topic, IrcUser setBy)
+		{
+			string nickname = setBy.Nickname;
+			string text;
+
+			if (setBy.IsSelf)
+				text = "You changed the topic to '";
+			else
+				text = nickname + " changed the topic to '";
+
+			text += topic + "'";
+
+			AddControlMessage(text);
+
+			// TODO: Update topic in window when it's added
 		}
 
 		private void AddUserItem(IrcChannelUser channelUser)

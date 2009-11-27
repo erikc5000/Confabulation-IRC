@@ -116,7 +116,7 @@ namespace Confabulation.Chat.MessageHandlers
 			IrcChannel channel = connection.FindChannel(channelName);
 
 			if (channel != null)
-				channel.SetTopic(null);
+				channel.SetTopic("");
 		}
 
 		static void ProcessTopic(IrcConnection connection, IrcMessage message)

@@ -217,6 +217,9 @@ namespace Confabulation.Chat
 
 		internal void SetTopic(string topic)
 		{
+			if (topic == null)
+				throw new ArgumentNullException("topic");
+
 			lock (syncObject)
 			{
 				this.topic = topic;
@@ -257,7 +260,7 @@ namespace Confabulation.Chat
 				this.topicInfo = info;
 			}
 
-			TopicEventArgs e = new TopicEventArgs(this, topic, info);
+			TopicEventArgs e = new TopicEventArgs(this, topic, user);
 			EventHandler<TopicEventArgs> handler = TopicChanged;
 
 			if (handler != null)
@@ -450,7 +453,7 @@ namespace Confabulation.Chat
 		}
 
 		private readonly Object syncObject = new Object();
-		private string topic = null;
+		private string topic = "";
 		private IrcTopicInfo topicInfo = null;
 		private Dictionary<string, IrcChannelUser> users;
 		private bool usersInitialized = false;
