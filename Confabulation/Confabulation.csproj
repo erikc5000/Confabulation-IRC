@@ -124,14 +124,11 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ChannelItem.cs" />
     <Compile Include="ChannelWindow.cs" />
     <Compile Include="ChatWindow.xaml.cs">
       <DependentUpon>ChatWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="ConnectionEventArgs.cs" />
-    <Compile Include="ConnectionItem.cs" />
-    <Compile Include="ConnectionListItem.cs" />
     <Compile Include="ConnectionsWindow.xaml.cs">
       <DependentUpon>ConnectionsWindow.xaml</DependentUpon>
     </Compile>
