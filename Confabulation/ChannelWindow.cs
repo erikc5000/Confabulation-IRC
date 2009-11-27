@@ -11,6 +11,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Collections.ObjectModel;
 using Confabulation;
 using Confabulation.Chat;
 using Confabulation.Chat.Commands;
@@ -32,6 +33,7 @@ namespace Confabulation
 			channel.Connection.UserQuit += new EventHandler<IrcUserEventArgs>(Connection_UserQuit);
 			channel.Connection.StateChanged += new EventHandler<IrcConnectionEventArgs>(Connection_StateChanged);
 
+			usersList.DataContext = userItems;
 			AddUsers();
 		}
 
@@ -93,7 +95,7 @@ namespace Confabulation
 		private void Disconnected()
 		{
 			AddControlMessage("You went offline");
-			usersList.Items.Clear();
+			RemoveAllUserItems();
 		}
 
 		private void channel_UsersAdded(object sender, IrcChannelEventArgs e)
@@ -147,7 +149,6 @@ namespace Confabulation
 			switch (e.EventType)
 			{
 				case IrcConnectionEventType.Disconnected:
-					// TODO: Clear the users list
 					Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal,
 						new DisconnectedDelegate(Disconnected));
 					break;
@@ -164,70 +165,80 @@ namespace Confabulation
 		{
 			foreach (IrcChannelUser user in Channel.Users)
 			{
-				if (!usersList.Items.Contains(user))
+				string nickname = user.Nickname;
+
+				if (!userItemMap.ContainsKey(nickname))
 				{
 					user.NicknameChanged += nicknameChangedEventHandler;
-					usersList.Items.Add(user);
+					AddUserItem(user);
 				}
 			}
 		}
 
 		private void UserJoined(IrcChannelUser user)
 		{
+			string nickname = user.Nickname;
 			string text;
 
 			if (user.IsSelf)
 				text = "You entered the channel";
 			else
-				text = user.Nickname + " entered the channel";
+				text = nickname + " entered the channel";
 
 			AddControlMessage(text);
 
-			usersList.Items.Add(user);
-			user.NicknameChanged += nicknameChangedEventHandler;
+			if (!userItemMap.ContainsKey(nickname))
+			{
+				user.NicknameChanged += nicknameChangedEventHandler;
+				AddUserItem(user);
+			}
+			else
+			{
+				Log.WriteLine("ChannelWindow: Joining user already exists");
+			}
 		}
 
 		private void UserParted(IrcChannelUser user, string message)
 		{
+			string nickname = user.Nickname;
 			string text;
 
 			if (user.IsSelf)
 				text = "You left the channel";
 			else
-				text = user.Nickname + " left the channel";
+				text = nickname + " left the channel";
 
 			if (message != null)
 				text += " (" + message + ")";
 
 			AddControlMessage(text);
 
-			user.NicknameChanged -= nicknameChangedEventHandler;
-			usersList.Items.Remove(user);
+			if (userItemMap.ContainsKey(nickname))
+			{
+				user.NicknameChanged -= nicknameChangedEventHandler;
+				RemoveUserItem(nickname);
+			}
+			else
+			{
+				Log.WriteLine("ChannelWindow: Parting user doesn't exist");
+			}
 		}
 
 		private void UserQuit(IrcUser user, string message)
 		{
-			bool found = false;
+			string nickname = user.Nickname;
 
-			foreach (IrcChannelUser channelUser in usersList.Items)
-			{
-				if (channelUser.Equals(user.Nickname))
-				{
-					found = true;
-					usersList.Items.Remove(channelUser);
-					break;
-				}
-			}
-
-			if (!found)
+			if (!userItemMap.ContainsKey(nickname))
 				return;
+
+			RemoveUserItem(nickname);
 
 			string text;
 
 			if (user.IsSelf)
 				text = "You went offline";
 			else
-				text = user.Nickname + " went offline";
+				text = nickname + " went offline";
 
 			if (message != null)
 				text += " (" + message + ")";
@@ -245,9 +256,47 @@ namespace Confabulation
 				text = oldNickname + " changed his/her nickname to " + newNickname;
 
 			AddControlMessage(text);
+
+			if (!userItemMap.ContainsKey(oldNickname))
+			{
+				Log.WriteLine("ChannelWindow.UserNicknameChanged: Old nickname item doesn't exist");
+				return;
+			}
+
+			ChannelUserItem item = userItemMap[oldNickname];
+			userItemMap.Remove(oldNickname);
+			item.Nickname = newNickname;
+
+			if (userItemMap.ContainsKey(newNickname))
+				Log.WriteLine("ChannelWindow.UserNicknameChanged: New nickname overwrites existing item");
+
+			userItemMap[newNickname] = item;
+		}
+
+		private void AddUserItem(IrcChannelUser channelUser)
+		{
+			string nickname = channelUser.Nickname;
+			ChannelUserItem item = new ChannelUserItem(channelUser);
+			userItems.Add(item);
+			userItemMap[nickname] = item;
+		}
+
+		private void RemoveUserItem(string nickname)
+		{
+			ChannelUserItem item = userItemMap[nickname];
+			userItems.Remove(item);
+			userItemMap.Remove(nickname);
+		}
+
+		private void RemoveAllUserItems()
+		{
+			userItems.Clear();
+			userItemMap.Clear();
 		}
 
 		private IrcChannel channel = null;
+		private Dictionary<string, ChannelUserItem> userItemMap = new Dictionary<string, ChannelUserItem>();
+		private ObservableCollection<ChannelUserItem> userItems = new ObservableCollection<ChannelUserItem>();
 		private EventHandler<IrcUserEventArgs> nicknameChangedEventHandler;
 	}
 }

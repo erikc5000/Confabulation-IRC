@@ -56,19 +56,28 @@ namespace Confabulation.Chat
 			return user.Equals(nickname);
 		}
 
-		public bool IsOperator()
+		public bool IsOperator
 		{
-			return modes.Contains('o');
+			get
+			{
+				return modes.Contains('o');
+			}
 		}
 
-		public bool IsHalfOperator()
+		public bool IsHalfOperator
 		{
-			return modes.Contains('h');
+			get
+			{
+				return modes.Contains('h');
+			}
 		}
 
-		public bool HasVoice()
+		public bool HasVoice
 		{
-			return modes.Contains('v');
+			get
+			{
+				return modes.Contains('v');
+			}
 		}
 
 		public IrcUser GetUser()
