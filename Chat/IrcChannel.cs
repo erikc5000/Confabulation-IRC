@@ -48,6 +48,8 @@ namespace Confabulation.Chat
 
 			this.Name = name;
 			this.Connection = connection;
+			connection.StateChanged += new EventHandler<IrcConnectionEventArgs>(connection_StateChanged);
+
 			this.IsSecret = false;
 			this.IsPrivate = false;
 			this.IsInviteOnly = false;
@@ -88,15 +90,15 @@ namespace Confabulation.Chat
 			return GetChannelUser(user.Nickname);
 		}
 
-		public IrcChannelUser GetChannelUser(string userName)
+		public IrcChannelUser GetChannelUser(string nickname)
 		{
-			if (userName == null)
+			if (nickname == null)
 				throw new ArgumentNullException("user");
 
-			lock (usersLock)
+			lock (syncObject)
 			{
-				if (users.ContainsKey(userName))
-					return users[userName];
+				if (users.ContainsKey(nickname))
+					return users[nickname];
 			}
 
 			return null;
@@ -118,7 +120,7 @@ namespace Confabulation.Chat
 		{
 			get
 			{
-				lock (topicLock)
+				lock (syncObject)
 				{
 					return topic;
 				}
@@ -129,7 +131,7 @@ namespace Confabulation.Chat
 		{
 			get
 			{
-				lock (topicLock)
+				lock (syncObject)
 				{
 					return topicInfo;
 				}
@@ -140,7 +142,7 @@ namespace Confabulation.Chat
 		{
 			get
 			{
-                lock (usersLock)
+                lock (syncObject)
                 {
                     return new List<IrcChannelUser>(users.Values);
                 }
@@ -213,7 +215,7 @@ namespace Confabulation.Chat
 
 		internal void SetTopic(string topic)
 		{
-			lock (topicLock)
+			lock (syncObject)
 			{
 				this.topic = topic;
 			}
@@ -229,7 +231,7 @@ namespace Confabulation.Chat
 
 		internal void SetTopicInfo(string setBy, DateTime time)
 		{
-			lock (topicLock)
+			lock (syncObject)
 			{
 				this.topicInfo = new IrcTopicInfo(setBy, time);
 			}
@@ -243,7 +245,7 @@ namespace Confabulation.Chat
 
 		internal void ChangeTopic(string topic, IrcUser user)
 		{
-			lock (topicLock)
+			lock (syncObject)
 			{
 				this.topic = topic;
 				this.topicInfo = new IrcTopicInfo(user.Nickname, DateTime.Now);
@@ -261,14 +263,14 @@ namespace Confabulation.Chat
 		{
 			get
 			{
-				lock (usersLock)
+				lock (syncObject)
 				{
 					return usersInitialized;
 				}
 			}
 			set
 			{
-				lock (usersLock)
+				lock (syncObject)
 				{
 					usersInitialized = value;
 				}
@@ -277,7 +279,7 @@ namespace Confabulation.Chat
 
 		internal bool HasUser(string nickname)
 		{
-			lock (usersLock)
+			lock (syncObject)
 			{
 				return users.ContainsKey(nickname);
 			}
@@ -285,7 +287,7 @@ namespace Confabulation.Chat
 
 		internal void AddUser(IrcUser user, params char[] modes)
 		{
-			lock (usersLock)
+			lock (syncObject)
 			{
 				if (!users.ContainsKey(user.Nickname))
 					users[user.Nickname] = new IrcChannelUser(user, modes);
@@ -309,7 +311,7 @@ namespace Confabulation.Chat
 			else if (newUsers.Count() != modes.Count())
 				throw new ArgumentException("Number of user should be equal to the number of modes");
 
-			lock (usersLock)
+			lock (syncObject)
 			{
 				for (int i = 0; i < newUsers.Count(); i++)
 				{
@@ -329,7 +331,7 @@ namespace Confabulation.Chat
 
 		internal void RemoveUser(IrcUser user)
 		{
-			lock (usersLock)
+			lock (syncObject)
 			{
 				users.Remove(user.Nickname);
 				user.RemoveChannel(this);
@@ -339,16 +341,22 @@ namespace Confabulation.Chat
 		internal void OnUserJoin(IrcUser user)
 		{
 			IrcChannelUser channelUser = null;
+			string nickname = user.Nickname;
 
-			lock (usersLock)
+			lock (syncObject)
 			{
-				if (!users.ContainsKey(user.Nickname))
+				if (users.ContainsKey(nickname))
+				{
+					Log.WriteLine("IrcChannel.OnUserJoin(): User already exists");
+					channelUser = users[nickname];
+				}
+				else
 				{
 					channelUser = new IrcChannelUser(user);
-					users[user.Nickname] = channelUser;
-				}
+					users[nickname] = channelUser;
 
-				user.AddChannel(this);
+					user.AddChannel(this);
+				}
 			}
 
 			IrcChannelEventArgs e = new IrcChannelEventArgs(this, channelUser);
@@ -362,7 +370,7 @@ namespace Confabulation.Chat
 		{
 			IrcChannelUser channelUser = null;
 
-			lock (usersLock)
+			lock (syncObject)
 			{
 				string nickname = user.Nickname;
 
@@ -386,7 +394,7 @@ namespace Confabulation.Chat
         {
 			IrcChannelUser channelUser = null;
 
-			lock (usersLock)
+			lock (syncObject)
 			{
 				string nickname = user.Nickname;
 
@@ -408,10 +416,23 @@ namespace Confabulation.Chat
                 handler(this, e);
         }
 
-		private readonly Object topicLock = new Object();
+		private void connection_StateChanged(object sender, IrcConnectionEventArgs e)
+		{
+			if (e.EventType == IrcConnectionEventType.Disconnected)
+			{
+				lock (syncObject)
+				{
+					users.Clear();
+					usersInitialized = false;
+					topic = null;
+					topicInfo = null;
+				}
+			}
+		}
+
+		private readonly Object syncObject = new Object();
 		private string topic = null;
 		private IrcTopicInfo topicInfo = null;
-		private readonly Object usersLock = new Object();
 		private Dictionary<string, IrcChannelUser> users;
 		private bool usersInitialized = false;
 		private string rawModes = "";

@@ -29,6 +29,8 @@ namespace Confabulation
 			channel.MessageReceived += new EventHandler<IrcChannelEventArgs>(channel_MessageReceived);
 			channel.UsersAdded += new EventHandler<IrcChannelEventArgs>(channel_UsersAdded);
 			channel.UserJoined += new EventHandler<IrcChannelEventArgs>(channel_UserJoined);
+			channel.Connection.UserQuit += new EventHandler<IrcUserEventArgs>(Connection_UserQuit);
+			channel.Connection.StateChanged += new EventHandler<IrcConnectionEventArgs>(Connection_StateChanged);
 
 			AddUsers();
 		}
@@ -47,31 +49,6 @@ namespace Confabulation
 			{
 				return channel;
 			}
-		}
-
-		public override void UserQuit(IrcUser user, string message)
-		{
-			bool found = false;
-
-			foreach (IrcChannelUser channelUser in usersList.Items)
-			{
-				if (channelUser.Equals(user.Nickname))
-				{
-					found = true;
-					usersList.Items.Remove(channelUser);
-					break;
-				}
-			}
-
-			if (!found)
-				return;
-
-			string text = user.Nickname + " went offline";
-
-			if (message != null)
-				text += " (" + message + ")";
-
-			AddControlMessage(text);
 		}
 
 		protected override void TextEntered(string text)
@@ -106,10 +83,18 @@ namespace Confabulation
 			}
 		}
 
+		private delegate void DisconnectedDelegate();
 		private delegate void AddUsersDelegate();
 		private delegate void UserJoinedDelegate(IrcChannelUser user);
 		private delegate void UserPartedDelegate(IrcChannelUser user, string message);
+		private delegate void UserQuitDelegate(IrcUser user, string message);
 		private delegate void UserChangedNicknameDelegate(IrcUser user, string oldNickname, string newNickname);
+
+		private void Disconnected()
+		{
+			AddControlMessage("You went offline");
+			usersList.Items.Clear();
+		}
 
 		private void channel_UsersAdded(object sender, IrcChannelEventArgs e)
 		{
@@ -132,6 +117,14 @@ namespace Confabulation
 						e.Message);
 		}
 
+		private void Connection_UserQuit(object sender, IrcUserEventArgs e)
+		{
+			Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal,
+						new UserQuitDelegate(UserQuit),
+						e.User,
+						e.Message);
+		}
+
 		private void user_NicknameChanged(object sender, IrcUserEventArgs e)
 		{
 			Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal,
@@ -149,6 +142,24 @@ namespace Confabulation
 						e.Message);
 		}
 
+		private void Connection_StateChanged(object sender, IrcConnectionEventArgs e)
+		{
+			switch (e.EventType)
+			{
+				case IrcConnectionEventType.Disconnected:
+					// TODO: Clear the users list
+					Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal,
+						new DisconnectedDelegate(Disconnected));
+					break;
+
+				case IrcConnectionEventType.Registered:
+					// TODO: Add support for password protected channels.  Might want to merge
+					// this functionality into the core library as an option.
+					Connection.Execute(new JoinCommand(Channel.Name));
+					break;
+		}
+		}
+
 		private void AddUsers()
 		{
 			foreach (IrcChannelUser user in Channel.Users)
@@ -163,7 +174,14 @@ namespace Confabulation
 
 		private void UserJoined(IrcChannelUser user)
 		{
-			AddControlMessage(user.Nickname + " entered the channel");
+			string text;
+
+			if (user.IsSelf)
+				text = "You entered the channel";
+			else
+				text = user.Nickname + " entered the channel";
+
+			AddControlMessage(text);
 
 			usersList.Items.Add(user);
 			user.NicknameChanged += nicknameChangedEventHandler;
@@ -171,7 +189,12 @@ namespace Confabulation
 
 		private void UserParted(IrcChannelUser user, string message)
 		{
-			string text = user.Nickname + " left the channel";
+			string text;
+
+			if (user.IsSelf)
+				text = "You left the channel";
+			else
+				text = user.Nickname + " left the channel";
 
 			if (message != null)
 				text += " (" + message + ")";
@@ -182,9 +205,44 @@ namespace Confabulation
 			usersList.Items.Remove(user);
 		}
 
+		private void UserQuit(IrcUser user, string message)
+		{
+			bool found = false;
+
+			foreach (IrcChannelUser channelUser in usersList.Items)
+			{
+				if (channelUser.Equals(user.Nickname))
+				{
+					found = true;
+					usersList.Items.Remove(channelUser);
+					break;
+				}
+			}
+
+			if (!found)
+				return;
+
+			string text;
+
+			if (user.IsSelf)
+				text = "You went offline";
+			else
+				text = user.Nickname + " went offline";
+
+			if (message != null)
+				text += " (" + message + ")";
+
+			AddControlMessage(text);
+		}
+
 		private void UserChangedNickname(IrcUser user, string oldNickname, string newNickname)
 		{
-			string text = oldNickname + " changed name to " + newNickname;
+			string text;
+
+			if (user.IsSelf)
+				text = "You changed your nickname to " + newNickname;
+			else
+				text = oldNickname + " changed his/her nickname to " + newNickname;
 
 			AddControlMessage(text);
 		}

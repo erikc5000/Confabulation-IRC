@@ -44,6 +44,7 @@ namespace Confabulation.Chat
 			Server = null;
 			InitialUserModes = InitialUserMode.Invisible;
 			TryOtherServersInNetwork = true;
+			EnableConnectionRetry = true;
 		}
 
 		public string Name
@@ -78,6 +79,21 @@ namespace Confabulation.Chat
 			set;
 		}
 
+		public bool EnableConnectionRetry
+		{
+			get;
+			set;
+		}
+
+		public Object SyncRoot
+		{
+			get
+			{
+				return syncRoot;
+			}
+		}
+
+		private readonly object syncRoot = new Object();
 		private IrcUserSettings userSettings = new IrcUserSettings();
 	}
 }

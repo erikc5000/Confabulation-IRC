@@ -71,6 +71,11 @@ namespace Confabulation.Chat
 			return modes.Contains('v');
 		}
 
+		public IrcUser GetUser()
+		{
+			return user;
+		}
+
 		//public IrcUserChannelMode Modes
 		//{
 		//    get;
@@ -101,12 +106,15 @@ namespace Confabulation.Chat
 			}
 		}
 
-		public event EventHandler<IrcUserEventArgs> NicknameChanged;
-
-		internal IrcUser GetUser()
+		public bool IsSelf
 		{
-			return user;
+			get
+			{
+				return user.IsSelf;
+			}
 		}
+
+		public event EventHandler<IrcUserEventArgs> NicknameChanged;
 
 		internal void AddMode(char mode)
 		{

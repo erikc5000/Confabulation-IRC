@@ -138,6 +138,12 @@ namespace Confabulation.Chat
 						userRegistered = false;
 						self = null;
 					}
+
+					lock (visibleUsersLock)
+					{
+						visibleUsers.Clear();
+					}
+
 					break;
 			}
 
@@ -345,14 +351,17 @@ namespace Confabulation.Chat
 					return;
 			}
 
-			if (settings.User.Nicknames.Count > nextNickname)
+			lock (settings.SyncRoot)
 			{
-				Execute(new NickCommand(settings.User.Nicknames[nextNickname]));
-				nextNickname++;
-			}
-			else
-			{
-				// Send out error notification
+				if (settings.User.Nicknames.Count > nextNickname)
+				{
+					Execute(new NickCommand(settings.User.Nicknames[nextNickname]));
+					nextNickname++;
+				}
+				else
+				{
+					// Send out error notification
+				}
 			}
 		}
 

@@ -25,16 +25,13 @@ namespace Confabulation
 			get;
 		}
 
-		public virtual void UserQuit(IrcUser user, string message)
-		{
-		}
-
 		public virtual void Activated()
 		{
 			Keyboard.Focus(chatTextBox);
 		}
 
 		protected delegate void AddMessageDelegate(IrcUser user, string message);
+		protected delegate void AddControlMessageDelegate(string message);
 		protected delegate void AddToWindowDelegate(string text);
 
 		protected void AddMessage(IrcUser user, string message)

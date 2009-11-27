@@ -134,33 +134,7 @@ namespace Confabulation
 
             e.Connection.ChannelJoined += new EventHandler<IrcChannelEventArgs>(ChannelJoined);
             e.Connection.ChannelParted += new EventHandler<IrcChannelEventArgs>(ChannelParted);
-            e.Connection.UserQuit += new EventHandler<IrcUserEventArgs>(UserQuit);
 		}
-
-        private void UserQuit(object sender, IrcUserEventArgs e)
-        {
-            Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal,
-                                   new OnUserQuitDelegate(OnUserQuit),
-                                   (IrcConnection)sender,
-                                   e.User,
-                                   e.Message);
-        }
-
-        private delegate void OnUserQuitDelegate(IrcConnection connection, IrcUser user, string message);
-
-        private void OnUserQuit(IrcConnection connection, IrcUser user, string message)
-        {
-            foreach (TabItem item in tabControl.Items)
-            {
-                if (item.Content is ChatWindow)
-                {
-                    ChatWindow window = (ChatWindow)item.Content;
-
-                    if (window.Connection == connection)
-                        window.UserQuit(user, message);
-                }
-            }
-        }
 
         private void ChannelParted(object sender, IrcChannelEventArgs e)
         {
