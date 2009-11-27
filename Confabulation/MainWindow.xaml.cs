@@ -307,8 +307,6 @@ namespace Confabulation
                 activeConnection = window.Connection;
                 activeConnection.StateChanged += new EventHandler<IrcConnectionEventArgs>(activeConnection_StateChanged);
             }
-
-			window.Activated();
         }
 
 		//private ObservableCollection<ConnectionItem> connectionItems = new ObservableCollection<ConnectionItem>();

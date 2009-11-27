@@ -25,11 +25,6 @@ namespace Confabulation
 			get;
 		}
 
-		public virtual void Activated()
-		{
-			Keyboard.Focus(chatTextBox);
-		}
-
 		protected delegate void AddMessageDelegate(IrcUser user, string message);
 		protected delegate void AddControlMessageDelegate(string message);
 		protected delegate void AddToWindowDelegate(string text);
@@ -403,6 +398,11 @@ namespace Confabulation
 			}
 
 			return Brushes.Black;
+		}
+
+		private void UserControl_Loaded(object sender, RoutedEventArgs e)
+		{
+			Keyboard.Focus(chatTextBox);
 		}
 	}
 }
