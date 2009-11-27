@@ -209,6 +209,7 @@ namespace Confabulation.Chat
 
 		public event EventHandler<IrcChannelEventArgs> UserJoined;
 		public event EventHandler<IrcChannelEventArgs> UserParted;
+		public event EventHandler<IrcKickEventArgs> UserKicked;
 		public event EventHandler<IrcChannelEventArgs> MessageReceived;
 		public event EventHandler<IrcChannelEventArgs> NoticeReceived;
 		public event EventHandler<IrcChannelEventArgs> TopicChanged;
@@ -385,6 +386,48 @@ namespace Confabulation.Chat
 			IrcChannelEventArgs e = new IrcChannelEventArgs(this, channelUser);
 			e.Message = message;
 			EventHandler<IrcChannelEventArgs> handler = UserParted;
+
+			if (handler != null)
+				handler(this, e);
+		}
+
+		internal void OnKick(IrcUser kicked, IrcUser kickedBy, string message)
+		{
+			IrcChannelUser kickedUser = null;
+			IrcChannelUser kickedByUser = null;
+
+			lock (syncObject)
+			{
+				string kickedNickname = kicked.Nickname;
+
+				if (!users.ContainsKey(kickedNickname))
+				{
+					Log.WriteLine("Kicked user not found in IrcChannel");
+					return;
+				}
+
+				string kickedByNickname = kickedBy.Nickname;
+
+				if (!users.ContainsKey(kickedByNickname))
+				{
+					Log.WriteLine("Kicking user not found in IrcChannel");
+
+					// Remove kicked user despite the error
+					users.Remove(kickedNickname);
+					kicked.RemoveChannel(this);
+					return;
+				}
+
+				kickedByUser = users[kickedByNickname];
+				kickedUser = users[kickedNickname];
+
+				users.Remove(kickedNickname);
+				kicked.RemoveChannel(this);
+			}
+
+			IrcKickEventArgs e = new IrcKickEventArgs(this, kickedUser, kickedByUser);
+			e.Message = message;
+			EventHandler<IrcKickEventArgs> handler = UserKicked;
 
 			if (handler != null)
 				handler(this, e);

@@ -30,6 +30,8 @@ namespace Confabulation
 			channel.MessageReceived += new EventHandler<IrcChannelEventArgs>(channel_MessageReceived);
 			channel.UsersAdded += new EventHandler<IrcChannelEventArgs>(channel_UsersAdded);
 			channel.UserJoined += new EventHandler<IrcChannelEventArgs>(channel_UserJoined);
+			channel.UserParted += new EventHandler<IrcChannelEventArgs>(channel_UserParted);
+			channel.UserKicked += new EventHandler<IrcKickEventArgs>(channel_UserKicked);
 			channel.Connection.UserQuit += new EventHandler<IrcUserEventArgs>(Connection_UserQuit);
 			channel.Connection.StateChanged += new EventHandler<IrcConnectionEventArgs>(Connection_StateChanged);
 
@@ -89,6 +91,7 @@ namespace Confabulation
 		private delegate void AddUsersDelegate();
 		private delegate void UserJoinedDelegate(IrcChannelUser user);
 		private delegate void UserPartedDelegate(IrcChannelUser user, string message);
+		private delegate void UserKickedDelegate(IrcChannelUser kicked, IrcChannelUser kickedBy, string message);
 		private delegate void UserQuitDelegate(IrcUser user, string message);
 		private delegate void UserChangedNicknameDelegate(IrcUser user, string oldNickname, string newNickname);
 
@@ -108,14 +111,23 @@ namespace Confabulation
 		{
 			Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal,
 						new UserJoinedDelegate(UserJoined),
-						(Object)e.ChannelUser);
+						e.ChannelUser);
 		}
 
 		private void channel_UserParted(object sender, IrcChannelEventArgs e)
 		{
 			Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal,
 						new UserPartedDelegate(UserParted),
-						e.User,
+						e.ChannelUser,
+						e.Message);
+		}
+
+		private void channel_UserKicked(object sender, IrcKickEventArgs e)
+		{
+			Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal,
+						new UserKickedDelegate(UserKicked),
+						e.Kicked,
+						e.KickedBy,
 						e.Message);
 		}
 
@@ -221,6 +233,35 @@ namespace Confabulation
 			else
 			{
 				Log.WriteLine("ChannelWindow: Parting user doesn't exist");
+			}
+		}
+
+		private void UserKicked(IrcChannelUser kicked, IrcChannelUser kickedBy, string message)
+		{
+			string kickedNickname = kicked.Nickname;
+			string kickedByNickname = kickedBy.Nickname;
+			string text;
+
+			if (kicked.IsSelf)
+				text = "You were kicked by " + kickedByNickname;
+			else if (kickedBy.IsSelf)
+				text = "You kicked " + kickedByNickname;
+			else
+				text = kicked + " was kicked by " + kickedBy;
+
+			if (message != null)
+				text += " (" + message + ")";
+
+			AddControlMessage(text);
+
+			if (userItemMap.ContainsKey(kickedNickname))
+			{
+				kicked.NicknameChanged -= nicknameChangedEventHandler;
+				RemoveUserItem(kickedNickname);
+			}
+			else
+			{
+				Log.WriteLine("ChannelWindow: Kicked user doesn't exist");
 			}
 		}
 

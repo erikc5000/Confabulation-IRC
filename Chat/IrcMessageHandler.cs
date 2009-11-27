@@ -31,6 +31,7 @@ namespace Confabulation.Chat
 			commandMap.Add("NICK", NickMessageHandler.Process);
             commandMap.Add("PRIVMSG", PrivmsgMessageHandler.Process);
             commandMap.Add("QUIT", QuitMessageHandler.Process);
+			commandMap.Add("KICK", KickMessageHandler.Process);
 		}
 
 		private static Dictionary<string, Action<IrcConnection, IrcMessage>> commandMap =

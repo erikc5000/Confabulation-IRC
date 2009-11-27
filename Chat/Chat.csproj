@@ -75,6 +75,7 @@
     <Compile Include="IrcCommand.cs" />
     <Compile Include="IrcCommandException.cs" />
     <Compile Include="IrcConnectionEventArgs.cs" />
+    <Compile Include="IrcKickEventArgs.cs" />
     <Compile Include="IrcMessage.cs" />
     <Compile Include="IrcMessageEventArgs.cs" />
     <Compile Include="IrcMessageHandler.cs" />
@@ -88,6 +89,7 @@
     <Compile Include="IrcUserEventArgs.cs" />
     <Compile Include="Log.cs" />
     <Compile Include="MessageHandlers\JoinMessageHandler.cs" />
+    <Compile Include="MessageHandlers\KickMessageHandler.cs" />
     <Compile Include="MessageHandlers\NickMessageHandler.cs" />
     <Compile Include="MessageHandlers\PartMessageHandler.cs" />
     <Compile Include="MessageHandlers\PingMessageHandler.cs" />
