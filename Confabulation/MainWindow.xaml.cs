@@ -66,11 +66,11 @@ namespace Confabulation
 		public RECT normalPosition;
 	}
 
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
-    public partial class MainWindow : Window
-    {
+	/// <summary>
+	/// Interaction logic for MainWindow.xaml
+	/// </summary>
+	public partial class MainWindow : Window
+	{
 		#region Win32 API declarations to set and get window placement
 		[DllImport("user32.dll")]
 		static extern bool SetWindowPlacement(IntPtr hWnd, [In] ref WINDOWPLACEMENT lpwndpl);
@@ -82,140 +82,107 @@ namespace Confabulation
 		const int SW_SHOWMINIMIZED = 2;
 		#endregion
 
-        public MainWindow()
-        {
-            InitializeComponent();
+		public MainWindow()
+		{
+			InitializeComponent();
 
 			App app = (App)App.Current;
 			app.ConnectionAdded += new EventHandler<ConnectionEventArgs>(app_ConnectionAdded);
 			app.ConnectionRemoved += new EventHandler<ConnectionEventArgs>(app_ConnectionRemoved);
-			//client.ConnectionEvent += new EventHandler<IrcConnectionEventArgs>(client_ConnectionEvent);
-			//client.MessageReceived += new EventHandler<IrcMessageEventArgs>(client_RawMessageReceived);
-			//TreeViewItem item = new TreeViewItem();
-			//item.Header = "MyConnection";
-			//ConnectionList.Items.Add(item);
-        }
+		}
 
-        //private void ConnectionList_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
-        //{
-        //    if (!(e.NewValue is ConnectionListItem))
-        //        return;
 
-        //    ConnectionListItem item = (ConnectionListItem)e.NewValue;
-        //    IrcConnection connection = item.Connection;
-
-        //    if (connection == null)
-        //        return;
-
-        //    if (activeConnection != null || activeConnection != connection)
-        //    {
-        //        if (activeConnection != null)
-        //            activeConnection.StateChanged -= new EventHandler<IrcConnectionEventArgs>(activeConnection_StateChanged);
-        //    }
-
-        //    activeConnection = connection;
-        //    activeConnection.StateChanged += new EventHandler<IrcConnectionEventArgs>(activeConnection_StateChanged);
-        //    //ChatContentArea.Content = item.ChatWindow;
-        //}
+		private delegate void AddChannelDelegate(IrcChannel channel);
+		private delegate void RemoveChannelDelegate(IrcChannel channel);
+		private delegate void SetConnectButtonStateDelegate();
 
 		private void app_ConnectionAdded(object sender, ConnectionEventArgs e)
 		{
-            //ConnectionItem item = new ConnectionItem(e.Connection);
-            //item.IsSelected = true;
-            //item.IsExpanded = true;
-            //connectionItems.Add(item);
+			TabItem item = new TabItem();
+			item.Header = e.Connection.Settings.Name;
+			item.Content = new ServerWindow(e.Connection);
 
-            TabItem item = new TabItem();
-            item.Header = e.Connection.Settings.Name;
-            item.Content = new ServerWindow(e.Connection);
+			tabControl.Items.Add(item);
+			tabControl.SelectedItem = item;
 
-            tabControl.Items.Add(item);
-            tabControl.SelectedItem = item;
-
-            e.Connection.ChannelJoined += new EventHandler<ChannelEventArgs>(ChannelJoined);
-            e.Connection.ChannelParted += new EventHandler<ChannelEventArgs>(ChannelParted);
+			e.Connection.ChannelJoined += new EventHandler<ChannelEventArgs>(ChannelJoined);
+			e.Connection.ChannelParted += new EventHandler<ChannelEventArgs>(ChannelParted);
 		}
-
-        private void ChannelParted(object sender, ChannelEventArgs e)
-        {
-            Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal,
-                                   new AddChannelDelegate(RemoveChannel),
-                                   (Object)e.Channel);
-        }
-
-        private delegate void RemoveChannelDelegate(IrcChannel channel);
-
-        private void RemoveChannel(IrcChannel channel)
-        {
-            foreach (TabItem item in tabControl.Items)
-            {
-                if (item.Content is ChannelWindow)
-                {
-                    ChannelWindow window = (ChannelWindow)item.Content;
-
-                    if (window.Channel == channel)
-                    {
-                        tabControl.Items.Remove(item);
-                        break;
-                    }
-                }
-            }
-        }
-
-        private void ChannelJoined(object sender, ChannelEventArgs e)
-        {
-            Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal,
-                                   new AddChannelDelegate(AddChannel),
-                                   (Object)e.Channel);
-        }
-
-        private delegate void AddChannelDelegate(IrcChannel channel);
-
-        private void AddChannel(IrcChannel channel)
-        {
-            TabItem item = new TabItem();
-            item.Header = channel.Name;
-            item.Content = new ChannelWindow(channel);
-
-            tabControl.Items.Add(item);
-            tabControl.SelectedItem = item;
-        }
 
 		private void app_ConnectionRemoved(object sender, ConnectionEventArgs e)
 		{
-            foreach (TabItem item in tabControl.Items)
-            {
-                if (item.Content is ChatWindow)
-                {
-                    ChatWindow window = (ChatWindow)item.Content;
+			foreach (TabItem item in tabControl.Items)
+			{
+				if (item.Content is IChatWindow)
+				{
+					IChatWindow window = (IChatWindow)item.Content;
 
-                    if (window.Connection == e.Connection)
-                        tabControl.Items.Remove(item);
-                }
-            }
+					if (window.Connection == e.Connection)
+						tabControl.Items.Remove(item);
+				}
+			}
 
 			if (activeConnection == e.Connection)
 			{
-			    activeConnection.StateChanged -= new EventHandler<IrcConnectionEventArgs>(activeConnection_StateChanged);
-			    activeConnection = null;
+				activeConnection.StateChanged -= new EventHandler<IrcConnectionEventArgs>(activeConnection_StateChanged);
+				activeConnection = null;
 			}
 		}
 
 		private void activeConnection_StateChanged(object sender, IrcConnectionEventArgs e)
 		{
-            Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal,
-                                   new SetConnectButtonStateDelegate(SetConnectButtonState));
+			Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal,
+								   new SetConnectButtonStateDelegate(SetConnectButtonState));
 		}
 
-        private delegate void SetConnectButtonStateDelegate();
+		private void ChannelJoined(object sender, ChannelEventArgs e)
+		{
+			Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal,
+								   new AddChannelDelegate(AddChannel),
+								   e.Channel);
+		}
 
-        private void SetConnectButtonState()
-        {
-            if (activeConnection == null || activeConnection.State == IrcConnectionState.Disconnected)
-                connectButtonTextBlock.Text = Properties.Resources.ConnectText;
-            else
-                connectButtonTextBlock.Text = Properties.Resources.DisconnectText;
-        }
+		private void ChannelParted(object sender, ChannelEventArgs e)
+		{
+			Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal,
+								   new AddChannelDelegate(RemoveChannel),
+								   e.Channel);
+		}
+
+		private void AddChannel(IrcChannel channel)
+		{
+			TabItem item = new TabItem();
+			item.Header = channel.Name;
+			item.Content = new ChannelWindow(channel);
+
+			tabControl.Items.Add(item);
+			tabControl.SelectedItem = item;
+		}
+
+		private void RemoveChannel(IrcChannel channel)
+		{
+			foreach (TabItem item in tabControl.Items)
+			{
+				if (item.Content is ChannelWindow)
+				{
+					ChannelWindow window = (ChannelWindow)item.Content;
+
+					if (window.Channel == channel)
+					{
+						tabControl.Items.Remove(item);
+						break;
+					}
+				}
+			}
+		}
+
+		private void SetConnectButtonState()
+		{
+			if (activeConnection == null || activeConnection.State == IrcConnectionState.Disconnected)
+				connectButtonTextBlock.Text = Properties.Resources.ConnectText;
+			else
+				connectButtonTextBlock.Text = Properties.Resources.DisconnectText;
+		}
 
 		private void ConnectButton_Click(object sender, RoutedEventArgs e)
 		{
@@ -237,12 +204,12 @@ namespace Confabulation
 			ncWin.ShowDialog();
 		}
 
-        private void ManageConnections_Click(object sender, RoutedEventArgs e)
-        {
-            ConnectionsWindow cWin = new ConnectionsWindow();
-            cWin.Owner = this;
-            cWin.Show();
-        }
+		private void ManageConnections_Click(object sender, RoutedEventArgs e)
+		{
+			ConnectionsWindow cWin = new ConnectionsWindow();
+			cWin.Owner = this;
+			cWin.Show();
+		}
 
 		protected override void OnSourceInitialized(EventArgs e)
 		{
@@ -285,30 +252,28 @@ namespace Confabulation
 			Properties.Settings.Default.Save();
 		}
 
-		private IrcConnection activeConnection = null;
-
-        private void tabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
+		private void tabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
+		{
 			if (!(sender is TabControl))
 				return;
 
-            TabItem item = (TabItem)tabControl.SelectedItem;
+			TabItem item = (TabItem)tabControl.SelectedItem;
 
-            if (item == null)
-                return;
+			if (item == null)
+				return;
 
-            ChatWindow window = (ChatWindow)item.Content;
+			IChatWindow window = (IChatWindow)item.Content;
 
-            if (activeConnection != window.Connection)
-            {
-                if (activeConnection != null)
-                    activeConnection.StateChanged -= new EventHandler<IrcConnectionEventArgs>(activeConnection_StateChanged);
-                
-                activeConnection = window.Connection;
-                activeConnection.StateChanged += new EventHandler<IrcConnectionEventArgs>(activeConnection_StateChanged);
-            }
-        }
+			if (activeConnection != window.Connection)
+			{
+				if (activeConnection != null)
+					activeConnection.StateChanged -= new EventHandler<IrcConnectionEventArgs>(activeConnection_StateChanged);
 
-		//private ObservableCollection<ConnectionItem> connectionItems = new ObservableCollection<ConnectionItem>();
-    }
+				activeConnection = window.Connection;
+				activeConnection.StateChanged += new EventHandler<IrcConnectionEventArgs>(activeConnection_StateChanged);
+			}
+		}
+
+		private IrcConnection activeConnection = null;
+	}
 }

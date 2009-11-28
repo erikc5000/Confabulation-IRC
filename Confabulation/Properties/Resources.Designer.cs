@@ -77,5 +77,140 @@ namespace Confabulation.Properties {
                 return ResourceManager.GetString("DisconnectText", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You are now known as {0}.
+        /// </summary>
+        internal static string SelfChangedNickname {
+            get {
+                return ResourceManager.GetString("SelfChangedNickname", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You changed the topic to &apos;{1}&apos;.
+        /// </summary>
+        internal static string SelfChangedTopic {
+            get {
+                return ResourceManager.GetString("SelfChangedTopic", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You cleared the topic.
+        /// </summary>
+        internal static string SelfClearedTopic {
+            get {
+                return ResourceManager.GetString("SelfClearedTopic", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You went offline.
+        /// </summary>
+        internal static string SelfDisconnected {
+            get {
+                return ResourceManager.GetString("SelfDisconnected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You have entered the channel.
+        /// </summary>
+        internal static string SelfJoinedChannel {
+            get {
+                return ResourceManager.GetString("SelfJoinedChannel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You were kicked by {0}.
+        /// </summary>
+        internal static string SelfKickedByUser {
+            get {
+                return ResourceManager.GetString("SelfKickedByUser", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You kicked {0}.
+        /// </summary>
+        internal static string SelfKickedUser {
+            get {
+                return ResourceManager.GetString("SelfKickedUser", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You have left the channel.
+        /// </summary>
+        internal static string SelfPartedChannel {
+            get {
+                return ResourceManager.GetString("SelfPartedChannel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} is now known as {1}.
+        /// </summary>
+        internal static string UserChangedNickname {
+            get {
+                return ResourceManager.GetString("UserChangedNickname", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} changed the topic to &apos;{1}&apos;.
+        /// </summary>
+        internal static string UserChangedTopic {
+            get {
+                return ResourceManager.GetString("UserChangedTopic", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} cleared the topic.
+        /// </summary>
+        internal static string UserClearedTopic {
+            get {
+                return ResourceManager.GetString("UserClearedTopic", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} entered the channel.
+        /// </summary>
+        internal static string UserJoinedChannel {
+            get {
+                return ResourceManager.GetString("UserJoinedChannel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} was kicked by {1}.
+        /// </summary>
+        internal static string UserKicked {
+            get {
+                return ResourceManager.GetString("UserKicked", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} left the channel.
+        /// </summary>
+        internal static string UserPartedChannel {
+            get {
+                return ResourceManager.GetString("UserPartedChannel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} went offline.
+        /// </summary>
+        internal static string UserQuit {
+            get {
+                return ResourceManager.GetString("UserQuit", resourceCulture);
+            }
+        }
     }
 }

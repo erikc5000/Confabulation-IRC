@@ -123,4 +123,49 @@
   <data name="DisconnectText" xml:space="preserve">
     <value>Disconnect</value>
   </data>
+  <data name="SelfChangedNickname" xml:space="preserve">
+    <value>You are now known as {0}</value>
+  </data>
+  <data name="SelfChangedTopic" xml:space="preserve">
+    <value>You changed the topic to '{1}'</value>
+  </data>
+  <data name="SelfClearedTopic" xml:space="preserve">
+    <value>You cleared the topic</value>
+  </data>
+  <data name="SelfDisconnected" xml:space="preserve">
+    <value>You went offline</value>
+  </data>
+  <data name="SelfJoinedChannel" xml:space="preserve">
+    <value>You have entered the channel</value>
+  </data>
+  <data name="SelfKickedByUser" xml:space="preserve">
+    <value>You were kicked by {0}</value>
+  </data>
+  <data name="SelfKickedUser" xml:space="preserve">
+    <value>You kicked {0}</value>
+  </data>
+  <data name="SelfPartedChannel" xml:space="preserve">
+    <value>You have left the channel</value>
+  </data>
+  <data name="UserChangedNickname" xml:space="preserve">
+    <value>{0} is now known as {1}</value>
+  </data>
+  <data name="UserChangedTopic" xml:space="preserve">
+    <value>{0} changed the topic to '{1}'</value>
+  </data>
+  <data name="UserClearedTopic" xml:space="preserve">
+    <value>{0} cleared the topic</value>
+  </data>
+  <data name="UserJoinedChannel" xml:space="preserve">
+    <value>{0} entered the channel</value>
+  </data>
+  <data name="UserKicked" xml:space="preserve">
+    <value>{0} was kicked by {1}</value>
+  </data>
+  <data name="UserPartedChannel" xml:space="preserve">
+    <value>{0} left the channel</value>
+  </data>
+  <data name="UserQuit" xml:space="preserve">
+    <value>{0} went offline</value>
+  </data>
 </root>

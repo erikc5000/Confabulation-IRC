@@ -19,7 +19,7 @@ using Confabulation.Chat.Events;
 
 namespace Confabulation
 {
-	public class ChannelWindow : ChatWindow
+	public partial class ChannelWindow : UserControl, IChatWindow
 	{
 		public ChannelWindow(IrcChannel channel)
 			: base()
@@ -33,15 +33,19 @@ namespace Confabulation
 			channel.UserJoined += new EventHandler<ChannelEventArgs>(channel_UserJoined);
 			channel.UserParted += new EventHandler<ChannelEventArgs>(channel_UserParted);
 			channel.UserKicked += new EventHandler<KickEventArgs>(channel_UserKicked);
+			channel.TopicSet += new EventHandler<TopicEventArgs>(channel_TopicSet);
+			channel.TopicInfoSet += new EventHandler<TopicEventArgs>(channel_TopicInfoSet);
 			channel.TopicChanged += new EventHandler<TopicEventArgs>(channel_TopicChanged);
 			channel.Connection.UserQuit += new EventHandler<UserEventArgs>(Connection_UserQuit);
 			channel.Connection.StateChanged += new EventHandler<IrcConnectionEventArgs>(Connection_StateChanged);
 
 			usersList.DataContext = userItems;
+
+			SetTopic(Channel.Topic, Channel.TopicInfo.SetBy, Channel.TopicInfo.Time);
 			AddUsers();
 		}
 
-		public override IrcConnection Connection
+		public IrcConnection Connection
 		{
 			get
 			{
@@ -57,8 +61,10 @@ namespace Confabulation
 			}
 		}
 
-		protected override void TextEntered(string text)
+		private void TextEntered(object sender, ChatBoxEventArgs e)
 		{
+			string text = e.Text;
+
 			if (Connection != null)
 			{
 				try
@@ -67,7 +73,7 @@ namespace Confabulation
 					{
 						text = text.Trim();
 						Connection.Execute(new MsgCommand(Channel, text));
-						AddMessage(Connection.User, text);
+						chatBox.AddMessage(Connection.User, text);
 					}
 					else
 					{
@@ -76,16 +82,16 @@ namespace Confabulation
 				}
 				catch (IrcCommandException)
 				{
-					AddTextToWindow("*Invalid command*");
+					chatBox.AddTextToWindow("*Invalid command*");
 				}
 				catch (ArgumentException ae)
 				{
-					AddTextToWindow("*Invalid argument*: " + ae.ParamName);
+					chatBox.AddTextToWindow("*Invalid argument*: " + ae.ParamName);
 				}
 			}
 			else
 			{
-				AddTextToWindow("*Not connected*");
+				chatBox.AddTextToWindow("*Not connected*");
 			}
 		}
 
@@ -94,19 +100,20 @@ namespace Confabulation
 		private delegate void UserJoinedDelegate(IrcChannelUser user);
 		private delegate void UserPartedDelegate(IrcChannelUser user, string message);
 		private delegate void UserKickedDelegate(IrcChannelUser kicked, IrcChannelUser kickedBy, string message);
+		private delegate void SetTopicDelegate(string topic, string setBy, DateTime time);
 		private delegate void TopicChangedDelegate(string topic, IrcUser setBy);
 		private delegate void UserQuitDelegate(IrcUser user, string message);
 		private delegate void UserChangedNicknameDelegate(IrcUser user, string oldNickname, string newNickname);
 
 		private void Disconnected()
 		{
-			AddControlMessage("You went offline");
+			chatBox.AddControlMessage(Properties.Resources.SelfDisconnected);
 			RemoveAllUserItems();
 		}
 
 		private void channel_UsersAdded(object sender, ChannelEventArgs e)
 		{
-			chatLogDocument.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal,
+			Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal,
 						new AddUsersDelegate(AddUsers),
 						e.AddedUsers);
 		}
@@ -152,6 +159,24 @@ namespace Confabulation
 						e.NewNickname);
 		}
 
+		private void channel_TopicSet(object sender, TopicEventArgs e)
+		{
+			Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal,
+						new SetTopicDelegate(SetTopic),
+						e.Topic,
+						null,
+						null);
+		}
+
+		private void channel_TopicInfoSet(object sender, TopicEventArgs e)
+		{
+			Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal,
+						new SetTopicDelegate(SetTopic),
+						e.Topic,
+						e.TopicInfo.SetBy,
+						e.TopicInfo.Time);
+		}
+
 		private void channel_TopicChanged(object sender, TopicEventArgs e)
 		{
 			Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal,
@@ -163,7 +188,7 @@ namespace Confabulation
 		private void channel_MessageReceived(object sender, UserEventArgs e)
 		{
 			Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal,
-						new AddMessageDelegate(AddMessage),
+						new ChatBox.AddMessageDelegate(chatBox.AddMessage),
 						e.User,
 						e.Message);
 		}
@@ -210,11 +235,11 @@ namespace Confabulation
 			string text;
 
 			if (user.IsSelf)
-				text = "You entered the channel";
+				text = Properties.Resources.SelfJoinedChannel;
 			else
-				text = nickname + " entered the channel";
+				text = String.Format(Properties.Resources.UserJoinedChannel, nickname);
 
-			AddControlMessage(text);
+			chatBox.AddControlMessage(text);
 
 			if (!userItemMap.ContainsKey(nickname))
 			{
@@ -233,14 +258,14 @@ namespace Confabulation
 			string text;
 
 			if (user.IsSelf)
-				text = "You left the channel";
+				text = Properties.Resources.SelfPartedChannel;
 			else
-				text = nickname + " left the channel";
+				text = String.Format(Properties.Resources.UserPartedChannel, nickname);
 
 			if (message != null)
 				text += " (" + message + ")";
 
-			AddControlMessage(text);
+			chatBox.AddControlMessage(text);
 
 			if (userItemMap.ContainsKey(nickname))
 			{
@@ -260,16 +285,16 @@ namespace Confabulation
 			string text;
 
 			if (kicked.IsSelf)
-				text = "You were kicked by " + kickedByNickname;
+				text = String.Format(Properties.Resources.SelfKickedByUser, kickedByNickname);
 			else if (kickedBy.IsSelf)
-				text = "You kicked " + kickedByNickname;
+				text = String.Format(Properties.Resources.SelfKickedUser, kickedByNickname);
 			else
-				text = kicked + " was kicked by " + kickedBy;
+				text = String.Format(Properties.Resources.UserKicked, kickedNickname, kickedByNickname);
 
 			if (message != null)
 				text += " (" + message + ")";
 
-			AddControlMessage(text);
+			chatBox.AddControlMessage(text);
 
 			if (userItemMap.ContainsKey(kickedNickname))
 			{
@@ -294,14 +319,14 @@ namespace Confabulation
 			string text;
 
 			if (user.IsSelf)
-				text = "You went offline";
+				text = Properties.Resources.SelfDisconnected;
 			else
-				text = nickname + " went offline";
+				text = String.Format(Properties.Resources.UserQuit, nickname);
 
 			if (message != null)
 				text += " (" + message + ")";
 
-			AddControlMessage(text);
+			chatBox.AddControlMessage(text);
 		}
 
 		private void UserChangedNickname(IrcUser user, string oldNickname, string newNickname)
@@ -309,11 +334,11 @@ namespace Confabulation
 			string text;
 
 			if (user.IsSelf)
-				text = "You changed your nickname to " + newNickname;
+				text = String.Format(Properties.Resources.SelfChangedNickname, newNickname);
 			else
-				text = oldNickname + " changed his/her nickname to " + newNickname;
+				text = String.Format(Properties.Resources.UserChangedNickname, oldNickname, newNickname);
 
-			AddControlMessage(text);
+			chatBox.AddControlMessage(text);
 
 			if (!userItemMap.ContainsKey(oldNickname))
 			{
@@ -336,16 +361,52 @@ namespace Confabulation
 			string nickname = setBy.Nickname;
 			string text;
 
-			if (setBy.IsSelf)
-				text = "You changed the topic to '";
+			if (topic == "")
+			{
+				if (setBy.IsSelf)
+					text = Properties.Resources.SelfClearedTopic;
+				else
+					text = String.Format(Properties.Resources.UserClearedTopic, nickname);
+			}
 			else
-				text = nickname + " changed the topic to '";
+			{
+				if (setBy.IsSelf)
+					text = String.Format(Properties.Resources.SelfChangedTopic, topic);
+				else
+					text = String.Format(Properties.Resources.UserChangedTopic, nickname, topic);
+			}
 
-			text += topic + "'";
+			chatBox.AddControlMessage(text);
+			SetTopic(topic, nickname, DateTime.Now);
+		}
 
-			AddControlMessage(text);
+		private void SetTopic(string topic, string setBy, DateTime time)
+		{
+			topicTextBlock.Inlines.Clear();
 
-			// TODO: Update topic in window when it's added
+			List<Inline> inlines = ChatBox.ParseMessage(topic);
+
+			foreach (Inline inline in inlines)
+				topicTextBlock.Inlines.Add(inline);
+
+			if (setBy != null && time != null)
+			{
+				string text = "\n";
+
+				if (setBy != null)
+					text += " " + setBy;
+
+				if (time != null)
+					text += " " + time.ToString();
+
+				if (text != null)
+				{
+					Run run = new Run(text);
+					run.Foreground = Brushes.Gray;
+					run.FontSize = 8;
+					topicTextBlock.Inlines.Add(run);
+				}
+			}
 		}
 
 		private void AddUserItem(IrcChannelUser channelUser)

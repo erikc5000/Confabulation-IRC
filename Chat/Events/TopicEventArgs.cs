@@ -18,7 +18,7 @@ namespace Confabulation.Chat.Events
 			User = null;
 		}
 
-		public TopicEventArgs(IrcChannel channel, IrcTopicInfo topicInfo)
+		public TopicEventArgs(IrcChannel channel, string topic, IrcTopicInfo topicInfo)
 		{
 			if (channel == null)
 				throw new ArgumentNullException("channel");
@@ -26,7 +26,7 @@ namespace Confabulation.Chat.Events
 				throw new ArgumentNullException("topicInfo");
 
 			Channel = channel;
-			Topic = null;
+			Topic = topic;
 			TopicInfo = topicInfo;
 			User = null;
 		}

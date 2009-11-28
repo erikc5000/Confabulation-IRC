@@ -235,14 +235,16 @@ namespace Confabulation.Chat
 		internal void SetTopicInfo(string setBy, DateTime time)
 		{
 			IrcTopicInfo info;
+			string topic;
 
 			lock (syncObject)
 			{
 				info = new IrcTopicInfo(setBy, time);
 				this.topicInfo = info;
+				topic = this.topic;
 			}
 
-			TopicEventArgs e = new TopicEventArgs(this, info);
+			TopicEventArgs e = new TopicEventArgs(this, topic, info);
 			EventHandler<TopicEventArgs> handler = TopicInfoSet;
 
 			if (handler != null)

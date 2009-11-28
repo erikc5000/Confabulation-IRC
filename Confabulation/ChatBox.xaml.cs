@@ -18,34 +18,20 @@ namespace Confabulation
 	/// <summary>
 	/// Interaction logic for ChatWindow.xaml
 	/// </summary>
-	public abstract partial class ChatWindow : UserControl
+	public partial class ChatBox : UserControl
 	{
-		public abstract IrcConnection Connection
+		public ChatBox() : base()
 		{
-			get;
+			InitializeComponent();
 		}
 
-		protected delegate void AddMessageDelegate(IrcUser user, string message);
-		protected delegate void AddControlMessageDelegate(string message);
-		protected delegate void AddToWindowDelegate(string text);
+		public delegate void AddMessageDelegate(IrcUser user, string message);
+		public delegate void AddControlMessageDelegate(string message);
+		public delegate void AddToWindowDelegate(string text);
 
-		protected void AddMessage(IrcUser user, string message)
+		static public List<Inline> ParseMessage(string message)
 		{
-			Paragraph p = new Paragraph();
-			//p.KeepWithNext = true;
-			p.FontSize = 12;
-			p.FontFamily = new FontFamily("Arial");
-			p.Margin = new Thickness(0.0);
-			p.TextAlignment = TextAlignment.Left;
-
-			Run nicknameRun = new Run(user.Nickname + ": ");
-
-			if (user.IsSelf)
-				nicknameRun.Foreground = Brushes.Red;
-			else
-				nicknameRun.Foreground = Brushes.Blue;
-
-			p.Inlines.Add(new Bold(nicknameRun));
+			List<Inline> inlines = new List<Inline>();
 
 			bool bold = false;
 			bool underline = false;
@@ -87,9 +73,7 @@ namespace Confabulation
 					if (italic)
 						insertInline = new Italic(insertInline);
 
-					p.Inlines.Add(insertInline);
-					chatLogDocument.Blocks.Add(p);
-					ScrollChatLogToBottom();
+					inlines.Add(insertInline);
 				}
 
 				switch (message[i])
@@ -103,7 +87,7 @@ namespace Confabulation
 						int j = i + 1;
 
 						if (j >= message.Length)
-							return;
+							return inlines;
 
 						char c1 = message[j];
 
@@ -119,7 +103,7 @@ namespace Confabulation
 						j++;
 
 						if (j >= message.Length)
-							return;
+							return inlines;
 
 						char c2 = message[j];
 
@@ -175,7 +159,7 @@ namespace Confabulation
 						j++;
 
 						if (j >= message.Length)
-							return;
+							return inlines;
 
 						c2 = message[j];
 
@@ -244,20 +228,47 @@ namespace Confabulation
 				if (italic)
 					insertInline = new Italic(insertInline);
 
-				p.Inlines.Add(insertInline);
-				chatLogDocument.Blocks.Add(p);
-				ScrollChatLogToBottom();
+				inlines.Add(insertInline);
 			}
+
+			return inlines;
 		}
 
-		protected void AddControlMessage(string message)
+		public void AddMessage(IrcUser user, string message)
 		{
 			Paragraph p = new Paragraph();
 			//p.KeepWithNext = true;
 			p.FontSize = 12;
 			p.FontFamily = new FontFamily("Arial");
-			p.Margin = new Thickness(4.0);
+			p.Margin = new Thickness(0.0, 1.0, 0.0, 1.0);
 			p.TextAlignment = TextAlignment.Left;
+
+			Run nicknameRun = new Run(user.Nickname + ": ");
+
+			if (user.IsSelf)
+				nicknameRun.Foreground = Brushes.Red;
+			else
+				nicknameRun.Foreground = Brushes.Blue;
+
+			p.Inlines.Add(new Bold(nicknameRun));
+
+			List<Inline> messageInlines = ParseMessage(message);
+
+			foreach (Inline inline in messageInlines)
+				p.Inlines.Add(inline);
+
+			chatLogDocument.Blocks.Add(p);
+			ScrollChatLogToBottom();
+		}
+
+		public void AddControlMessage(string message)
+		{
+			Paragraph p = new Paragraph();
+			//p.KeepWithNext = true;
+			p.FontSize = 12;
+			p.FontFamily = new FontFamily("Arial");
+			p.Margin = new Thickness(10.0, 2.0, 10.0, 2.0);
+			p.TextAlignment = TextAlignment.Center;
 
 			Run run = new Run(message);
 			run.Foreground = Brushes.LightGray;
@@ -267,7 +278,7 @@ namespace Confabulation
 			ScrollChatLogToBottom();
 		}
 
-		protected void AddTextToWindow(string text)
+		public void AddTextToWindow(string text)
 		{
 			// 0x02 = Bold
 			// 0x0F = Plain
@@ -298,16 +309,20 @@ namespace Confabulation
 			ScrollChatLogToBottom();
 		}
 
-		protected abstract void TextEntered(string text);
+		public event EventHandler<ChatBoxEventArgs> TextEntered;
 
-		protected void ChatTextBox_PreviewKeyDown(object sender, KeyEventArgs e)
+		private void ChatTextBox_PreviewKeyDown(object sender, KeyEventArgs e)
 		{
 			if (e.Key == Key.Enter || e.Key == Key.Return)
 			{
 				TextRange textRange = new TextRange(chatTextBox.Document.ContentStart,
 													chatTextBox.Document.ContentEnd);
 
-				TextEntered(textRange.Text);
+				ChatBoxEventArgs chatBoxArgs = new ChatBoxEventArgs(textRange.Text);
+				EventHandler<ChatBoxEventArgs> handler = TextEntered;
+
+				if (handler != null)
+					handler(this, chatBoxArgs);
 
 				chatTextBox.Document.Blocks.Clear();
 				chatTextBox.CaretPosition = chatTextBox.Document.ContentStart;
@@ -316,7 +331,7 @@ namespace Confabulation
 			}
 		}
 
-		protected void ScrollChatLogToBottom()
+		public void ScrollChatLogToBottom()
 		{
 			DependencyObject obj = chatLog;
 
@@ -330,7 +345,7 @@ namespace Confabulation
 			scrollViewer.ScrollToBottom();
 		}
 
-		private bool IsFormattingCode(char c)
+		static private bool IsFormattingCode(char c)
 		{
 			if (c == (char)0x02
 				|| c == (char)0x03
@@ -344,7 +359,7 @@ namespace Confabulation
 			return false;
 		}
 
-		private Brush GetBrushFromMircColor(MircColor color)
+		static private Brush GetBrushFromMircColor(MircColor color)
 		{
 			switch (color)
 			{

@@ -1,29 +1,28 @@
-﻿<UserControl x:Class="Confabulation.ChatWindow"
+﻿<UserControl x:Class="Confabulation.ChannelWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="clr-namespace:Confabulation"
-    Height="auto" Width="auto"
-    Loaded="UserControl_Loaded">
-    
+    Height="auto"
+    Width="auto">
+
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
             <RowDefinition/>
-            <RowDefinition Height="2"/>
-            <RowDefinition Height="80"/>
         </Grid.RowDefinitions>
 
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
             <ColumnDefinition Width="auto"/>
-            <ColumnDefinition Width="120"/>
+            <ColumnDefinition Width="140"/>
         </Grid.ColumnDefinitions>
 
-        <GridSplitter Grid.Row="0" Grid.Column="1" Grid.RowSpan="3" HorizontalAlignment="Center" Width="4"/>
+        <GridSplitter Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" HorizontalAlignment="Center" Width="4"/>
 
         <ListBox Name="usersList"
                  Grid.Row="0"
                  Grid.Column="2"
-                 Grid.RowSpan="3"
+                 Grid.RowSpan="4"
                  BorderThickness="0"
                  IsSynchronizedWithCurrentItem="True"
                  ItemsSource="{Binding}">
@@ -37,16 +36,15 @@
             </ListBox.Resources>
         </ListBox>
 
-        <FlowDocumentScrollViewer Name="chatLog"
-                                          Grid.Row="0"
-                                          Grid.Column="0"
-                                          BorderThickness="0"
-                                          FontFamily="Courier New">
-            <FlowDocument Name="chatLogDocument"/>
-        </FlowDocumentScrollViewer>
-        
-        <Rectangle Grid.Row="1" Grid.Column="0"/>
+        <TextBlock Name="topicTextBlock"
+                   Grid.Row="0"
+                   Grid.Column="0"
+                   TextWrapping="Wrap"
+                   Margin="2,2,2,2"/>
 
-        <RichTextBox Name="chatTextBox" Grid.Row="2" Grid.Column="0" BorderThickness="0" PreviewKeyDown="ChatTextBox_PreviewKeyDown"/>
+        <local:ChatBox x:Name="chatBox"
+                       Grid.Row="1"
+                       Grid.Column="0"
+                       TextEntered="TextEntered"/>        
     </Grid>
 </UserControl>
