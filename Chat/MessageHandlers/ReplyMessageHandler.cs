@@ -157,6 +157,7 @@ namespace Confabulation.Chat.MessageHandlers
 			double unixTimestamp = Double.Parse(Encoding.UTF8.GetString(message.Parameters.ElementAt(3)));
 			DateTime time = new System.DateTime(1970, 1, 1, 0, 0, 0, 0);
 			time = time.AddSeconds(unixTimestamp);
+			time = time.ToLocalTime();
 
 			channel.SetTopicInfo(nickname, time);
 		}
