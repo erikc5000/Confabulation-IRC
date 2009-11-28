@@ -41,7 +41,7 @@ namespace Confabulation
 
 			usersList.DataContext = userItems;
 
-			SetTopic(Channel.Topic, Channel.TopicInfo.SetBy, Channel.TopicInfo.Time);
+			SetTopic(channel.Topic, channel.TopicInfo);
 			AddUsers();
 		}
 
@@ -100,7 +100,7 @@ namespace Confabulation
 		private delegate void UserJoinedDelegate(IrcChannelUser user);
 		private delegate void UserPartedDelegate(IrcChannelUser user, string message);
 		private delegate void UserKickedDelegate(IrcChannelUser kicked, IrcChannelUser kickedBy, string message);
-		private delegate void SetTopicDelegate(string topic, string setBy, DateTime time);
+		private delegate void SetTopicDelegate(string topic, IrcTopicInfo topicInfo);
 		private delegate void TopicChangedDelegate(string topic, IrcUser setBy);
 		private delegate void UserQuitDelegate(IrcUser user, string message);
 		private delegate void UserChangedNicknameDelegate(IrcUser user, string oldNickname, string newNickname);
@@ -164,7 +164,6 @@ namespace Confabulation
 			Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal,
 						new SetTopicDelegate(SetTopic),
 						e.Topic,
-						null,
 						null);
 		}
 
@@ -173,8 +172,7 @@ namespace Confabulation
 			Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal,
 						new SetTopicDelegate(SetTopic),
 						e.Topic,
-						e.TopicInfo.SetBy,
-						e.TopicInfo.Time);
+						e.TopicInfo);
 		}
 
 		private void channel_TopicChanged(object sender, TopicEventArgs e)
@@ -377,10 +375,10 @@ namespace Confabulation
 			}
 
 			chatBox.AddControlMessage(text);
-			SetTopic(topic, nickname, DateTime.Now);
+			SetTopic(topic, new IrcTopicInfo(nickname, DateTime.Now));
 		}
 
-		private void SetTopic(string topic, string setBy, DateTime time)
+		private void SetTopic(string topic, IrcTopicInfo topicInfo)
 		{
 			topicTextBlock.Inlines.Clear();
 
@@ -389,23 +387,14 @@ namespace Confabulation
 			foreach (Inline inline in inlines)
 				topicTextBlock.Inlines.Add(inline);
 
-			if (setBy != null && time != null)
+			if (topicInfo != null)
 			{
-				string text = "\n";
+				string text = "\n " + topicInfo.SetBy + " " + topicInfo.Time.ToString();
 
-				if (setBy != null)
-					text += " " + setBy;
-
-				if (time != null)
-					text += " " + time.ToString();
-
-				if (text != null)
-				{
-					Run run = new Run(text);
-					run.Foreground = Brushes.Gray;
-					run.FontSize = 8;
-					topicTextBlock.Inlines.Add(run);
-				}
+				Run run = new Run(text);
+				run.Foreground = Brushes.Gray;
+				run.FontSize = 8;
+				topicTextBlock.Inlines.Add(run);
 			}
 		}
 
