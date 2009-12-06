@@ -49,16 +49,16 @@ namespace Confabulation
 				}
 				catch (IrcCommandException)
 				{
-					chatBox.AddTextToWindow("*Invalid command*");
+					chatBox.AddRawText("*Invalid command*");
 				}
 				catch (ArgumentException ae)
 				{
-					chatBox.AddTextToWindow("*Invalid argument*: " + ae.ParamName);
+					chatBox.AddRawText("*Invalid argument*: " + ae.ParamName);
 				}
 			}
 			else
 			{
-				chatBox.AddTextToWindow("*Not connected*");
+				chatBox.AddRawText("*Not connected*");
 			}
 		}
 
@@ -68,17 +68,17 @@ namespace Confabulation
 			{
 				case IrcConnectionEventType.Connected:
 					Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal,
-						new ChatBox.AddToWindowDelegate(chatBox.AddTextToWindow), (Object)"*Connected*");
+						new ChatBox.AddRawTextDelegate(chatBox.AddRawText), (Object)"*Connected*");
 					break;
 
 				case IrcConnectionEventType.ConnectFailed:
 					Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal,
-						new ChatBox.AddToWindowDelegate(chatBox.AddTextToWindow), (Object)"*Connection Failed*");
+						new ChatBox.AddRawTextDelegate(chatBox.AddRawText), (Object)"*Connection Failed*");
 					break;
 
 				case IrcConnectionEventType.Disconnected:
 					Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal,
-						new ChatBox.AddToWindowDelegate(chatBox.AddTextToWindow), (Object)"*Disconnected*");
+						new ChatBox.AddRawTextDelegate(chatBox.AddRawText), (Object)"*Disconnected*");
 					break;
 			}
 		}
@@ -86,7 +86,7 @@ namespace Confabulation
 		private void connection_RawMessageReceived(object sender, IrcMessageEventArgs e)
 		{
 			Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal,
-				new ChatBox.AddToWindowDelegate(chatBox.AddTextToWindow), e.Message.ToString());
+				new ChatBox.AddRawTextDelegate(chatBox.AddRawText), e.Message.ToString());
 		}
 
 		private IrcConnection connection = null;

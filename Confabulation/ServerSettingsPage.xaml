@@ -6,7 +6,8 @@
                                  xmlns:controls="clr-namespace:Confabulation.Controls;assembly=ConfabulationControls"
                                  Title="Server Settings"
                                  NextButtonClick="NextButton_Click"
-                                 KeepAlive="True">
+                                 KeepAlive="True"
+                                 FocusManager.FocusedElement="{Binding ElementName=Address}">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
@@ -22,7 +23,7 @@
         </Grid.ColumnDefinitions>
 
         <Label Grid.Column="0" Grid.Row="0" Margin="4">Hostname</Label>
-        <TextBox x:Name="Address" Grid.Column="1" Grid.Row="0" Margin="4" Loaded="Address_Loaded" TextChanged="Address_TextChanged"/>
+        <TextBox x:Name="Address" Grid.Column="1" Grid.Row="0" Margin="4" TextChanged="Address_TextChanged"/>
         
         <Label Grid.Column="0" Grid.Row="1" Margin="4">Network</Label>
         <ComboBox x:Name="Network" Grid.Column="1" Grid.Row="1" Margin="4" IsReadOnly="False" IsEditable="True"/>

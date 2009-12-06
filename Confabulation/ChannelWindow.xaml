@@ -17,12 +17,11 @@
             <ColumnDefinition Width="140"/>
         </Grid.ColumnDefinitions>
 
-        <GridSplitter Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" HorizontalAlignment="Center" Width="4"/>
+        <GridSplitter Grid.Row="1" Grid.Column="1" Grid.RowSpan="1" HorizontalAlignment="Center" Width="4"/>
 
         <ListBox Name="usersList"
-                 Grid.Row="0"
+                 Grid.Row="1"
                  Grid.Column="2"
-                 Grid.RowSpan="4"
                  BorderThickness="0"
                  IsSynchronizedWithCurrentItem="True"
                  ItemsSource="{Binding}">
@@ -36,11 +35,15 @@
             </ListBox.Resources>
         </ListBox>
 
-        <TextBlock Name="topicTextBlock"
-                   Grid.Row="0"
-                   Grid.Column="0"
-                   TextWrapping="Wrap"
-                   Margin="2,2,2,2"/>
+        <RichTextBox Name="topicTextBlock"
+                     Grid.Row="0"
+                     Grid.Column="0"
+                     Grid.ColumnSpan="3"
+                     IsReadOnly="True"
+                     IsDocumentEnabled="True"
+                     BorderThickness="0"
+                     Background="Transparent"
+                     Margin="2,2,2,2"/>
 
         <local:ChatBox x:Name="chatBox"
                        Grid.Row="1"

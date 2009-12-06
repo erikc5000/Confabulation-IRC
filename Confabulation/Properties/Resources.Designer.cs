@@ -88,7 +88,7 @@ namespace Confabulation.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to You changed the topic to &apos;{1}&apos;.
+        ///   Looks up a localized string similar to You changed the topic to &apos;{0}&apos;.
         /// </summary>
         internal static string SelfChangedTopic {
             get {

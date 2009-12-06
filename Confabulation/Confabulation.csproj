@@ -98,6 +98,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="JoinChannelWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -141,10 +145,15 @@
     </Compile>
     <Compile Include="ChatBoxEventArgs.cs" />
     <Compile Include="ConnectionEventArgs.cs" />
+    <Compile Include="ConnectionItem.cs" />
     <Compile Include="ConnectionsWindow.xaml.cs">
       <DependentUpon>ConnectionsWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="IChatWindow.cs" />
+    <Compile Include="ChatMessage.cs" />
+    <Compile Include="JoinChannelWindow.xaml.cs">
+      <DependentUpon>JoinChannelWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="NetworkSelectionPage.xaml.cs">
       <DependentUpon>NetworkSelectionPage.xaml</DependentUpon>
     </Compile>

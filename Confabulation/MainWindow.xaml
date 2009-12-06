@@ -37,20 +37,22 @@
     <DockPanel>
         <ToolBar DockPanel.Dock="Top"
                  Style="{DynamicResource {x:Static controls:ControlResources.VistaToolBarKey}}">
-            <controls:SplitButton Click="ConnectButton_Click">
-                <controls:SplitButton.Content>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Name="connectButtonTextBlock" Text="Connect" Padding="0,0,0,0"/>
-                    </StackPanel>
-                </controls:SplitButton.Content>
+            <Button Name="newConnectionButton"
+                    Style="{DynamicResource {x:Static controls:ControlResources.VistaToolBarButtonKey}}"
+                    Content="_New connection"
+                    Click="NewConnection_Click"/>
+            <controls:SplitButton Name="connectButton"
+                                  Click="ConnectButton_Click"
+                                  Content="_Connect">
                 <MenuItem Header="_Connect" Click="ConnectButton_Click"/>
                 <MenuItem Header="_New connection..." Click="NewConnection_Click"/>
                 <MenuItem Header="_Manage connections..." Click="ManageConnections_Click"/>
             </controls:SplitButton>
             
-            <Button Style="{DynamicResource {x:Static controls:ControlResources.VistaToolBarButtonKey}}"
-                    Content="_Join"
-                    IsEnabled="False"/>
+            <Button Name="joinChannelButton"
+                    Style="{DynamicResource {x:Static controls:ControlResources.VistaToolBarButtonKey}}"
+                    Content="_Join channel"
+                    Click="JoinChannel_Click"/>
             
         </ToolBar>
 

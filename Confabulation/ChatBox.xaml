@@ -15,7 +15,10 @@
 
         <FlowDocumentScrollViewer Name="chatLog"
                                   Grid.Row="0"
-                                  BorderThickness="0">
+                                  BorderThickness="0"
+                                  Background="White"
+                                  VerticalAlignment="Bottom"
+                                  VerticalScrollBarVisibility="Auto">
             <FlowDocument Name="chatLogDocument"
                           Background="White"
                           PagePadding="2.0,2.0,2.0,2.0"/>
@@ -26,6 +29,8 @@
         <RichTextBox Name="chatTextBox"
                      Grid.Row="2"
                      BorderThickness="0"
-                     PreviewKeyDown="ChatTextBox_PreviewKeyDown"/>
+                     PreviewKeyDown="chatTextBox_PreviewKeyDown"
+                     ScrollBar.Scroll="chatTextBox_Scroll"
+                     ScrollViewer.ScrollChanged="chatTextBox_ScrollChanged"/>
     </Grid>
 </UserControl>

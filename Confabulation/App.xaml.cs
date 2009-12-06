@@ -75,7 +75,7 @@ namespace Confabulation
 
 		public void AddConnection(IrcConnection connection)
 		{
-			connections.Add(connection);
+			connections.Add(new ConnectionItem(connection));
 
 			EventHandler<ConnectionEventArgs> handler = ConnectionAdded;
 
@@ -85,7 +85,14 @@ namespace Confabulation
 
 		public void RemoveConnection(IrcConnection connection)
 		{
-			connections.Remove(connection);
+			foreach (ConnectionItem item in connections)
+			{
+				if (item.Connection == connection)
+				{
+					connections.Remove(item);
+					break;
+				}
+			}
 
 			EventHandler<ConnectionEventArgs> handler = ConnectionRemoved;
 
@@ -101,7 +108,7 @@ namespace Confabulation
 			}
 		}
 
-		public IEnumerable<IrcConnection> Connections
+		public IEnumerable<ConnectionItem> Connections
 		{
 			get
 			{
@@ -110,6 +117,6 @@ namespace Confabulation
 		}
 
 		private IrcServerList serverList = null;
-		private ObservableCollection<IrcConnection> connections = new ObservableCollection<IrcConnection>();
+		private ObservableCollection<ConnectionItem> connections = new ObservableCollection<ConnectionItem>();
     }
 }

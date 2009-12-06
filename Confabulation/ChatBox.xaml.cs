@@ -25,240 +25,42 @@ namespace Confabulation
 			InitializeComponent();
 		}
 
-		public delegate void AddMessageDelegate(IrcUser user, string message);
+		public delegate void AddChatMessageDelegate(IrcUser user, string message);
 		public delegate void AddControlMessageDelegate(string message);
-		public delegate void AddToWindowDelegate(string text);
+		public delegate void AddRawTextDelegate(string text);
 
-		static public List<Inline> ParseMessage(string message)
-		{
-			List<Inline> inlines = new List<Inline>();
-
-			bool bold = false;
-			bool underline = false;
-			bool italic = false;
-			bool defaultBGColor = true;
-			bool defaultFGColor = true;
-			MircColor bgColor = MircColor.White;
-			MircColor fgColor = MircColor.Black;
-
-			int runStart = 0;
-			int runLength = 0;
-
-			for (int i = 0; i < message.Length; i++)
-			{
-				if (!IsFormattingCode(message[i]))
-					continue;
-
-				runLength = i - runStart;
-
-				if (runLength > 0)
-				{
-					string runText = message.Substring(runStart, runLength);
-					Run run = new Run(runText);
-
-					if (!defaultFGColor)
-						run.Foreground = GetBrushFromMircColor(fgColor);
-
-					if (!defaultBGColor)
-						run.Background = GetBrushFromMircColor(bgColor);
-
-					Inline insertInline = run;
-
-					if (bold)
-						insertInline = new Bold(insertInline);
-
-					if (underline)
-						insertInline = new Underline(insertInline);
-
-					if (italic)
-						insertInline = new Italic(insertInline);
-
-					inlines.Add(insertInline);
-				}
-
-				switch (message[i])
-				{
-					case (char)0x02:
-						bold = !bold;
-						runStart = i + 1;
-						break;
-
-					case (char)0x03:
-						int j = i + 1;
-
-						if (j >= message.Length)
-							return inlines;
-
-						char c1 = message[j];
-
-						if (!Utilities.IsDigit(c1))
-						{
-							defaultBGColor = true;
-							defaultFGColor = true;
-							runStart = j;
-							i = runStart - 1;
-							break;
-						}
-
-						j++;
-
-						if (j >= message.Length)
-							return inlines;
-
-						char c2 = message[j];
-
-						bool hasBGColor = false;
-						string code = "";
-						code += c1;
-
-						if (Utilities.IsDigit(c2))
-						{
-							code += c2;
-
-							j++;
-
-							if (j < message.Length)
-							{
-								if (message[j] == ',')
-									hasBGColor = true;
-							}
-						}
-						else if (c2 == ',')
-						{
-							hasBGColor = true;
-						}
-
-						fgColor = (MircColor)Int32.Parse(code);
-						defaultFGColor = false;
-
-						if (!hasBGColor)
-						{
-							runStart = j;
-							i = runStart - 1;
-							break;
-						}
-
-						j++;
-
-						if (j >= message.Length)
-						{
-							runStart = j - 1;
-							i = runStart - 1;
-							break;
-						}
-
-						c1 = message[j];
-
-						if (!Utilities.IsDigit(c1))
-						{
-							runStart = j - 1;
-							i = runStart - 1;
-							break;
-						}
-
-						j++;
-
-						if (j >= message.Length)
-							return inlines;
-
-						c2 = message[j];
-
-						string code2 = "";
-						code2 += c1;
-
-						if (Utilities.IsDigit(c2))
-						{
-							code2 += c2;
-							runStart = j + 1;
-							i = j;
-						}
-						else
-						{
-							runStart = j;
-							i = j - 1;
-						}
-
-						bgColor = (MircColor)Int32.Parse(code2);
-						defaultBGColor = false;
-
-						break;
-
-					case (char)0x0F:
-						bold = false;
-						underline = false;
-						italic = false;
-						defaultBGColor = true;
-						defaultFGColor = true;
-						runStart = i + 1;
-						break;
-
-					case (char)0x16:
-						italic = !italic;
-						runStart = i + 1;
-						break;
-
-					case (char)0x1F:
-						underline = !underline;
-						runStart = i + 1;
-						break;
-				}
-			}
-
-			runLength = message.Length - runStart;
-
-			if (runLength > 0)
-			{
-				string runText = message.Substring(runStart, runLength);
-				Run run = new Run(runText);
-
-				if (!defaultFGColor)
-					run.Foreground = GetBrushFromMircColor(fgColor);
-
-				if (!defaultBGColor)
-					run.Background = GetBrushFromMircColor(bgColor);
-
-				Inline insertInline = run;
-
-				if (bold)
-					insertInline = new Bold(insertInline);
-
-				if (underline)
-					insertInline = new Underline(insertInline);
-
-				if (italic)
-					insertInline = new Italic(insertInline);
-
-				inlines.Add(insertInline);
-			}
-
-			return inlines;
-		}
-
-		public void AddMessage(IrcUser user, string message)
+		public void AddChatMessage(IrcUser user, string message)
 		{
 			Paragraph p = new Paragraph();
 			//p.KeepWithNext = true;
 			p.FontSize = 12;
-			p.FontFamily = new FontFamily("Arial");
+			p.FontFamily = fontFamily;
 			p.Margin = new Thickness(0.0, 1.0, 0.0, 1.0);
 			p.TextAlignment = TextAlignment.Left;
 
 			Run nicknameRun = new Run(user.Nickname + ": ");
 
 			if (user.IsSelf)
-				nicknameRun.Foreground = Brushes.Red;
+				nicknameRun.Foreground = Brushes.DarkRed;
 			else
-				nicknameRun.Foreground = Brushes.Blue;
+				nicknameRun.Foreground = Brushes.DarkOrange;
 
 			p.Inlines.Add(new Bold(nicknameRun));
 
-			List<Inline> messageInlines = ParseMessage(message);
+			List<Inline> inlines = new List<Inline>(ChatMessage.Parse(message));
 
-			foreach (Inline inline in messageInlines)
+			foreach (Inline inline in inlines)
 				p.Inlines.Add(inline);
 
+			bool shouldScroll = true;
+
+			if (ScrollViewer.VerticalOffset < ScrollViewer.ExtentHeight - ScrollViewer.ViewportHeight)
+				shouldScroll = false;
+
 			chatLogDocument.Blocks.Add(p);
-			ScrollChatLogToBottom();
+
+			if (shouldScroll)
+				ScrollChatLogToBottom();
 		}
 
 		public void AddControlMessage(string message)
@@ -266,7 +68,7 @@ namespace Confabulation
 			Paragraph p = new Paragraph();
 			//p.KeepWithNext = true;
 			p.FontSize = 12;
-			p.FontFamily = new FontFamily("Arial");
+			p.FontFamily = fontFamily;
 			p.Margin = new Thickness(10.0, 2.0, 10.0, 2.0);
 			p.TextAlignment = TextAlignment.Center;
 
@@ -278,40 +80,38 @@ namespace Confabulation
 			ScrollChatLogToBottom();
 		}
 
-		public void AddTextToWindow(string text)
+		public void AddRawText(string text)
 		{
-			// 0x02 = Bold
-			// 0x0F = Plain
-			// 0x16 = Italic
-			// 0x1F = Underline
-			// 0x03 [FF,BB] = color code
-			string[] boldParts = text.Split((char)0x02);
 			Paragraph p = new Paragraph();
-			p.KeepWithNext = true;
+			//p.KeepWithNext = true;
 			p.FontSize = 12;
-			p.FontFamily = new FontFamily("Courier New");
-			p.Margin = new Thickness(0.0);
+			p.FontFamily = fontFamily;
+			p.Margin = new Thickness(0.0, 1.0, 0.0, 1.0);
 			p.TextAlignment = TextAlignment.Left;
 
-			bool bold = false;
+			Run run = new Run(text);
+			p.Inlines.Add(run);
 
-			foreach (string s in boldParts)
+			bool shouldScroll = true;
+
+			if (ScrollViewer != null)
 			{
-				if (!bold)
-					p.Inlines.Add(new Run(s));
-				else
-					p.Inlines.Add(new Bold(new Run(s)));
+				double verticalOffset = ScrollViewer.VerticalOffset;
+				double extentHeight = ScrollViewer.ExtentHeight;
 
-				bold = !bold;
+				if (verticalOffset < extentHeight - ScrollViewer.ContentVerticalOffset)
+					shouldScroll = true;
 			}
 
 			chatLogDocument.Blocks.Add(p);
-			ScrollChatLogToBottom();
+
+			if (shouldScroll)
+				ScrollChatLogToBottom();
 		}
 
 		public event EventHandler<ChatBoxEventArgs> TextEntered;
 
-		private void ChatTextBox_PreviewKeyDown(object sender, KeyEventArgs e)
+		private void chatTextBox_PreviewKeyDown(object sender, KeyEventArgs e)
 		{
 			if (e.Key == Key.Enter || e.Key == Key.Return)
 			{
@@ -331,93 +131,54 @@ namespace Confabulation
 			}
 		}
 
+		private void chatTextBox_ScrollChanged(object sender, ScrollChangedEventArgs e)
+		{
+			//if (e.VerticalOffset < e.ExtentHeight)
+			//    adjustScrollBar = false;
+			//else
+			//    adjustScrollBar = true;
+		}
+
 		public void ScrollChatLogToBottom()
 		{
-			DependencyObject obj = chatLog;
-
-			do
-			{
-				obj = VisualTreeHelper.GetChild(obj as Visual, 0);
-			}
-			while (!(obj is ScrollViewer));
-
-			ScrollViewer scrollViewer = obj as ScrollViewer;
-			scrollViewer.ScrollToBottom();
+			ScrollViewer.ScrollToBottom();
 		}
 
-		static private bool IsFormattingCode(char c)
+		private ScrollViewer ScrollViewer
 		{
-			if (c == (char)0x02
-				|| c == (char)0x03
-				|| c == (char)0x0F
-				|| c == (char)0x16
-				|| c == (char)0x1F)
+			get
 			{
-				return true;
+				if (scrollViewer == null)
+				{
+					DependencyObject obj = chatLog;
+
+					do
+					{
+						obj = VisualTreeHelper.GetChild(obj as Visual, 0);
+					}
+					while (!(obj is ScrollViewer));
+
+					scrollViewer = obj as ScrollViewer;
+				}
+
+				return scrollViewer;
 			}
-
-			return false;
-		}
-
-		static private Brush GetBrushFromMircColor(MircColor color)
-		{
-			switch (color)
-			{
-				case MircColor.White:
-					return Brushes.White;
-
-				case MircColor.Black:
-					return Brushes.Black;
-
-				case MircColor.DarkBlue:
-					return Brushes.DarkBlue;
-
-				case MircColor.DarkGreen:
-					return Brushes.DarkGreen;
-
-				case MircColor.Red:
-					return Brushes.Red;
-
-				case MircColor.Brown:
-					return Brushes.Brown;
-
-				case MircColor.Purple:
-					return Brushes.Purple;
-
-				case MircColor.Olive:
-					return Brushes.Olive;
-
-				case MircColor.Yellow:
-					return Brushes.Yellow;
-
-				case MircColor.Green:
-					return Brushes.Green;
-
-				case MircColor.Teal:
-					return Brushes.Teal;
-
-				case MircColor.Cyan:
-					return Brushes.Cyan;
-
-				case MircColor.Blue:
-					return Brushes.Blue;
-
-				case MircColor.Magenta:
-					return Brushes.Magenta;
-
-				case MircColor.DarkGray:
-					return Brushes.DarkGray;
-
-				case MircColor.LightGray:
-					return Brushes.LightGray;
-			}
-
-			return Brushes.Black;
 		}
 
 		private void UserControl_Loaded(object sender, RoutedEventArgs e)
 		{
 			Keyboard.Focus(chatTextBox);
+		}
+
+		private ScrollViewer scrollViewer = null;
+		private FontFamily fontFamily = new FontFamily("Arial");
+
+		private void chatTextBox_Scroll(object sender, System.Windows.Controls.Primitives.ScrollEventArgs e)
+		{
+			//if (e.NewValue != 1.0)
+			//    adjustScrollBar = false;
+			//else
+			//    adjustScrollBar = true;
 		}
 	}
 }

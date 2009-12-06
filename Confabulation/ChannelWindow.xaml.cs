@@ -73,7 +73,7 @@ namespace Confabulation
 					{
 						text = text.Trim();
 						Connection.Execute(new MsgCommand(Channel, text));
-						chatBox.AddMessage(Connection.User, text);
+						chatBox.AddChatMessage(Connection.User, text);
 					}
 					else
 					{
@@ -82,16 +82,16 @@ namespace Confabulation
 				}
 				catch (IrcCommandException)
 				{
-					chatBox.AddTextToWindow("*Invalid command*");
+					chatBox.AddRawText("*Invalid command*");
 				}
 				catch (ArgumentException ae)
 				{
-					chatBox.AddTextToWindow("*Invalid argument*: " + ae.ParamName);
+					chatBox.AddRawText("*Invalid argument*: " + ae.ParamName);
 				}
 			}
 			else
 			{
-				chatBox.AddTextToWindow("*Not connected*");
+				chatBox.AddRawText("*Not connected*");
 			}
 		}
 
@@ -186,7 +186,7 @@ namespace Confabulation
 		private void channel_MessageReceived(object sender, UserEventArgs e)
 		{
 			Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal,
-						new ChatBox.AddMessageDelegate(chatBox.AddMessage),
+						new ChatBox.AddChatMessageDelegate(chatBox.AddChatMessage),
 						e.User,
 						e.Message);
 		}
@@ -380,12 +380,20 @@ namespace Confabulation
 
 		private void SetTopic(string topic, IrcTopicInfo topicInfo)
 		{
-			topicTextBlock.Inlines.Clear();
+			topicTextBlock.Document.Blocks.Clear();
 
-			List<Inline> inlines = ChatBox.ParseMessage(topic);
+			Paragraph p = new Paragraph();
+			//p.KeepWithNext = true;
+			//p.FontSize = 12;
+			p.FontFamily = new FontFamily("Arial");
+			p.Margin = new Thickness(0.0, 0.0, 0.0, 0.0);
+			p.TextAlignment = TextAlignment.Left;
 
-			foreach (Inline inline in inlines)
-				topicTextBlock.Inlines.Add(inline);
+			ChatMessageParser parser = new ChatMessageParser();
+			parser.Read(topic);
+
+			foreach (Inline inline in parser.Inlines)
+				p.Inlines.Add(inline);
 
 			if (topicInfo != null)
 			{
@@ -394,8 +402,10 @@ namespace Confabulation
 				Run run = new Run(text);
 				run.Foreground = Brushes.Gray;
 				run.FontSize = 8;
-				topicTextBlock.Inlines.Add(run);
+				p.Inlines.Add(run);
 			}
+
+			topicTextBlock.Document.Blocks.Add(p);
 		}
 
 		private void AddUserItem(IrcChannelUser channelUser)

@@ -91,6 +91,14 @@ namespace Confabulation
 			app.ConnectionRemoved += new EventHandler<ConnectionEventArgs>(app_ConnectionRemoved);
 		}
 
+		public bool HasConnection
+		{
+			get { return (bool)GetValue(HasConnectionProperty); }
+			set { SetValue(HasConnectionProperty, value); }
+		}
+
+		public static readonly DependencyProperty HasConnectionProperty =
+			DependencyProperty.Register("HasConnection", typeof(bool), typeof(MainWindow));
 
 		private delegate void AddChannelDelegate(IrcChannel channel);
 		private delegate void RemoveChannelDelegate(IrcChannel channel);
@@ -107,6 +115,8 @@ namespace Confabulation
 
 			e.Connection.ChannelJoined += new EventHandler<ChannelEventArgs>(ChannelJoined);
 			e.Connection.ChannelParted += new EventHandler<ChannelEventArgs>(ChannelParted);
+
+			HasConnection = true;
 		}
 
 		private void app_ConnectionRemoved(object sender, ConnectionEventArgs e)
@@ -179,9 +189,9 @@ namespace Confabulation
 		private void SetConnectButtonState()
 		{
 			if (activeConnection == null || activeConnection.State == IrcConnectionState.Disconnected)
-				connectButtonTextBlock.Text = Properties.Resources.ConnectText;
+				connectButton.Content = Properties.Resources.ConnectText;
 			else
-				connectButtonTextBlock.Text = Properties.Resources.DisconnectText;
+				connectButton.Content = Properties.Resources.DisconnectText;
 		}
 
 		private void ConnectButton_Click(object sender, RoutedEventArgs e)
@@ -209,6 +219,22 @@ namespace Confabulation
 			ConnectionsWindow cWin = new ConnectionsWindow();
 			cWin.Owner = this;
 			cWin.Show();
+		}
+
+		private void JoinChannel_Click(object sender, RoutedEventArgs e)
+		{
+			App app = (App)App.Current;
+
+			foreach (ConnectionItem item in app.Connections)
+			{
+				if (item.Connection == activeConnection)
+				{
+					JoinChannelWindow jcWin = new JoinChannelWindow(item);
+					jcWin.Owner = this;
+					jcWin.ShowDialog();
+					break;
+				}
+			}
 		}
 
 		protected override void OnSourceInitialized(EventArgs e)

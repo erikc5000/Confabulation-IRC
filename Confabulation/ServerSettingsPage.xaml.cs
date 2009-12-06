@@ -28,11 +28,6 @@ namespace Confabulation
 			SetNextButtonState();
 		}
 
-		private void Address_Loaded(object sender, RoutedEventArgs e)
-		{
-			Keyboard.Focus(Address);
-		}
-
 		void NextButton_Click(object sender, RoutedEventArgs e)
 		{
 			UserSettingsPage page = new UserSettingsPage();

@@ -127,7 +127,7 @@
     <value>You are now known as {0}</value>
   </data>
   <data name="SelfChangedTopic" xml:space="preserve">
-    <value>You changed the topic to '{1}'</value>
+    <value>You changed the topic to '{0}'</value>
   </data>
   <data name="SelfClearedTopic" xml:space="preserve">
     <value>You cleared the topic</value>
