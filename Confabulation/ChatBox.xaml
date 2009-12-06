@@ -29,8 +29,6 @@
         <RichTextBox Name="chatTextBox"
                      Grid.Row="2"
                      BorderThickness="0"
-                     PreviewKeyDown="chatTextBox_PreviewKeyDown"
-                     ScrollBar.Scroll="chatTextBox_Scroll"
-                     ScrollViewer.ScrollChanged="chatTextBox_ScrollChanged"/>
+                     PreviewKeyDown="chatTextBox_PreviewKeyDown"/>
     </Grid>
 </UserControl>

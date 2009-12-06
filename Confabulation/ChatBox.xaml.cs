@@ -52,15 +52,7 @@ namespace Confabulation
 			foreach (Inline inline in inlines)
 				p.Inlines.Add(inline);
 
-			bool shouldScroll = true;
-
-			if (ScrollViewer.VerticalOffset < ScrollViewer.ExtentHeight - ScrollViewer.ViewportHeight)
-				shouldScroll = false;
-
-			chatLogDocument.Blocks.Add(p);
-
-			if (shouldScroll)
-				ScrollChatLogToBottom();
+			AddToChatLog(p);
 		}
 
 		public void AddControlMessage(string message)
@@ -75,9 +67,8 @@ namespace Confabulation
 			Run run = new Run(message);
 			run.Foreground = Brushes.LightGray;
 			p.Inlines.Add(new Bold(run));
-			chatLogDocument.Blocks.Add(p);
 
-			ScrollChatLogToBottom();
+			AddToChatLog(p);
 		}
 
 		public void AddRawText(string text)
@@ -92,21 +83,7 @@ namespace Confabulation
 			Run run = new Run(text);
 			p.Inlines.Add(run);
 
-			bool shouldScroll = true;
-
-			if (ScrollViewer != null)
-			{
-				double verticalOffset = ScrollViewer.VerticalOffset;
-				double extentHeight = ScrollViewer.ExtentHeight;
-
-				if (verticalOffset < extentHeight - ScrollViewer.ContentVerticalOffset)
-					shouldScroll = true;
-			}
-
-			chatLogDocument.Blocks.Add(p);
-
-			if (shouldScroll)
-				ScrollChatLogToBottom();
+			AddToChatLog(p);
 		}
 
 		public event EventHandler<ChatBoxEventArgs> TextEntered;
@@ -131,17 +108,17 @@ namespace Confabulation
 			}
 		}
 
-		private void chatTextBox_ScrollChanged(object sender, ScrollChangedEventArgs e)
+		private void AddToChatLog(Paragraph paragraph)
 		{
-			//if (e.VerticalOffset < e.ExtentHeight)
-			//    adjustScrollBar = false;
-			//else
-			//    adjustScrollBar = true;
-		}
+			bool shouldScroll = true;
 
-		public void ScrollChatLogToBottom()
-		{
-			ScrollViewer.ScrollToBottom();
+			if (ScrollViewer.VerticalOffset < ScrollViewer.ExtentHeight - ScrollViewer.ViewportHeight)
+				shouldScroll = false;
+
+			chatLogDocument.Blocks.Add(paragraph);
+
+			if (shouldScroll)
+				ScrollViewer.ScrollToBottom();
 		}
 
 		private ScrollViewer ScrollViewer
@@ -172,13 +149,5 @@ namespace Confabulation
 
 		private ScrollViewer scrollViewer = null;
 		private FontFamily fontFamily = new FontFamily("Arial");
-
-		private void chatTextBox_Scroll(object sender, System.Windows.Controls.Primitives.ScrollEventArgs e)
-		{
-			//if (e.NewValue != 1.0)
-			//    adjustScrollBar = false;
-			//else
-			//    adjustScrollBar = true;
-		}
 	}
 }
