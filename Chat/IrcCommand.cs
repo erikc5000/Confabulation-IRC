@@ -38,19 +38,9 @@ namespace Confabulation.Chat
 			return commandMap[commandName](commandArgs);
 		}
 
-		static IrcCommand()
+		internal static void Register(string name, Func<string, IrcCommand> parseFunction)
 		{
-			commandMap.Add("nick", NickCommand.Parse);
-			commandMap.Add("join", JoinCommand.Parse);
-			commandMap.Add("quit", QuitCommand.Parse);
-			commandMap.Add("msg", MsgCommand.Parse);
-			commandMap.Add("notice", NoticeCommand.Parse);
-			commandMap.Add("part", PartCommand.Parse);
-			commandMap.Add("partall", PartAllCommand.Parse);
-			commandMap.Add("topic", TopicCommand.Parse);
-			commandMap.Add("away", AwayCommand.Parse);
-			commandMap.Add("raw", RawCommand.Parse);
-			commandMap.Add("kick", KickCommand.Parse);
+			commandMap.Add(name, parseFunction);
 		}
 
 		public abstract void Execute(IrcClient client);

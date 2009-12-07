@@ -16,6 +16,11 @@ namespace Confabulation.Chat.Commands
 			return new RawCommand(parameters);
 		}
 
+		static RawCommand()
+		{
+			IrcCommand.Register("raw", RawCommand.Parse);
+		}
+
 		public RawCommand(string message)
 		{
 			if (message == null)

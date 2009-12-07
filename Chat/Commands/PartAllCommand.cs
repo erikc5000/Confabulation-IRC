@@ -13,6 +13,11 @@ namespace Confabulation.Chat.Commands
 			return new PartAllCommand();
 		}
 
+		static PartAllCommand()
+		{
+			IrcCommand.Register("partall", PartAllCommand.Parse);
+		}
+
 		public PartAllCommand()
 		{
 		}

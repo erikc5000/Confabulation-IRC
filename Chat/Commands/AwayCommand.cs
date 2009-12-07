@@ -16,6 +16,11 @@ namespace Confabulation.Chat.Commands
 			return new AwayCommand(parameters);
 		}
 
+		static AwayCommand()
+		{
+			IrcCommand.Register("away", AwayCommand.Parse);
+		}
+
 		public AwayCommand()
 		{
 		}

@@ -21,6 +21,11 @@ namespace Confabulation.Chat.Commands
 			return new MsgCommand(splitParams[0], splitParams[1]);
 		}
 
+		static MsgCommand()
+		{
+			IrcCommand.Register("msg", MsgCommand.Parse);
+		}
+
 		public MsgCommand(string target, string message)
 		{
 			if (target == null)

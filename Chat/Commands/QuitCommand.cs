@@ -16,6 +16,11 @@ namespace Confabulation.Chat.Commands
 			return new QuitCommand(parameters);
 		}
 
+		static QuitCommand()
+		{
+			IrcCommand.Register("quit", QuitCommand.Parse);
+		}
+
 		public QuitCommand()
 		{
 		}

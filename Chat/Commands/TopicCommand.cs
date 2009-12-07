@@ -24,6 +24,11 @@ namespace Confabulation.Chat.Commands
 				return new TopicCommand(splitParams.First(), splitParams.Last());
 		}
 
+		static TopicCommand()
+		{
+			IrcCommand.Register("topic", TopicCommand.Parse);
+		}
+
 		public TopicCommand(string channelName)
 		{
 			if (channelName == null)
