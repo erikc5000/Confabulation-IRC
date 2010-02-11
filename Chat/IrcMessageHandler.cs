@@ -23,16 +23,9 @@ namespace Confabulation.Chat
 			}
 		}
 
-		static IrcMessageHandler()
+		static internal void Register(string command, Action<IrcConnection, IrcMessage> processFunction)
 		{
-			commandMap.Add("JOIN", JoinMessageHandler.Process);
-			commandMap.Add("PART", PartMessageHandler.Process);
-			commandMap.Add("PING", PingMessageHandler.Process);
-			commandMap.Add("NICK", NickMessageHandler.Process);
-            commandMap.Add("PRIVMSG", PrivmsgMessageHandler.Process);
-            commandMap.Add("QUIT", QuitMessageHandler.Process);
-			commandMap.Add("KICK", KickMessageHandler.Process);
-			commandMap.Add("TOPIC", TopicMessageHandler.Process);
+			commandMap.Add(command, processFunction);
 		}
 
 		private static Dictionary<string, Action<IrcConnection, IrcMessage>> commandMap =

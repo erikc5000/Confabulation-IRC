@@ -145,6 +145,10 @@ namespace Confabulation
 		private void UserControl_Loaded(object sender, RoutedEventArgs e)
 		{
 			Keyboard.Focus(chatTextBox);
+			//double verticalOffset = ScrollViewer.VerticalOffset;
+			//ScrollViewer.ScrollToVerticalOffset(0);
+			//ScrollViewer.ScrollToVerticalOffset(verticalOffset);
+			//verticalOffset = ScrollViewer.VerticalOffset;
 		}
 
 		private ScrollViewer scrollViewer = null;

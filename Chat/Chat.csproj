@@ -53,6 +53,7 @@
     <Compile Include="Commands\AwayCommand.cs" />
     <Compile Include="Commands\JoinCommand.cs" />
     <Compile Include="Commands\KickCommand.cs" />
+    <Compile Include="Commands\ModeCommand.cs" />
     <Compile Include="Commands\MsgCommand.cs" />
     <Compile Include="Commands\NickCommand.cs" />
     <Compile Include="Commands\NoticeCommand.cs" />
