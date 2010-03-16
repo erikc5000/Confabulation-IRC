@@ -21,11 +21,6 @@ namespace Confabulation.Chat.Commands
 			return new NoticeCommand(splitParams[0], splitParams[1]);
 		}
 
-		static NoticeCommand()
-		{
-			IrcCommand.Register("notice", NoticeCommand.Parse);
-		}
-
 		public NoticeCommand(string target, string message)
 		{
 			if (target == null)

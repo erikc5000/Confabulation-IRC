@@ -29,11 +29,6 @@ namespace Confabulation.Chat.Commands
 			return new JoinCommand(channelNames);
 		}
 
-		static JoinCommand()
-		{
-			IrcCommand.Register("join", JoinCommand.Parse);
-		}
-
 		public JoinCommand(string channelName)
 		{
 			if (channelName == null)

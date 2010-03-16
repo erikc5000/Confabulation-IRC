@@ -6,8 +6,24 @@ using Confabulation.Chat.Commands;
 
 namespace Confabulation.Chat
 {
-    public abstract class IrcCommand
-    {
+	public abstract class IrcCommand
+	{
+		static IrcCommand()
+		{
+			Register("away", AwayCommand.Parse);
+			Register("nick", NickCommand.Parse);
+			Register("join", JoinCommand.Parse);
+			Register("kick", KickCommand.Parse);
+			Register("mode", ModeCommand.Parse);
+			Register("msg", MsgCommand.Parse);
+			Register("quit", QuitCommand.Parse);
+			Register("notice", NoticeCommand.Parse);
+			Register("part", PartCommand.Parse);
+			Register("partall", PartAllCommand.Parse);
+			Register("raw", RawCommand.Parse);
+			Register("topic", TopicCommand.Parse);
+		}
+
 		public static IrcCommand Parse(string commandString)
 		{
 			if (commandString == null)

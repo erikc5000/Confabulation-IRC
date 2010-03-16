@@ -29,11 +29,6 @@ namespace Confabulation.Chat.Commands
 			return new ModeCommand(target, modes);
 		}
 
-		static ModeCommand()
-		{
-			IrcCommand.Register("mode", ModeCommand.Parse);
-		}
-
 		public ModeCommand(string target, params string[] modes)
 		{
 			if (target == null)

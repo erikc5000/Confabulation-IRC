@@ -16,11 +16,6 @@ namespace Confabulation.Chat.Commands
 			return new NickCommand(parameters);
 		}
 
-		static NickCommand()
-		{
-			IrcCommand.Register("nick", NickCommand.Parse);
-		}
-
 		public NickCommand(string nickname)
 		{
 			if (nickname == null)

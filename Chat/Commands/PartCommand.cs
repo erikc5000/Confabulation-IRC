@@ -26,11 +26,6 @@ namespace Confabulation.Chat.Commands
 				return new PartCommand(channelNames);
 		}
 
-		static PartCommand()
-		{
-			IrcCommand.Register("part", PartCommand.Parse);
-		}
-
 		public PartCommand(string channelName)
 		{
 			if (channelName == null)

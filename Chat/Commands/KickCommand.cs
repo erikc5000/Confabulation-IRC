@@ -27,11 +27,6 @@ namespace Confabulation.Chat.Commands
 				return new KickCommand(channelNames, nicknames);
 		}
 
-		static KickCommand()
-		{
-			IrcCommand.Register("kick", KickCommand.Parse);
-		}
-
 		public KickCommand(string channelName, string nickname)
 		{
 			if (channelName == null)

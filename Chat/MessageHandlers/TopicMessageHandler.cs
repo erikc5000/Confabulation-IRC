@@ -7,11 +7,6 @@ namespace Confabulation.Chat.MessageHandlers
 {
 	internal static class TopicMessageHandler
 	{
-		static TopicMessageHandler()
-		{
-			IrcMessageHandler.Register("TOPIC", Process);
-		}
-
 		internal static void Process(IrcConnection connection, IrcMessage message)
 		{
 			IrcMessagePrefix prefix = message.Prefix;

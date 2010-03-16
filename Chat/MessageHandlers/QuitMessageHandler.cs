@@ -7,11 +7,6 @@ namespace Confabulation.Chat.MessageHandlers
 {
     internal static class QuitMessageHandler
     {
-		static QuitMessageHandler()
-		{
-			IrcMessageHandler.Register("QUIT", Process);
-		}
-
         internal static void Process(IrcConnection connection, IrcMessage message)
         {
             IrcMessagePrefix prefix = message.Prefix;
