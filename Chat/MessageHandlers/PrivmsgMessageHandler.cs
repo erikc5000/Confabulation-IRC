@@ -24,7 +24,21 @@ namespace Confabulation.Chat.MessageHandlers
             }
 
             byte[] byteNickname = prefix.ExtractNickname();
-            string nickname = Encoding.UTF8.GetString(byteNickname);
+
+			// If the message is sent from the server, this can be null, so
+			// we use the user name instead.
+			if (byteNickname == null)
+			{
+				byteNickname = prefix.ExtractUserName();
+
+				if (byteNickname == null)
+				{
+					Log.WriteLine("PRIVMSG has no nickname/username in prefix");
+					return;
+				}
+			}
+
+			string nickname = Encoding.UTF8.GetString(byteNickname);
 
             byte[] byteTarget = message.Parameters.ElementAt(0);
             string target = Encoding.UTF8.GetString(byteTarget);
