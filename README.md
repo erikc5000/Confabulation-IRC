@@ -1,7 +1,7 @@
 # Confabulation-IRC
 Years ago, I had this grand idea to write a more modern Internet Relay Chat client on Windows, written in C# and WPF.  As IRC waned in popularity and I never really had the time to work on it in my spare time anyway, it was ultimately abandoned.  This code has been sitting around and collecting dust, so I've decided to put it up here on GitHub, as is -- in a somewhat functional state.  While it's far from complete, there may be some parts of it that are useful or interesting to anyone implementing an IRC client.
 
-Looking back, there are certainly a number of things I would have done differently.  The interface between the chat library and UI is a little clumsy and the way the threading is handled seems too complicated and error prone.  I should have made better use of dependency injection to facilitate testing too, though that shouldn't be too hard to fix.
+Looking back, there are certainly a number of things I would have done differently.  The interface between the chat library and UI is a little clumsy and the way the threading is handled seems too complicated and error prone.  Even within the chat library, I could have made better use of the observer pattern to decouple things.  I also should have made better use of dependency injection to facilitate testing, though that shouldn't be too hard to fix.
 
 As far as code structure, it's divided into four projects:
 - Chat - The core IRC library, implementing a decent chunk of RFC-1459
