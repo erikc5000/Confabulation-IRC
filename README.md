@@ -11,7 +11,7 @@ As far as code structure, it's divided into four projects:
 
 The project uses Visual Studio 2008 and a now antiquated version of the .NET Framework.
 
-The UI isn't fully functional, but you can connect to IRC servers, join channels, send messsages, etc. via "/" commands.  For example:
+The UI isn't fully functional, but you can connect to IRC servers via the UI.  For most other commands, like joining channels, sending messsages, etc., you'll need to use "/" commands.  For example:
 
 /join #mychannel
 
